@@ -1,0 +1,17 @@
+<div class="container mx-auto py-8">
+    <h2 class="text-h2 mb-4">{{ recipe.title }}</h2>
+    <img [src]="recipe.imagePath" alt="Recipe Image" class="w-full h-64 object-cover rounded mb-4">
+    <p class="text-body mb-4">{{ recipe.description }}</p>
+    <h3 class="text-h3 mb-2">Ingredientes</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li *ngFor="let ing of recipe.ingredients">{{ ing.name }} - {{ ing.quantity }} {{ ing.unit }}</li>
+    </ul>
+    <h3 class="text-h3 mb-2">Instrucciones</h3>
+    <p class="text-body">{{ recipe.instructions }}</p>
+    <div *ifLoggedIn class="flex space-x-4 mt-6">
+        <button class="btn-primary">Guardar</button>
+        <button class="btn-secondary">Añadir al Planner</button>
+        <button class="btn-accent">Votar</button>
+    </div>
+    <p *ifNotLoggedIn class="text-body mt-6">Inicia sesión para guardar o comentar.</p>
+</div>

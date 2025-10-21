@@ -1,0 +1,16 @@
+<div class="container mx-auto py-8">
+    <h2 class="text-h2 mb-4">Perfil</h2>
+    <div class="mb-4">
+        <img [src]="user.avatar" alt="Avatar" class="w-24 h-24 rounded-full mb-4">
+        <p class="text-body">Nombre: {{ user.username }}</p>
+        <p class="text-body">Email: {{ user.email }}</p>
+    </div>
+    <h3 class="text-h3 mb-2">Objetivos Nutricionales</h3>
+    <p class="text-body">Calorías diarias: {{ preferences.dailyCaloriesGoal }}</p>
+    <h3 class="text-h3 mb-2">Alergias</h3>
+    <ul class="list-disc pl-6">
+        <li *ngFor="let allergy of allergies">{{ allergy.name }}</li>
+    </ul>
+    <button class="btn-primary mt-6">Editar Perfil</button>
+    <button class="btn-error mt-2">Eliminar Cuenta</button>
+</div>

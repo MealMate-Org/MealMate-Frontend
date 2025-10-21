@@ -1,0 +1,12 @@
+<div class="container mx-auto py-8">
+    <h2 class="text-h2 mb-4">Planner Semanal</h2>
+    <div class="grid grid-cols-7 gap-4">
+        <div *ngFor="let day of days" class="card p-4">
+            <h3 class="text-h3 mb-2">{{ day }}</h3>
+            <div cdkDropList class="min-h-[200px]" (cdkDropDropped)="drop($event)">
+                <!-- Recipes for the day -->
+            </div>
+        </div>
+    </div>
+    <button class="btn-primary mt-6">Generar Lista de la Compra</button>
+</div>

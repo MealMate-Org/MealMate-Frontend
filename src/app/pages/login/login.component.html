@@ -1,0 +1,18 @@
+<div class="container mx-auto py-8">
+  <h2 class="text-h2 mb-4">Iniciar Sesión</h2>
+  <form (ngSubmit)="onSubmit()" class="max-w-md mx-auto">
+    <div class="mb-4">
+      <label for="email" class="block text-body mb-2">Email</label>
+      <input id="email" type="email" [(ngModel)]="email" class="input w-full" />
+    </div>
+    <div class="mb-4">
+      <label for="password" class="block text-body mb-2">Contraseña</label>
+      <input id="password" type="password" [(ngModel)]="password" class="input w-full" />
+    </div>
+    <button type="submit" class="btn-primary w-full">Iniciar Sesión</button>
+  </form>
+  <p class="text-center mt-4 text-body">
+    ¿No tienes cuenta?
+    <a routerLink="/register" class="text-cambridge-blue hover:underline">Regístrate</a>
+  </p>
+</div>

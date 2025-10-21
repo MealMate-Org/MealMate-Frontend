@@ -1,0 +1,39 @@
+<div class="container mx-auto py-8">
+    <h2 class="text-h2 mb-4">{{ isEdit ? 'Editar Receta' : 'Crear Nueva Receta' }}</h2>
+    <form (ngSubmit)="onSubmit()" class="max-w-lg mx-auto">
+        <div class="mb-4">
+            <label for="title" class="block text-body mb-2">Título</label>
+            <input id="title" type="text" [(ngModel)]="recipe.title" class="input w-full">
+        </div>
+        <div class="mb-4">
+            <label for="description" class="block text-body mb-2">Descripción</label>
+            <textarea id="description" [(ngModel)]="recipe.description" class="input w-full h-24"></textarea>
+        </div>
+        <div class="mb-4">
+            <label class="block text-body mb-2">Ingredientes</label>
+            <div *ngFor="let ing of recipe.ingredients; let i = index" class="flex space-x-2 mb-2">
+                <input type="text" [(ngModel)]="ing.name" placeholder="Nombre" class="input flex-1">
+                <input type="number" [(ngModel)]="ing.quantity" placeholder="Cantidad" class="input w-20">
+                <input type="text" [(ngModel)]="ing.unit" placeholder="Unidad" class="input w-24">
+                <button type="button" (click)="removeIngredient(i)" class="btn-error text-small">X</button>
+            </div>
+            <button type="button" (click)="addIngredient()" class="btn-accent text-small">Añadir Ingrediente</button>
+        </div>
+        <div class="mb-4">
+            <label for="instructions" class="block text-body mb-2">Instrucciones</label>
+            <textarea id="instructions" [(ngModel)]="recipe.instructions" class="input w-full h-32"></textarea>
+        </div>
+        <div class="mb-4">
+            <label for="image" class="block text-body mb-2">Imagen</label>
+            <input id="image" type="file" (change)="onImageChange($event)" class="input w-full">
+        </div>
+        <div class="mb-4">
+            <label class="block text-body mb-2">Privacidad</label>
+            <select [(ngModel)]="recipe.isPublic" class="input w-full">
+                <option [value]="true">Pública</option>
+                <option [value]="false">Privada</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-primary w-full">Guardar</button>
+    </form>
+</div>

@@ -1,0 +1,11 @@
+<div class="container mx-auto py-8">
+    <h2 class="text-h2 mb-4">Mis Grupos</h2>
+    <button class="btn-primary mb-4">Crear Grupo</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div *ngFor="let group of groups" class="card p-4">
+            <h3 class="text-h3 mb-2">{{ group.name }}</h3>
+            <p class="text-body">{{ group.description }}</p>
+            <button class="btn-secondary mt-4">Ver Planner del Grupo</button>
+        </div>
+    </div>
+</div>

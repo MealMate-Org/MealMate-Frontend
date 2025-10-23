@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-background;
+  }
+  
+  h1 {
+    @apply font-sans text-h1;
+  }
+  h2 {
+    @apply font-sans text-h2;
+  }
+  h3 {
+    @apply font-sans text-h3;
+  }
+  h4 {
+    @apply font-sans text-h4;
+  }
+  p {
+    @apply font-sans text-body;
+  }
+  small {
+    @apply font-sans text-small;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-cambridge-blue text-white border-none hover:bg-dark-purple hover:bg-opacity-80 
+           transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
+  }
+  
+  .btn-secondary {
+    @apply bg-celadon text-dark-purple border border-dark-purple hover:bg-cambridge-blue hover:bg-opacity-50 
+           transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
+  }
+  
+  .btn-accent {
+    @apply bg-zomp text-white border-none hover:bg-dark-purple hover:bg-opacity-80 
+           transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
+  }
+  
+  .btn-disabled {
+    @apply bg-slate-gray text-white border-none cursor-not-allowed 
+           text-body font-medium rounded px-6 py-2.5 opacity-60;
+  }
+  
+  .card {
+    @apply bg-white shadow-card rounded-card p-card-internal border border-celadon;
+  }
+  
+  .input {
+    @apply border border-slate-gray rounded-input px-3 py-2 
+           focus:border-cambridge-blue focus:ring-1 focus:ring-cambridge-blue 
+           font-sans text-body outline-none transition duration-200;
+  }
+  
+  .badge {
+    @apply bg-zomp text-white rounded-badge px-2 py-1 text-small inline-block;
+  }
+  
+  .badge-success {
+    @apply bg-success text-white rounded-badge px-2 py-1 text-small inline-block;
+  }
+  
+  .badge-error {
+    @apply bg-error text-white rounded-badge px-2 py-1 text-small inline-block;
+  }
+  
+  .icon {
+    @apply text-slate-gray w-5 h-5;
+  }
+  
+  .icon-hover {
+    @apply hover:text-cambridge-blue transition duration-200 cursor-pointer;
+  }
+}

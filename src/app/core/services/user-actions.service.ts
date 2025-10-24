@@ -26,6 +26,13 @@ export class FavoriteService {
   }
 
   /**
+   * Obtener favorito específico (verificar si existe)
+   */
+  getFavoriteById(userId: number, recipeId: number): Observable<Favorite> {
+    return this.http.get<Favorite>(`${this.apiUrl}/${userId}/${recipeId}`);
+  }
+
+  /**
    * Añadir receta a favoritos
    */
   addFavorite(favorite: Favorite): Observable<Favorite> {

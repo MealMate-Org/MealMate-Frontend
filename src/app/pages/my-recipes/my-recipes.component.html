@@ -1,7 +1,0 @@
-<div class="container mx-auto py-8">
-    <h2 class="text-h2 mb-4">Mis Recetas</h2>
-    <button class="btn-primary mb-4" routerLink="/recipes/new">Crear Nueva Receta</button>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <app-recipe-card *ngFor="let recipe of recipes" [recipe]="recipe"></app-recipe-card>
-    </div>
-</div>

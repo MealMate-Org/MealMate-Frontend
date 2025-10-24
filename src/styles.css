@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
-/* Estilos base personalizados */
-=======
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297
 @layer base {
   body {
     @apply font-sans bg-background;
@@ -31,13 +27,7 @@
   }
 }
 
-<<<<<<< HEAD
-/* Componentes personalizados */
 @layer components {
-  /* Botones */
-=======
-@layer components {
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297
   .btn-primary {
     @apply bg-cambridge-blue text-white border-none hover:bg-dark-purple hover:bg-opacity-80 
            transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
@@ -58,28 +48,16 @@
            text-body font-medium rounded px-6 py-2.5 opacity-60;
   }
   
-<<<<<<< HEAD
-  /* Cards */
-=======
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297
   .card {
     @apply bg-white shadow-card rounded-card p-card-internal border border-celadon;
   }
   
-<<<<<<< HEAD
-  /* Inputs */
-=======
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297
   .input {
     @apply border border-slate-gray rounded-input px-3 py-2 
            focus:border-cambridge-blue focus:ring-1 focus:ring-cambridge-blue 
            font-sans text-body outline-none transition duration-200;
   }
   
-<<<<<<< HEAD
-  /* Alertas/Badges */
-=======
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297
   .badge {
     @apply bg-zomp text-white rounded-badge px-2 py-1 text-small inline-block;
   }
@@ -92,10 +70,6 @@
     @apply bg-error text-white rounded-badge px-2 py-1 text-small inline-block;
   }
   
-<<<<<<< HEAD
-  /* Iconos */
-=======
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297
   .icon {
     @apply text-slate-gray w-5 h-5;
   }
@@ -103,8 +77,4 @@
   .icon-hover {
     @apply hover:text-cambridge-blue transition duration-200 cursor-pointer;
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297

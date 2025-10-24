@@ -1,8 +1,4 @@
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
-
-export const routes: Routes = [];
-=======
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -134,4 +130,3 @@ export const routes: Routes = [
     pathMatch: 'full'
   }
 ];
->>>>>>> f364141439f5e0194a97af8b02c7e02d2daa1297

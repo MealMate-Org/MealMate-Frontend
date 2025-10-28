@@ -139,60 +139,91 @@ export class SavedRecipesComponent implements OnInit {
     private favoriteService: FavoriteService,
     private recipeService: RecipeService,
     private authService: AuthService
-  ) {}
+  ) {
+    console.log('🏗️ SavedRecipesComponent constructor ejecutado');
+  }
 
   ngOnInit(): void {
+    console.log('🚀 SavedRecipesComponent ngOnInit iniciado');
     this.loadSavedRecipes();
   }
 
   loadSavedRecipes(): void {
+    console.log('📥 ===== INICIO loadSavedRecipes() =====');
     this.isLoading = true;
     this.errorMessage = '';
+    
     const currentUser = this.authService.getCurrentUser();
+    console.log('👤 Usuario actual obtenido:', currentUser);
 
     if (!currentUser) {
+      console.log('❌ No hay usuario logueado - Abortando');
       this.errorMessage = 'Debes iniciar sesión para ver tus recetas guardadas';
       this.isLoading = false;
       return;
     }
 
-    console.log('Usuario actual:', currentUser);
-
+    console.log('✅ Usuario válido, ID:', currentUser.id);
+    console.log('📞 Llamando a favoriteService.getAllFavorites()...');
+    
     // Cargar favoritos del usuario
     this.favoriteService.getAllFavorites().subscribe({
       next: (favorites) => {
-        console.log('Todos los favoritos:', favorites);
+        console.log('✅ Favoritos recibidos del backend:', favorites);
+        console.log('📊 Total de favoritos:', favorites.length);
+        console.log('📋 Datos completos:', JSON.stringify(favorites, null, 2));
         
         // Filtrar solo los favoritos del usuario actual
         this.favorites = favorites.filter(f => f.userId === currentUser.id);
-        console.log('Favoritos del usuario:', this.favorites);
+        console.log('🔍 Favoritos filtrados para userId', currentUser.id, ':', this.favorites);
+        console.log('📊 Total de favoritos del usuario:', this.favorites.length);
         
         if (this.favorites.length === 0) {
+          console.log('⚠️ El usuario no tiene favoritos - Finalizando');
           this.isLoading = false;
           return;
         }
 
         // Obtener los IDs de las recetas favoritas
         const recipeIds = this.favorites.map(f => f.recipeId);
-        console.log('IDs de recetas favoritas:', recipeIds);
+        console.log('🆔 IDs de recetas favoritas:', recipeIds);
         
         // Cargar todas las recetas y filtrar las favoritas
+        console.log('📞 Llamando a recipeService.getAllRecipes()...');
         this.recipeService.getAllRecipes().subscribe({
           next: (recipes) => {
-            console.log('Todas las recetas:', recipes.length);
+            console.log('✅ Recetas recibidas del backend:', recipes.length, 'recetas');
+            console.log('📋 Primeras 3 recetas:', recipes.slice(0, 3));
+            
             this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
-            console.log('Recetas guardadas:', this.savedRecipes.length);
+            console.log('🍽️ Recetas guardadas filtradas:', this.savedRecipes.length);
+            console.log('📋 Recetas guardadas completas:', this.savedRecipes);
+            
             this.isLoading = false;
+            console.log('✅ ===== FIN loadSavedRecipes() - ÉXITO =====');
           },
           error: (error) => {
-            console.error('Error cargando recetas:', error);
+            console.error('❌ ===== ERROR en recipeService.getAllRecipes() =====');
+            console.error('Status:', error.status);
+            console.error('Status Text:', error.statusText);
+            console.error('Message:', error.message);
+            console.error('Error completo:', error);
+            console.error('URL:', error.url);
+            
             this.errorMessage = 'Error al cargar las recetas. Por favor, inténtalo de nuevo.';
             this.isLoading = false;
           }
         });
       },
       error: (error) => {
-        console.error('Error cargando favoritos:', error);
+        console.error('❌ ===== ERROR en favoriteService.getAllFavorites() =====');
+        console.error('Status:', error.status);
+        console.error('Status Text:', error.statusText);
+        console.error('Message:', error.message);
+        console.error('Error completo:', error);
+        console.error('URL:', error.url);
+        console.error('Headers:', error.headers);
+        
         this.errorMessage = 'Error al cargar favoritos. Por favor, inténtalo de nuevo.';
         this.isLoading = false;
       }
@@ -200,20 +231,32 @@ export class SavedRecipesComponent implements OnInit {
   }
 
   removeFromFavorites(recipe: Recipe): void {
+    console.log('🗑️ removeFromFavorites() llamado para receta:', recipe.id);
     const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.log('❌ No hay usuario logueado');
+      return;
+    }
 
     const confirmed = confirm(`¿Quitar "${recipe.title}" de favoritos?`);
-    if (!confirmed) return;
+    console.log('❓ Usuario confirmó eliminación:', confirmed);
+    
+    if (!confirmed) {
+      console.log('❌ Eliminación cancelada por el usuario');
+      return;
+    }
 
+    console.log('📞 Llamando a favoriteService.removeFavorite()...');
     this.favoriteService.removeFavorite(currentUser.id, recipe.id).subscribe({
       next: () => {
+        console.log('✅ Favorito eliminado exitosamente');
         // Quitar de la lista local
         this.savedRecipes = this.savedRecipes.filter(r => r.id !== recipe.id);
         this.favorites = this.favorites.filter(f => f.recipeId !== recipe.id);
+        console.log('✅ Listas locales actualizadas');
       },
       error: (error) => {
-        console.error('Error quitando favorito:', error);
+        console.error('❌ Error quitando favorito:', error);
         alert('Error al quitar de favoritos. Inténtalo de nuevo.');
       }
     });
@@ -231,6 +274,7 @@ export class SavedRecipesComponent implements OnInit {
   }
 
   addToPlanner(recipe: Recipe): void {
+    console.log('📅 addToPlanner() llamado para receta:', recipe.id);
     alert(`Función de añadir "${recipe.title}" al planner en desarrollo`);
   }
 }

@@ -82,7 +82,7 @@ import { User } from '../../../models/user.model';
                   <span class="text-sm text-slate-gray">Autor</span>
                   @if (author) {
                     <a 
-                      [routerLink]="['/@' + author.username]" 
+                      [routerLink]="['/user', author.username]"
                       class="font-medium text-cambridge-blue hover:text-zomp transition"
                     >
                       {{ author.username }}
@@ -203,7 +203,7 @@ import { User } from '../../../models/user.model';
             @if (author) {
               <div class="card">
                 <h4 class="mb-3">Sobre el autor</h4>
-                <a [routerLink]="['/@' + author.username]" class="flex items-center gap-3 hover:bg-celadon p-3 rounded transition">
+                <a [routerLink]="['/user', author.username]" class="flex items-center gap-3 hover:bg-celadon p-3 rounded transition">
                   <img 
                     [src]="author.avatar || 'https://via.placeholder.com/60?text=' + author.username[0].toUpperCase()" 
                     [alt]="author.username"

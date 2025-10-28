@@ -17,66 +17,73 @@ import { User } from '../../../models/user.model';
               <span class="text-2xl font-bold text-cambridge-blue">🍽️</span>
               <span class="text-xl font-bold">MealMate</span>
             </a>
-            
+
             <div class="hidden md:flex space-x-4">
-              <a routerLink="/recipes" 
-                 routerLinkActive="text-cambridge-blue"
-                 class="px-3 py-2 rounded-md hover:text-cambridge-blue transition">
+              <a
+                routerLink="/recipes"
+                routerLinkActive="text-cambridge-blue"
+                class="px-3 py-2 rounded-md hover:text-cambridge-blue transition"
+              >
                 Recetas
               </a>
-              
+
               @if (currentUser) {
-                <a routerLink="/dashboard" 
-                   routerLinkActive="text-cambridge-blue"
-                   class="px-3 py-2 rounded-md hover:text-cambridge-blue transition">
-                  Dashboard
-                </a>
-                <a routerLink="/planner" 
-                   routerLinkActive="text-cambridge-blue"
-                   class="px-3 py-2 rounded-md hover:text-cambridge-blue transition">
-                  Planner
-                </a>
-                <a routerLink="/groups" 
-                   routerLinkActive="text-cambridge-blue"
-                   class="px-3 py-2 rounded-md hover:text-cambridge-blue transition">
-                  Grupos
-                </a>
+              <a
+                routerLink="/dashboard"
+                routerLinkActive="text-cambridge-blue"
+                class="px-3 py-2 rounded-md hover:text-cambridge-blue transition"
+              >
+                Dashboard
+              </a>
+              <a
+                routerLink="/planner"
+                routerLinkActive="text-cambridge-blue"
+                class="px-3 py-2 rounded-md hover:text-cambridge-blue transition"
+              >
+                Planner
+              </a>
+              <a
+                routerLink="/groups"
+                routerLinkActive="text-cambridge-blue"
+                class="px-3 py-2 rounded-md hover:text-cambridge-blue transition"
+              >
+                Grupos
+              </a>
               }
             </div>
           </div>
 
           <div class="flex items-center space-x-4">
             @if (currentUser) {
-              <div class="flex items-center space-x-3">
-                <!-- Enlace al perfil público del usuario -->
-                <a [routerLink]="['/@' + currentUser.username]" class="flex items-center space-x-2 hover:text-cambridge-blue transition">
-                  <img 
-                    [src]="currentUser.avatar || 'https://via.placeholder.com/32?text=' + currentUser.username[0].toUpperCase()" 
-                    [alt]="currentUser.username"
-                    class="w-8 h-8 rounded-full border-2 border-cambridge-blue object-cover"
-                    (error)="onImageError($event)">
-                  <span class="hidden md:block">{{ currentUser.username }}</span>
-                </a>
-                <button 
-                  (click)="logout()"
-                  class="btn-secondary text-sm">
-                  Cerrar Sesión
-                </button>
-              </div>
+            <div class="flex items-center space-x-3">
+              <!-- Enlace al perfil público del usuario -->
+              <a
+                [routerLink]="['/user', currentUser.username]"
+                class="flex items-center space-x-2 hover:text-cambridge-blue transition"
+              >
+                <img
+                  [src]="
+                    currentUser.avatar ||
+                    'https://via.placeholder.com/32?text=' + currentUser.username[0].toUpperCase()
+                  "
+                  [alt]="currentUser.username"
+                  class="w-8 h-8 rounded-full border-2 border-cambridge-blue object-cover"
+                  (error)="onImageError($event)"
+                />
+                <span class="hidden md:block">{{ currentUser.username }}</span>
+              </a>
+              <button (click)="logout()" class="btn-secondary text-sm">Cerrar Sesión</button>
+            </div>
             } @else {
-              <a routerLink="/login" class="btn-secondary text-sm">
-                Iniciar Sesión
-              </a>
-              <a routerLink="/register" class="btn-primary text-sm">
-                Registrarse
-              </a>
+            <a routerLink="/login" class="btn-secondary text-sm"> Iniciar Sesión </a>
+            <a routerLink="/register" class="btn-primary text-sm"> Registrarse </a>
             }
           </div>
         </div>
       </div>
     </nav>
   `,
-  styles: []
+  styles: [],
 })
 export class NavbarComponent implements OnInit {
   currentUser: User | null = null;
@@ -84,7 +91,7 @@ export class NavbarComponent implements OnInit {
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
   }

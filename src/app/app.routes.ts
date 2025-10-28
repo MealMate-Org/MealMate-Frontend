@@ -37,11 +37,11 @@ export const routes: Routes = [
     title: 'Detalle de Receta - MealMate'
   },
     {
-    path: '@:username',
-    loadComponent: () => import('./features/public/user-profile-public/user-profile-public.component')
-      .then(m => m.UserProfilePublicComponent),
-    title: 'Perfil de Usuario - MealMate'
-  },
+  path: 'user/:username',
+  loadComponent: () => import('./features/public/user-profile-public/user-profile-public.component')
+    .then(m => m.UserProfilePublicComponent),
+  title: 'Perfil de Usuario - MealMate'
+},
 
   {
     path: 'dashboard',

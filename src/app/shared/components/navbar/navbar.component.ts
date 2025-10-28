@@ -48,11 +48,13 @@ import { User } from '../../../models/user.model';
           <div class="flex items-center space-x-4">
             @if (currentUser) {
               <div class="flex items-center space-x-3">
-                <a routerLink="/profile" class="flex items-center space-x-2 hover:text-cambridge-blue transition">
+                <!-- Enlace al perfil público del usuario -->
+                <a [routerLink]="['/@' + currentUser.username]" class="flex items-center space-x-2 hover:text-cambridge-blue transition">
                   <img 
-                    [src]="currentUser.avatar || '/assets/default-avatar.png'" 
+                    [src]="currentUser.avatar || 'https://via.placeholder.com/32?text=' + currentUser.username[0].toUpperCase()" 
                     [alt]="currentUser.username"
-                    class="w-8 h-8 rounded-full border-2 border-cambridge-blue">
+                    class="w-8 h-8 rounded-full border-2 border-cambridge-blue object-cover"
+                    (error)="onImageError($event)">
                   <span class="hidden md:block">{{ currentUser.username }}</span>
                 </a>
                 <button 
@@ -89,5 +91,9 @@ export class NavbarComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  onImageError(event: any): void {
+    event.target.src = 'https://via.placeholder.com/32?text=U';
   }
 }

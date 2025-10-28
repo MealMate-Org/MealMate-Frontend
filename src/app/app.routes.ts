@@ -36,9 +36,8 @@ export const routes: Routes = [
       .then(m => m.RecipeDetailComponent),
     title: 'Detalle de Receta - MealMate'
   },
-  
-  {
-    path: 'users/:username',
+    {
+    path: '@:username',
     loadComponent: () => import('./features/public/user-profile-public/user-profile-public.component')
       .then(m => m.UserProfilePublicComponent),
     title: 'Perfil de Usuario - MealMate'
@@ -52,6 +51,7 @@ export const routes: Routes = [
     title: 'Dashboard - MealMate'
   },
   
+  // RUTA DE EDITAR PERFIL (privada, solo para usuario autenticado)
   {
     path: 'profile',
     loadComponent: () => import('./features/private/profile/profile.component')

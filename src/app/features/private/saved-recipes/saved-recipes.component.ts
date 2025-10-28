@@ -26,6 +26,12 @@ import { Favorite } from '../../../models/social.model';
         </div>
       }
 
+      @if (errorMessage) {
+        <div class="card bg-red-50 border-2 border-error mb-6">
+          <p class="text-error">{{ errorMessage }}</p>
+        </div>
+      }
+
       @if (!isLoading && savedRecipes.length > 0) {
         <div class="grid md:grid-cols-3 gap-6">
           @for (recipe of savedRecipes; track recipe.id) {
@@ -100,7 +106,7 @@ import { Favorite } from '../../../models/social.model';
         </div>
       }
 
-      @if (!isLoading && savedRecipes.length === 0) {
+      @if (!isLoading && savedRecipes.length === 0 && !errorMessage) {
         <div class="card text-center py-12">
           <div class="text-6xl mb-4">❤️</div>
           <h3 class="mb-3">Aún no tienes recetas guardadas</h3>
@@ -127,6 +133,7 @@ export class SavedRecipesComponent implements OnInit {
   savedRecipes: Recipe[] = [];
   favorites: Favorite[] = [];
   isLoading = true;
+  errorMessage = '';
 
   constructor(
     private favoriteService: FavoriteService,
@@ -140,41 +147,53 @@ export class SavedRecipesComponent implements OnInit {
 
   loadSavedRecipes(): void {
     this.isLoading = true;
+    this.errorMessage = '';
     const currentUser = this.authService.getCurrentUser();
 
     if (!currentUser) {
+      this.errorMessage = 'Debes iniciar sesión para ver tus recetas guardadas';
       this.isLoading = false;
       return;
     }
 
+    console.log('Usuario actual:', currentUser);
+
     // Cargar favoritos del usuario
     this.favoriteService.getAllFavorites().subscribe({
       next: (favorites) => {
+        console.log('Todos los favoritos:', favorites);
+        
         // Filtrar solo los favoritos del usuario actual
         this.favorites = favorites.filter(f => f.userId === currentUser.id);
+        console.log('Favoritos del usuario:', this.favorites);
         
-        // Cargar las recetas completas
-        const recipeIds = this.favorites.map(f => f.recipeId);
-        
-        if (recipeIds.length === 0) {
+        if (this.favorites.length === 0) {
           this.isLoading = false;
           return;
         }
 
+        // Obtener los IDs de las recetas favoritas
+        const recipeIds = this.favorites.map(f => f.recipeId);
+        console.log('IDs de recetas favoritas:', recipeIds);
+        
         // Cargar todas las recetas y filtrar las favoritas
         this.recipeService.getAllRecipes().subscribe({
           next: (recipes) => {
+            console.log('Todas las recetas:', recipes.length);
             this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
+            console.log('Recetas guardadas:', this.savedRecipes.length);
             this.isLoading = false;
           },
           error: (error) => {
             console.error('Error cargando recetas:', error);
+            this.errorMessage = 'Error al cargar las recetas. Por favor, inténtalo de nuevo.';
             this.isLoading = false;
           }
         });
       },
       error: (error) => {
         console.error('Error cargando favoritos:', error);
+        this.errorMessage = 'Error al cargar favoritos. Por favor, inténtalo de nuevo.';
         this.isLoading = false;
       }
     });
@@ -212,7 +231,6 @@ export class SavedRecipesComponent implements OnInit {
   }
 
   addToPlanner(recipe: Recipe): void {
-    // TODO: Implementar lógica de añadir al planner
     alert(`Función de añadir "${recipe.title}" al planner en desarrollo`);
   }
 }

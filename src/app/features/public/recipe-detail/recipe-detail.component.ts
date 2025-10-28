@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { RecipeService } from '../../../core/services/recipe.service';
+import { UserService } from '../../../core/services/user.service';
 import { FavoriteService, RatingService } from '../../../core/services/user-actions.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe, NutritionInfo } from '../../../models/recipe.model';
+import { User } from '../../../models/user.model';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -69,7 +71,7 @@ import { Recipe, NutritionInfo } from '../../../models/recipe.model';
 
             <!-- Información básica -->
             <div class="card">
-              <div class="flex gap-4 mb-4">
+              <div class="flex gap-4 mb-4 flex-wrap">
                 @if (recipe.mealTypeId) {
                   <div>
                     <span class="text-sm text-slate-gray">Tipo</span>
@@ -78,7 +80,16 @@ import { Recipe, NutritionInfo } from '../../../models/recipe.model';
                 }
                 <div>
                   <span class="text-sm text-slate-gray">Autor</span>
-                  <p class="font-medium">Usuario {{ recipe.authorId }}</p>
+                  @if (author) {
+                    <a 
+                      [routerLink]="['/@' + author.username]" 
+                      class="font-medium text-cambridge-blue hover:text-zomp transition"
+                    >
+                      {{ author.username }}
+                    </a>
+                  } @else {
+                    <p class="font-medium">Usuario {{ recipe.authorId }}</p>
+                  }
                 </div>
                 <div>
                   <span class="text-sm text-slate-gray">Visibilidad</span>
@@ -188,6 +199,26 @@ import { Recipe, NutritionInfo } from '../../../models/recipe.model';
               </div>
             }
 
+            <!-- Autor -->
+            @if (author) {
+              <div class="card">
+                <h4 class="mb-3">Sobre el autor</h4>
+                <a [routerLink]="['/@' + author.username]" class="flex items-center gap-3 hover:bg-celadon p-3 rounded transition">
+                  <img 
+                    [src]="author.avatar || 'https://via.placeholder.com/60?text=' + author.username[0].toUpperCase()" 
+                    [alt]="author.username"
+                    class="w-12 h-12 rounded-full object-cover"
+                  >
+                  <div>
+                    <p class="font-medium text-cambridge-blue">{{ author.username }}</p>
+                    @if (author.bio) {
+                      <p class="text-sm text-slate-gray line-clamp-2">{{ author.bio }}</p>
+                    }
+                  </div>
+                </a>
+              </div>
+            }
+
             <!-- Acciones rápidas -->
             @if (currentUser) {
               <div class="card">
@@ -253,10 +284,18 @@ import { Recipe, NutritionInfo } from '../../../models/recipe.model';
       border: none;
       color: inherit;
     }
+    
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   `]
 })
 export class RecipeDetailComponent implements OnInit {
   recipe: Recipe | null = null;
+  author: User | null = null;
   nutritionInfo: NutritionInfo | null = null;
   isLoading = true;
   isFavorite = false;
@@ -266,6 +305,7 @@ export class RecipeDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private recipeService: RecipeService,
+    private userService: UserService,
     private favoriteService: FavoriteService,
     private ratingService: RatingService,
     private authService: AuthService
@@ -288,6 +328,7 @@ export class RecipeDetailComponent implements OnInit {
     this.recipeService.getRecipeById(id).subscribe({
       next: (recipe) => {
         this.recipe = recipe;
+        this.loadAuthor(recipe.authorId);
         this.loadNutritionInfo(id);
         this.checkIfFavorite(id);
         this.loadUserRating(id);
@@ -296,6 +337,17 @@ export class RecipeDetailComponent implements OnInit {
       error: (error) => {
         console.error('Error cargando receta:', error);
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadAuthor(authorId: number): void {
+    this.userService.getUserById(authorId).subscribe({
+      next: (user) => {
+        this.author = user;
+      },
+      error: (error) => {
+        console.error('Error cargando autor:', error);
       }
     });
   }
@@ -402,12 +454,10 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   addToPlanner(): void {
-    // TODO: Implementar lógica de añadir al planner
     alert('Función de añadir al planner en desarrollo');
   }
 
   addToShoppingList(): void {
-    // TODO: Implementar lógica de añadir a lista de compra
     alert('Función de añadir a lista de compra en desarrollo');
   }
 

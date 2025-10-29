@@ -149,86 +149,68 @@ export class SavedRecipesComponent implements OnInit {
   }
 
   loadSavedRecipes(): void {
-    console.log('📥 ===== INICIO loadSavedRecipes() =====');
-    this.isLoading = true;
-    this.errorMessage = '';
-    
-    const currentUser = this.authService.getCurrentUser();
-    console.log('👤 Usuario actual obtenido:', currentUser);
+  console.log('📥 ===== INICIO loadSavedRecipes() =====');
+  this.isLoading = true;
+  this.errorMessage = '';
+  
+  const currentUser = this.authService.getCurrentUser();
+  console.log('👤 Usuario actual obtenido:', currentUser);
 
-    if (!currentUser) {
-      console.log('❌ No hay usuario logueado - Abortando');
-      this.errorMessage = 'Debes iniciar sesión para ver tus recetas guardadas';
-      this.isLoading = false;
-      return;
-    }
-
-    console.log('✅ Usuario válido, ID:', currentUser.id);
-    console.log('📞 Llamando a favoriteService.getAllFavorites()...');
-    
-    // Cargar favoritos del usuario
-    this.favoriteService.getAllFavorites().subscribe({
-      next: (favorites) => {
-        console.log('✅ Favoritos recibidos del backend:', favorites);
-        console.log('📊 Total de favoritos:', favorites.length);
-        console.log('📋 Datos completos:', JSON.stringify(favorites, null, 2));
-        
-        // Filtrar solo los favoritos del usuario actual
-        this.favorites = favorites.filter(f => f.userId === currentUser.id);
-        console.log('🔍 Favoritos filtrados para userId', currentUser.id, ':', this.favorites);
-        console.log('📊 Total de favoritos del usuario:', this.favorites.length);
-        
-        if (this.favorites.length === 0) {
-          console.log('⚠️ El usuario no tiene favoritos - Finalizando');
-          this.isLoading = false;
-          return;
-        }
-
-        // Obtener los IDs de las recetas favoritas
-        const recipeIds = this.favorites.map(f => f.recipeId);
-        console.log('🆔 IDs de recetas favoritas:', recipeIds);
-        
-        // Cargar todas las recetas y filtrar las favoritas
-        console.log('📞 Llamando a recipeService.getAllRecipes()...');
-        this.recipeService.getAllRecipes().subscribe({
-          next: (recipes) => {
-            console.log('✅ Recetas recibidas del backend:', recipes.length, 'recetas');
-            console.log('📋 Primeras 3 recetas:', recipes.slice(0, 3));
-            
-            this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
-            console.log('🍽️ Recetas guardadas filtradas:', this.savedRecipes.length);
-            console.log('📋 Recetas guardadas completas:', this.savedRecipes);
-            
-            this.isLoading = false;
-            console.log('✅ ===== FIN loadSavedRecipes() - ÉXITO =====');
-          },
-          error: (error) => {
-            console.error('❌ ===== ERROR en recipeService.getAllRecipes() =====');
-            console.error('Status:', error.status);
-            console.error('Status Text:', error.statusText);
-            console.error('Message:', error.message);
-            console.error('Error completo:', error);
-            console.error('URL:', error.url);
-            
-            this.errorMessage = 'Error al cargar las recetas. Por favor, inténtalo de nuevo.';
-            this.isLoading = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('❌ ===== ERROR en favoriteService.getAllFavorites() =====');
-        console.error('Status:', error.status);
-        console.error('Status Text:', error.statusText);
-        console.error('Message:', error.message);
-        console.error('Error completo:', error);
-        console.error('URL:', error.url);
-        console.error('Headers:', error.headers);
-        
-        this.errorMessage = 'Error al cargar favoritos. Por favor, inténtalo de nuevo.';
-        this.isLoading = false;
-      }
-    });
+  if (!currentUser) {
+    console.log('❌ No hay usuario logueado - Abortando');
+    this.errorMessage = 'Debes iniciar sesión para ver tus recetas guardadas';
+    this.isLoading = false;
+    return;
   }
+
+  console.log('✅ Usuario válido, ID:', currentUser.id);
+  console.log('📞 Llamando a favoriteService.getAllFavorites()...');
+  
+  // ✅ EL BACKEND YA FILTRA POR USUARIO AUTENTICADO
+  this.favoriteService.getAllFavorites().subscribe({
+    next: (favorites) => {
+      console.log('✅ Favoritos recibidos del backend:', favorites);
+      console.log('📊 Total de favoritos:', favorites.length);
+      
+      // ✅ Ya vienen filtrados del backend, no hace falta filtrar aquí
+      this.favorites = favorites;
+      
+      if (this.favorites.length === 0) {
+        console.log('⚠️ El usuario no tiene favoritos - Finalizando');
+        this.isLoading = false;
+        return;
+      }
+
+      // Obtener los IDs de las recetas favoritas
+      const recipeIds = this.favorites.map(f => f.recipeId);
+      console.log('🆔 IDs de recetas favoritas:', recipeIds);
+      
+      // Cargar todas las recetas y filtrar las favoritas
+      console.log('📞 Llamando a recipeService.getAllRecipes()...');
+      this.recipeService.getAllRecipes().subscribe({
+        next: (recipes) => {
+          console.log('✅ Recetas recibidas del backend:', recipes.length, 'recetas');
+          
+          this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
+          console.log('🍽️ Recetas guardadas filtradas:', this.savedRecipes.length);
+          
+          this.isLoading = false;
+          console.log('✅ ===== FIN loadSavedRecipes() - ÉXITO =====');
+        },
+        error: (error) => {
+          console.error('❌ Error en recipeService.getAllRecipes():', error);
+          this.errorMessage = 'Error al cargar las recetas. Por favor, inténtalo de nuevo.';
+          this.isLoading = false;
+        }
+      });
+    },
+    error: (error) => {
+      console.error('❌ Error en favoriteService.getAllFavorites():', error);
+      this.errorMessage = 'Error al cargar favoritos. Por favor, inténtalo de nuevo.';
+      this.isLoading = false;
+    }
+  });
+}
 
   removeFromFavorites(recipe: Recipe): void {
     console.log('🗑️ removeFromFavorites() llamado para receta:', recipe.id);

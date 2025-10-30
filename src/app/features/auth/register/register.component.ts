@@ -175,20 +175,31 @@ export class RegisterComponent {
       username: this.registerForm.value.username,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
-      roleId: 2
+      roleId: 2 // USER por defecto
     };
 
     this.authService.register(userData).subscribe({
-      next: () => {
-        this.successMessage = '¡Cuenta creada! Redirigiendo al login...';
+      next: (response) => {
+        console.log('✅ Registro exitoso, login automático completado:', response);
+        this.successMessage = '¡Cuenta creada! Redirigiendo al dashboard...';
+        
+        // Redirigir al dashboard después de 1.5 segundos (ya está autenticado)
         setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
+          this.router.navigate(['/dashboard']);
+        }, 1500);
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'Error al crear la cuenta. El email o username ya existe.';
-        console.error('Error en registro:', error);
+        console.error('❌ Error en registro:', error);
+        
+        // Mensaje de error más específico
+        if (error.error?.message) {
+          this.errorMessage = error.error.message;
+        } else if (error.status === 409 || error.error?.includes('ya existe')) {
+          this.errorMessage = 'El email o username ya está registrado.';
+        } else {
+          this.errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';
+        }
       }
     });
   }

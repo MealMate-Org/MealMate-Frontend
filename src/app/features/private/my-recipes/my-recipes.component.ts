@@ -196,31 +196,34 @@ export class MyRecipesComponent implements OnInit {
   }
 
   loadMyRecipes(): void {
-    this.isLoading = true;
-    const currentUser = this.authService.getCurrentUser();
+  this.isLoading = true;
+  const currentUser = this.authService.getCurrentUser();
 
-    if (!currentUser) {
-      this.isLoading = false;
-      return;
-    }
-
-    console.log('✅ Usuario válido, ID:', currentUser.id);
-
-    // Cargar todas las recetas y filtrar las del usuario
-    // NOTA: El backend podría optimizarse para filtrar en servidor
-    this.recipeService.getAllRecipes().subscribe({
-      next: (recipes) => {
-        this.myRecipes = recipes.filter((r) => r.authorId === currentUser.id);
-        this.filteredRecipes = [...this.myRecipes];
-        this.isLoading = false;
-        console.log('✅ Mis recetas cargadas:', this.myRecipes.length);
-      },
-      error: (error) => {
-        console.error('Error cargando recetas:', error);
-        this.isLoading = false;
-      },
-    });
+  if (!currentUser) {
+    this.isLoading = false;
+    return;
   }
+
+  console.log('✅ Usuario válido, ID:', currentUser.id);
+  console.log('📞 Llamando al backend con authorId=' + currentUser.id);
+
+  // ✅ CAMBIO CLAVE: Usar el nuevo método con authorId
+  // El backend devolverá TODAS las recetas del autor (públicas y privadas)
+  this.recipeService.getRecipesByAuthor(currentUser.id).subscribe({
+    next: (recipes) => {
+      this.myRecipes = recipes; // Ya vienen filtradas del backend
+      this.filteredRecipes = [...this.myRecipes];
+      this.isLoading = false;
+      console.log('✅ Mis recetas cargadas:', this.myRecipes.length);
+      console.log('   - Públicas:', this.myRecipes.filter(r => r.isPublic).length);
+      console.log('   - Privadas:', this.myRecipes.filter(r => !r.isPublic).length);
+    },
+    error: (error) => {
+      console.error('Error cargando recetas:', error);
+      this.isLoading = false;
+    }
+  });
+}
 
   filterRecipes(): void {
     let filtered = [...this.myRecipes];

@@ -144,18 +144,19 @@ export class RecipesListComponent implements OnInit {
   }
 
   loadRecipes(): void {
-    this.isLoading = true;
-    this.recipeService.getAllRecipes().subscribe({
-      next: (recipes) => {
-        this.recipes = recipes;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error cargando recetas:', error);
-        this.isLoading = false;
-      }
-    });
-  }
+  this.isLoading = true;
+  this.recipeService.getAllRecipes().subscribe({
+    next: (recipes) => {
+      // ✅ Filtrar solo recetas públicas (medida de seguridad adicional)
+      this.recipes = recipes.filter(recipe => recipe.isPublic);
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('Error cargando recetas:', error);
+      this.isLoading = false;
+    }
+  });
+}
 
   onSearch(): void {
     if (this.searchTerm.trim()) {

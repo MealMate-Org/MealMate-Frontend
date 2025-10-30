@@ -186,7 +186,7 @@ export class RegisterComponent {
         // Redirigir al dashboard después de 1.5 segundos (ya está autenticado)
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
-        }, 1500);
+        }, 15);
       },
       error: (error) => {
         this.isLoading = false;

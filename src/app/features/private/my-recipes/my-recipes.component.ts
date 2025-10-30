@@ -6,42 +6,57 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe } from '../../../models/recipe.model';
+import { 
+  LucideAngularModule,
+  Plus,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  Star,
+  Globe,
+  Lock,
+  ChefHat,
+  AlertTriangle
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-my-recipes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
-    <div class="max-w-7xl mx-auto px-4 py-8">
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1>Mis Recetas</h1>
-          <p class="text-slate-gray">Gestiona todas tus recetas creadas</p>
-        </div>
-        <a routerLink="/recipes/new" class="btn-primary"> + Nueva Receta </a>
-      </div>
-
-      <!-- Filtros -->
-      <div class="card mb-6">
-        <div class="flex gap-4 items-center">
-          <div class="flex-1">
-            <input
-              type="text"
-              [(ngModel)]="searchTerm"
-              (input)="filterRecipes()"
-              class="input w-full"
-              placeholder="Buscar en mis recetas..."
-            />
-          </div>
+    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
           <div>
+            <h1 class="mb-2 text-5xl">Mis Recetas</h1>
+            <p class="text-slate-gray text-xl">Gestiona todas tus recetas creadas</p>
+          </div>
+          <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4">
+            <lucide-icon [img]="PlusIcon" class="w-6 h-6"></lucide-icon>
+            Nueva Receta
+          </a>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="relative">
+              <lucide-icon [img]="SearchIcon" class="w-5 h-5 text-slate-gray absolute left-4 top-1/2 transform -translate-y-1/2"></lucide-icon>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (input)="filterRecipes()"
+                class="input w-full pl-12"
+                placeholder="Buscar en mis recetas..."
+              />
+            </div>
             <select [(ngModel)]="visibilityFilter" (change)="filterRecipes()" class="input">
               <option value="all">Todas</option>
               <option value="public">Públicas</option>
               <option value="private">Privadas</option>
             </select>
-          </div>
-          <div>
             <select [(ngModel)]="mealTypeFilter" (change)="filterRecipes()" class="input">
               <option [value]="null">Todos los tipos</option>
               <option [value]="1">Desayuno</option>
@@ -52,116 +67,137 @@ import { Recipe } from '../../../models/recipe.model';
             </select>
           </div>
         </div>
-      </div>
 
-      @if (isLoading) {
-      <div class="text-center py-12">
-        <p class="text-slate-gray">Cargando tus recetas...</p>
-      </div>
-      } @if (!isLoading && filteredRecipes.length > 0) {
-      <div class="grid md:grid-cols-3 gap-6">
-        @for (recipe of filteredRecipes; track recipe.id) {
-        <div class="card">
-          @if (recipe.imagePath) {
-          <img
-            [src]="recipe.imagePath"
-            [alt]="recipe.title"
-            class="w-full h-48 object-cover rounded-t-card -mt-4 -mx-4 mb-4"
-          />
-          } @else {
-          <div
-            class="w-full h-48 bg-celadon rounded-t-card -mt-4 -mx-4 mb-4 flex items-center justify-center"
-          >
-            <span class="text-6xl">🍽️</span>
-          </div>
-          }
+        @if (isLoading) {
+        <div class="text-center py-20">
+          <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-cambridge-blue mb-4"></div>
+          <p class="text-slate-gray text-lg">Cargando tus recetas...</p>
+        </div>
+        } 
+        
+        @if (!isLoading && filteredRecipes.length > 0) {
+        <div class="mb-6 text-slate-gray text-lg">
+          Mostrando {{ filteredRecipes.length }} de {{ myRecipes.length }} recetas
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          @for (recipe of filteredRecipes; track recipe.id) {
+          <div class="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+            @if (recipe.imagePath) {
+            <div class="relative h-56 overflow-hidden">
+              <img
+                [src]="recipe.imagePath"
+                [alt]="recipe.title"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            } @else {
+            <div class="relative h-56 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+              <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-white opacity-50"></lucide-icon>
+            </div>
+            }
 
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="flex-1">{{ recipe.title }}</h3>
-            <div class="flex items-center gap-1 text-sm">
-              <span class="text-yellow-500">⭐</span>
-              <span>{{ recipe.avgRating.toFixed(1) }}</span>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="flex-1 text-xl">{{ recipe.title }}</h3>
+                <div class="flex items-center gap-1 text-sm">
+                  <lucide-icon [img]="StarIcon" class="w-5 h-5 text-yellow-500 fill-current"></lucide-icon>
+                  <span class="font-semibold">{{ recipe.avgRating.toFixed(1) }}</span>
+                </div>
+              </div>
+
+              <p class="text-slate-gray mb-4 line-clamp-2 text-base">
+                {{ recipe.description || 'Sin descripción' }}
+              </p>
+
+              <div class="flex justify-between items-center mb-4">
+                <span [class]="recipe.isPublic ? 'inline-flex items-center gap-2 bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium' : 'inline-flex items-center gap-2 bg-slate-gray text-white px-3 py-1 rounded-full text-sm font-medium'">
+                  <lucide-icon [img]="recipe.isPublic ? GlobeIcon : LockIcon" class="w-3 h-3"></lucide-icon>
+                  {{ recipe.isPublic ? 'Pública' : 'Privada' }}
+                </span>
+                @if (recipe.mealTypeId) {
+                <span class="text-slate-gray text-sm">
+                  {{ getMealTypeName(recipe.mealTypeId) }}
+                </span>
+                }
+              </div>
+
+              @if (recipe.allergens && recipe.allergens.length > 0) {
+              <div class="mb-4 flex gap-2 flex-wrap">
+                @for (allergen of recipe.allergens.slice(0, 2); track allergen.id) {
+                <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded-lg text-xs font-medium">
+                  <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
+                  {{ allergen.name }}
+                </span>
+                }
+                @if (recipe.allergens.length > 2) {
+                <span class="text-xs text-slate-gray">+{{ recipe.allergens.length - 2 }}</span>
+                }
+              </div>
+              }
+
+              <div class="flex gap-2 pt-4 border-t border-gray-100">
+                <a
+                  [routerLink]="['/recipes', recipe.id]"
+                  class="flex-1 btn-secondary text-center text-sm inline-flex items-center justify-center gap-2"
+                >
+                  <lucide-icon [img]="EyeIcon" class="w-4 h-4"></lucide-icon>
+                  Ver
+                </a>
+                <a
+                  [routerLink]="['/recipes/edit', recipe.id]"
+                  class="flex-1 btn-secondary text-center text-sm inline-flex items-center justify-center gap-2"
+                >
+                  <lucide-icon [img]="EditIcon" class="w-4 h-4"></lucide-icon>
+                  Editar
+                </a>
+                <button 
+                  (click)="deleteRecipe(recipe)" 
+                  class="btn-secondary text-sm px-4 inline-flex items-center gap-1"
+                >
+                  <lucide-icon [img]="TrashIcon" class="w-4 h-4 text-error"></lucide-icon>
+                </button>
+              </div>
             </div>
           </div>
-
-          <p class="text-slate-gray text-sm mb-3 line-clamp-2">
-            {{ recipe.description || 'Sin descripción' }}
-          </p>
-
-          <div class="flex justify-between items-center mb-3 text-sm">
-            <span [class]="recipe.isPublic ? 'badge' : 'badge bg-slate-gray'">
-              {{ recipe.isPublic ? '🌍 Pública' : '🔒 Privada' }}
-            </span>
-            @if (recipe.mealTypeId) {
-            <span class="text-slate-gray">
-              {{ getMealTypeName(recipe.mealTypeId) }}
-            </span>
-            }
-          </div>
-
-          @if (recipe.allergens && recipe.allergens.length > 0) {
-          <div class="mb-3 flex gap-1 flex-wrap">
-            @for (allergen of recipe.allergens; track allergen.id) {
-            <span class="badge-error text-xs"> ⚠️ {{ allergen.name }} </span>
-            }
-          </div>
           }
-
-          <div class="flex gap-2 pt-3 border-t border-celadon">
-            <a
-              [routerLink]="['/recipes', recipe.id]"
-              class="btn-secondary flex-1 text-center text-sm"
-            >
-              👁️ Ver
-            </a>
-            <a
-              [routerLink]="['/recipes/edit', recipe.id]"
-              class="btn-secondary flex-1 text-center text-sm"
-            >
-              ✏️ Editar
-            </a>
-            <button (click)="deleteRecipe(recipe)" class="btn-secondary text-sm px-3">🗑️</button>
-          </div>
+        </div>
+        } 
+        
+        @if (!isLoading && filteredRecipes.length === 0 && myRecipes.length === 0) {
+        <div class="bg-white rounded-3xl shadow-xl text-center py-20 px-8">
+          <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
+          <h3 class="mb-4 text-2xl">Aún no tienes recetas</h3>
+          <p class="text-slate-gray mb-8 text-lg">Empieza a crear tus propias recetas y guárdalas aquí</p>
+          <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2">
+            <lucide-icon [img]="PlusIcon" class="w-5 h-5"></lucide-icon>
+            Crear Mi Primera Receta
+          </a>
+        </div>
+        } 
+        
+        @if (!isLoading && filteredRecipes.length === 0 && myRecipes.length > 0) {
+        <div class="bg-white rounded-3xl shadow-xl text-center py-20 px-8">
+          <lucide-icon [img]="SearchIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
+          <h3 class="mb-4 text-2xl">No se encontraron recetas</h3>
+          <p class="text-slate-gray mb-8 text-lg">Intenta con otros filtros o términos de búsqueda</p>
+          <button (click)="clearFilters()" class="btn-secondary">Limpiar Filtros</button>
         </div>
         }
       </div>
-
-      <!-- Paginación simple -->
-      @if (myRecipes.length > 12) {
-      <div class="mt-8 text-center">
-        <p class="text-slate-gray">
-          Mostrando {{ filteredRecipes.length }} de {{ myRecipes.length }} recetas
-        </p>
-      </div>
-      } } @if (!isLoading && filteredRecipes.length === 0 && myRecipes.length === 0) {
-      <div class="card text-center py-12">
-        <div class="text-6xl mb-4">📝</div>
-        <h3 class="mb-3">Aún no tienes recetas</h3>
-        <p class="text-slate-gray mb-6">¡Empieza a crear tus propias recetas y guárdalas aquí!</p>
-        <a routerLink="/recipes/new" class="btn-primary"> Crear Mi Primera Receta </a>
-      </div>
-      } @if (!isLoading && filteredRecipes.length === 0 && myRecipes.length > 0) {
-      <div class="card text-center py-12">
-        <div class="text-6xl mb-4">🔍</div>
-        <h3 class="mb-3">No se encontraron recetas</h3>
-        <p class="text-slate-gray mb-6">Intenta con otros filtros o términos de búsqueda</p>
-        <button (click)="clearFilters()" class="btn-secondary">Limpiar Filtros</button>
-      </div>
-      }
     </div>
 
     <!-- Modal de confirmación de eliminación -->
     @if (recipeToDelete) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-card p-6 max-w-md mx-4">
-        <h3 class="mb-3">¿Eliminar receta?</h3>
-        <p class="text-slate-gray mb-6">
-          ¿Estás seguro de que quieres eliminar "<strong>{{ recipeToDelete.title }}</strong
-          >"? Esta acción no se puede deshacer.
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+        <h3 class="mb-4 text-2xl">¿Eliminar receta?</h3>
+        <p class="text-slate-gray mb-8 text-lg">
+          ¿Estás seguro de que quieres eliminar "<strong>{{ recipeToDelete.title }}</strong>"? Esta acción no se puede deshacer.
         </p>
-        <div class="flex gap-3 justify-end">
-          <button (click)="recipeToDelete = null" class="btn-secondary">Cancelar</button>
-          <button (click)="confirmDelete()" class="btn-primary bg-error hover:bg-red-700">
+        <div class="flex gap-4">
+          <button (click)="recipeToDelete = null" class="flex-1 btn-secondary">Cancelar</button>
+          <button (click)="confirmDelete()" class="flex-1 bg-error hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all">
             Eliminar
           </button>
         </div>
@@ -189,6 +225,18 @@ export class MyRecipesComponent implements OnInit {
   mealTypeFilter: number | null = null;
   recipeToDelete: Recipe | null = null;
 
+  // Iconos
+  readonly PlusIcon = Plus;
+  readonly SearchIcon = Search;
+  readonly EyeIcon = Eye;
+  readonly EditIcon = Edit;
+  readonly TrashIcon = Trash2;
+  readonly StarIcon = Star;
+  readonly GlobeIcon = Globe;
+  readonly LockIcon = Lock;
+  readonly ChefHatIcon = ChefHat;
+  readonly AlertIcon = AlertTriangle;
+
   constructor(private recipeService: RecipeService, private authService: AuthService) { }
 
   ngOnInit(): void {
@@ -196,39 +244,30 @@ export class MyRecipesComponent implements OnInit {
   }
 
   loadMyRecipes(): void {
-  this.isLoading = true;
-  const currentUser = this.authService.getCurrentUser();
+    this.isLoading = true;
+    const currentUser = this.authService.getCurrentUser();
 
-  if (!currentUser) {
-    this.isLoading = false;
-    return;
-  }
-
-  console.log('✅ Usuario válido, ID:', currentUser.id);
-  console.log('📞 Llamando al backend con authorId=' + currentUser.id);
-
-  // ✅ CAMBIO CLAVE: Usar el nuevo método con authorId
-  // El backend devolverá TODAS las recetas del autor (públicas y privadas)
-  this.recipeService.getRecipesByAuthor(currentUser.id).subscribe({
-    next: (recipes) => {
-      this.myRecipes = recipes; // Ya vienen filtradas del backend
-      this.filteredRecipes = [...this.myRecipes];
+    if (!currentUser) {
       this.isLoading = false;
-      console.log('✅ Mis recetas cargadas:', this.myRecipes.length);
-      console.log('   - Públicas:', this.myRecipes.filter(r => r.isPublic).length);
-      console.log('   - Privadas:', this.myRecipes.filter(r => !r.isPublic).length);
-    },
-    error: (error) => {
-      console.error('Error cargando recetas:', error);
-      this.isLoading = false;
+      return;
     }
-  });
-}
+
+    this.recipeService.getRecipesByAuthor(currentUser.id).subscribe({
+      next: (recipes) => {
+        this.myRecipes = recipes;
+        this.filteredRecipes = [...this.myRecipes];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando recetas:', error);
+        this.isLoading = false;
+      }
+    });
+  }
 
   filterRecipes(): void {
     let filtered = [...this.myRecipes];
 
-    // Filtro de búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -238,13 +277,11 @@ export class MyRecipesComponent implements OnInit {
       );
     }
 
-    // Filtro de visibilidad
     if (this.visibilityFilter !== 'all') {
       const isPublic = this.visibilityFilter === 'public';
       filtered = filtered.filter((recipe) => recipe.isPublic === isPublic);
     }
 
-    // Filtro de tipo de comida
     if (this.mealTypeFilter !== null) {
       filtered = filtered.filter((recipe) => recipe.mealTypeId === this.mealTypeFilter);
     }
@@ -279,7 +316,6 @@ export class MyRecipesComponent implements OnInit {
 
     this.recipeService.deleteRecipe(this.recipeToDelete.id).subscribe({
       next: () => {
-        // Eliminar de las listas locales
         this.myRecipes = this.myRecipes.filter((r) => r.id !== this.recipeToDelete?.id);
         this.filterRecipes();
         this.recipeToDelete = null;

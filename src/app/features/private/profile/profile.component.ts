@@ -7,238 +7,240 @@ import { AuthService } from '../../../core/services/auth.service';
 import { User, UserPreference, Diet } from '../../../models/user.model';
 import { Allergen } from '../../../models/recipe.model';
 import { RecipeService } from '../../../core/services/recipe.service';
+import { 
+  LucideAngularModule,
+  Upload,
+  Save,
+  AlertTriangle,
+  Target,
+  Apple
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
-    <div class="max-w-4xl mx-auto px-4 py-8">
-      <h1 class="mb-6">Mi Perfil</h1>
+    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
+      <div class="max-w-4xl mx-auto px-4">
+        <h1 class="mb-8 text-5xl">Mi Perfil</h1>
 
-      @if (successMessage) {
-        <div class="badge-success mb-4 p-3 w-full">
-          {{ successMessage }}
-        </div>
-      }
+        @if (successMessage) {
+          <div class="bg-green-50 border-2 border-success rounded-3xl p-4 mb-6">
+            <p class="text-success font-semibold text-center">{{ successMessage }}</p>
+          </div>
+        }
 
-      @if (errorMessage) {
-        <div class="badge-error mb-4 p-3 w-full">
-          {{ errorMessage }}
-        </div>
-      }
+        @if (errorMessage) {
+          <div class="bg-red-50 border-2 border-error rounded-3xl p-4 mb-6">
+            <p class="text-error font-semibold text-center">{{ errorMessage }}</p>
+          </div>
+        }
 
-      <div class="space-y-6">
-        <!-- Información Personal -->
-        <div class="card">
-          <h3 class="mb-4">Información Personal</h3>
-          
-          <form [formGroup]="userForm" (ngSubmit)="saveUserInfo()" class="space-y-4">
-            <div class="grid md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium mb-2">Nombre de usuario *</label>
-                <input 
-                  type="text" 
-                  formControlName="username"
-                  class="input w-full" 
-                  placeholder="tu_usuario"
+        <div class="space-y-8">
+          <!-- Información Personal -->
+          <div class="bg-white rounded-3xl shadow-xl p-8">
+            <h3 class="mb-6 text-2xl">Información Personal</h3>
+            
+            <form [formGroup]="userForm" (ngSubmit)="saveUserInfo()" class="space-y-6">
+              <!-- Avatar -->
+              <div class="flex items-center gap-6 mb-6 p-6 bg-celadon rounded-2xl">
+                <img 
+                  [src]="previewAvatar || currentUser?.avatar || '/defaultProfilePicture.png'" 
+                  alt="Avatar"
+                  class="w-24 h-24 rounded-full object-cover border-4 border-cambridge-blue shadow-lg"
                 >
-                @if (userForm.get('username')?.invalid && userForm.get('username')?.touched) {
-                  <p class="text-error text-sm mt-1">El nombre de usuario es obligatorio</p>
-                }
+                <div class="flex-1">
+                  <label class="block text-sm font-semibold mb-2">Foto de Perfil</label>
+                  <div class="flex items-center gap-3">
+                    <label class="btn-secondary cursor-pointer inline-flex items-center gap-2">
+                      <lucide-icon [img]="UploadIcon" class="w-5 h-5"></lucide-icon>
+                      Seleccionar Imagen
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        (change)="onFileSelected($event)"
+                        class="hidden"
+                      >
+                    </label>
+                    @if (selectedFile) {
+                      <span class="text-sm text-slate-gray">{{ selectedFile.name }}</span>
+                    }
+                  </div>
+                  <p class="text-sm text-slate-gray mt-2">JPG, PNG o GIF. Máximo 5MB.</p>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Nombre de usuario *</label>
+                  <input 
+                    type="text" 
+                    formControlName="username"
+                    class="input w-full" 
+                    placeholder="tu_usuario"
+                  >
+                  @if (userForm.get('username')?.invalid && userForm.get('username')?.touched) {
+                    <p class="text-error text-sm mt-2">El nombre de usuario es obligatorio</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Email *</label>
+                  <input 
+                    type="email" 
+                    formControlName="email"
+                    class="input w-full" 
+                    placeholder="tu@email.com"
+                  >
+                  @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+                    <p class="text-error text-sm mt-2">Email inválido</p>
+                  }
+                </div>
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-2">Email *</label>
-                <input 
-                  type="email" 
-                  formControlName="email"
+                <label class="block text-sm font-semibold mb-2">Biografía</label>
+                <textarea 
+                  formControlName="bio"
                   class="input w-full" 
-                  placeholder="tu@email.com"
-                >
-                @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
-                  <p class="text-error text-sm mt-1">Email inválido</p>
-                }
+                  rows="3"
+                  placeholder="Cuéntanos sobre ti..."
+                ></textarea>
               </div>
+
+              <div class="flex justify-end">
+                <button 
+                  type="submit" 
+                  [disabled]="userForm.invalid || isSavingUser"
+                  [class]="userForm.invalid || isSavingUser ? 'btn-disabled' : 'btn-primary'"
+                  class="inline-flex items-center gap-2"
+                >
+                  <lucide-icon [img]="SaveIcon" class="w-5 h-5"></lucide-icon>
+                  {{ isSavingUser ? 'Guardando...' : 'Guardar Cambios' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Preferencias Nutricionales -->
+          <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <lucide-icon [img]="AppleIcon" class="w-8 h-8 text-success"></lucide-icon>
+              <h3 class="text-2xl">Preferencias Nutricionales</h3>
             </div>
+            <p class="text-slate-gray mb-6 text-lg">
+              Configura tus objetivos diarios para seguimiento nutricional
+            </p>
 
-            <div>
-              <label class="block text-sm font-medium mb-2">URL del Avatar</label>
-              <input 
-                type="text" 
-                formControlName="avatar"
-                class="input w-full" 
-                placeholder="https://ejemplo.com/avatar.jpg"
-              >
-              @if (userForm.value.avatar) {
-                <div class="mt-2">
-                  <img 
-                    [src]="userForm.value.avatar" 
-                    alt="Preview"
-                    class="w-20 h-20 rounded-full object-cover border-2 border-cambridge-blue"
-                    (error)="onImageError($event)"
+            <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" class="space-y-6">
+              <div>
+                <label class="block text-sm font-semibold mb-2">Dieta</label>
+                <select formControlName="dietId" class="input w-full">
+                  <option [value]="null">Seleccionar...</option>
+                  @for (diet of diets; track diet.id) {
+                    <option [value]="diet.id">{{ diet.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Calorías diarias (kcal)</label>
+                  <input 
+                    type="number" 
+                    formControlName="dailyCaloriesGoal"
+                    class="input w-full" 
+                    placeholder="2000"
                   >
                 </div>
-              }
-            </div>
 
-            <div>
-              <label class="block text-sm font-medium mb-2">Bio</label>
-              <textarea 
-                formControlName="bio"
-                class="input w-full" 
-                rows="3"
-                placeholder="Cuéntanos sobre ti..."
-              ></textarea>
-            </div>
-
-            <div class="flex justify-end">
-              <button 
-                type="submit" 
-                [disabled]="userForm.invalid || isSavingUser"
-                [class]="userForm.invalid || isSavingUser ? 'btn-disabled' : 'btn-primary'"
-              >
-                {{ isSavingUser ? 'Guardando...' : 'Guardar Cambios' }}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Preferencias Nutricionales -->
-        <div class="card">
-          <h3 class="mb-4">Preferencias Nutricionales</h3>
-          <p class="text-sm text-slate-gray mb-4">
-            Configura tus objetivos diarios para seguimiento nutricional
-          </p>
-
-          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-2">Dieta</label>
-              <select formControlName="dietId" class="input w-full">
-                <option [value]="null">Seleccionar...</option>
-                @for (diet of diets; track diet.id) {
-                  <option [value]="diet.id">{{ diet.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium mb-2">Calorías diarias (kcal)</label>
-                <input 
-                  type="number" 
-                  formControlName="dailyCaloriesGoal"
-                  class="input w-full" 
-                  placeholder="2000"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Proteína diaria (g)</label>
-                <input 
-                  type="number" 
-                  formControlName="dailyProteinGoal"
-                  class="input w-full" 
-                  placeholder="150"
-                  step="0.1"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Carbohidratos diarios (g)</label>
-                <input 
-                  type="number" 
-                  formControlName="dailyCarbsGoal"
-                  class="input w-full" 
-                  placeholder="250"
-                  step="0.1"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Grasas diarias (g)</label>
-                <input 
-                  type="number" 
-                  formControlName="dailyFatGoal"
-                  class="input w-full" 
-                  placeholder="70"
-                  step="0.1"
-                >
-              </div>
-            </div>
-
-            <div class="flex justify-end">
-              <button 
-                type="submit" 
-                [disabled]="isSavingPreferences"
-                [class]="isSavingPreferences ? 'btn-disabled' : 'btn-primary'"
-              >
-                {{ isSavingPreferences ? 'Guardando...' : 'Guardar Preferencias' }}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Alergias e Intolerancias -->
-        <div class="card">
-          <h3 class="mb-4">Alergias e Intolerancias</h3>
-          <p class="text-sm text-slate-gray mb-4">
-            Marca tus alergias para recibir alertas en recetas incompatibles
-          </p>
-
-          @if (isLoadingAllergens) {
-            <p class="text-slate-gray">Cargando alérgenos...</p>
-          } @else {
-            <div class="grid md:grid-cols-3 gap-3 mb-4">
-              @for (allergen of allergens; track allergen.id) {
-                <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-celadon rounded transition">
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Proteína diaria (g)</label>
                   <input 
-                    type="checkbox"
-                    [value]="allergen.id"
-                    (change)="onAllergenChange($event, allergen.id)"
-                    [checked]="userAllergenIds.includes(allergen.id)"
-                    class="w-4 h-4"
+                    type="number" 
+                    formControlName="dailyProteinGoal"
+                    class="input w-full" 
+                    placeholder="150"
+                    step="0.1"
                   >
-                  <span>{{ allergen.name }}</span>
-                </label>
-              }
-            </div>
+                </div>
 
-            <div class="flex justify-end">
-              <button 
-                (click)="saveAllergens()"
-                [disabled]="isSavingAllergens"
-                [class]="isSavingAllergens ? 'btn-disabled' : 'btn-primary'"
-              >
-                {{ isSavingAllergens ? 'Guardando...' : 'Guardar Alergias' }}
-              </button>
-            </div>
-          }
-        </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Carbohidratos diarios (g)</label>
+                  <input 
+                    type="number" 
+                    formControlName="dailyCarbsGoal"
+                    class="input w-full" 
+                    placeholder="250"
+                    step="0.1"
+                  >
+                </div>
 
-        <!-- Zona de peligro -->
-        <div class="card border-2 border-error">
-          <h3 class="mb-3 text-error">Zona de Peligro</h3>
-          <p class="text-sm text-slate-gray mb-4">
-            Estas acciones son permanentes y no se pueden deshacer
-          </p>
-          <div class="space-y-2">
-            <button 
-              (click)="showChangePassword = !showChangePassword"
-              class="btn-secondary w-full md:w-auto"
-            >
-              🔒 Cambiar Contraseña
-            </button>
-            
-            @if (showChangePassword) {
-              <div class="mt-4 p-4 bg-celadon rounded">
-                <p class="text-sm mb-3">Función de cambio de contraseña en desarrollo</p>
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Grasas diarias (g)</label>
+                  <input 
+                    type="number" 
+                    formControlName="dailyFatGoal"
+                    class="input w-full" 
+                    placeholder="70"
+                    step="0.1"
+                  >
+                </div>
+              </div>
+
+              <div class="flex justify-end">
                 <button 
-                  (click)="showChangePassword = false"
-                  class="btn-secondary text-sm"
+                  type="submit" 
+                  [disabled]="isSavingPreferences"
+                  [class]="isSavingPreferences ? 'btn-disabled' : 'btn-primary'"
+                  class="inline-flex items-center gap-2"
                 >
-                  Cerrar
+                  <lucide-icon [img]="SaveIcon" class="w-5 h-5"></lucide-icon>
+                  {{ isSavingPreferences ? 'Guardando...' : 'Guardar Preferencias' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Alergias e Intolerancias -->
+          <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <lucide-icon [img]="AlertIcon" class="w-8 h-8 text-error"></lucide-icon>
+              <h3 class="text-2xl">Alergias e Intolerancias</h3>
+            </div>
+            <p class="text-slate-gray mb-6 text-lg">
+              Marca tus alergias para recibir alertas en recetas incompatibles
+            </p>
+
+            @if (isLoadingAllergens) {
+              <p class="text-slate-gray">Cargando alérgenos...</p>
+            } @else {
+              <div class="grid md:grid-cols-3 gap-4 mb-6">
+                @for (allergen of allergens; track allergen.id) {
+                  <label class="flex items-center gap-3 cursor-pointer p-4 hover:bg-celadon rounded-xl transition border border-gray-100">
+                    <input 
+                      type="checkbox"
+                      [value]="allergen.id"
+                      (change)="onAllergenChange($event, allergen.id)"
+                      [checked]="userAllergenIds.includes(allergen.id)"
+                      class="w-5 h-5"
+                    >
+                    <span class="font-medium">{{ allergen.name }}</span>
+                  </label>
+                }
+              </div>
+
+              <div class="flex justify-end">
+                <button 
+                  (click)="saveAllergens()"
+                  [disabled]="isSavingAllergens"
+                  [class]="isSavingAllergens ? 'btn-disabled' : 'btn-primary'"
+                  class="inline-flex items-center gap-2"
+                >
+                  <lucide-icon [img]="SaveIcon" class="w-5 h-5"></lucide-icon>
+                  {{ isSavingAllergens ? 'Guardando...' : 'Guardar Alergias' }}
                 </button>
               </div>
             }
@@ -257,14 +259,23 @@ export class ProfileComponent implements OnInit {
   allergens: Allergen[] = [];
   userAllergenIds: number[] = [];
   
+  selectedFile: File | null = null;
+  previewAvatar: string | null = null;
+  
   isSavingUser = false;
   isSavingPreferences = false;
   isSavingAllergens = false;
   isLoadingAllergens = false;
-  showChangePassword = false;
   
   successMessage = '';
   errorMessage = '';
+
+  // Iconos
+  readonly UploadIcon = Upload;
+  readonly SaveIcon = Save;
+  readonly AlertIcon = AlertTriangle;
+  readonly TargetIcon = Target;
+  readonly AppleIcon = Apple;
 
   constructor(
     private fb: FormBuilder,
@@ -275,7 +286,6 @@ export class ProfileComponent implements OnInit {
     this.userForm = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      avatar: [''],
       bio: ['']
     });
 
@@ -304,9 +314,22 @@ export class ProfileComponent implements OnInit {
     this.userForm.patchValue({
       username: this.currentUser.username,
       email: this.currentUser.email,
-      avatar: this.currentUser.avatar,
       bio: this.currentUser.bio
     });
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.previewAvatar = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   loadDiets(): void {
@@ -360,22 +383,26 @@ export class ProfileComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    // En producción, aquí subirías la imagen a un servidor
+    // Por ahora, usamos la URL de preview o la imagen actual
+    const avatarUrl = this.previewAvatar || this.currentUser.avatar || '/defaultProfilePicture.png';
+
     const userData = {
       username: this.userForm.value.username,
       email: this.userForm.value.email,
-      avatar: this.userForm.value.avatar,
+      avatar: avatarUrl,
       bio: this.userForm.value.bio,
       roleId: this.currentUser.roleId
     };
 
     this.userService.updateUser(this.currentUser.id, userData).subscribe({
       next: () => {
-        this.successMessage = '¡Información personal actualizada!';
+        this.successMessage = 'Información personal actualizada';
         this.isSavingUser = false;
         
         // Actualizar usuario en localStorage
         const updatedUser = { ...this.currentUser, ...userData };
-        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         
         setTimeout(() => this.successMessage = '', 3000);
       },
@@ -405,7 +432,7 @@ export class ProfileComponent implements OnInit {
 
     this.userService.saveUserPreferences(preferences).subscribe({
       next: () => {
-        this.successMessage = '¡Preferencias nutricionales actualizadas!';
+        this.successMessage = 'Preferencias nutricionales actualizadas';
         this.isSavingPreferences = false;
         setTimeout(() => this.successMessage = '', 3000);
       },
@@ -433,12 +460,8 @@ export class ProfileComponent implements OnInit {
   saveAllergens(): void {
     // TODO: Implementar guardado de alérgenos del usuario
     this.isSavingAllergens = true;
-    this.successMessage = '¡Alergias actualizadas!';
+    this.successMessage = 'Alergias actualizadas';
     this.isSavingAllergens = false;
     setTimeout(() => this.successMessage = '', 3000);
-  }
-
-  onImageError(event: any): void {
-    event.target.src = 'https://via.placeholder.com/80?text=Avatar';
   }
 }

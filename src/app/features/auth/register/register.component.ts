@@ -12,26 +12,26 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
   template: `
     <app-navbar />
     
-    <div class="min-h-screen flex items-center justify-center bg-background py-12 px-4">
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-celadon py-12 px-4">
       <div class="max-w-md w-full">
-        <div class="card">
-          <h2 class="text-center mb-6">Crear Cuenta</h2>
+        <div class="bg-white rounded-3xl shadow-2xl p-8">
+          <h2 class="text-center mb-8 text-4xl">Crear Cuenta</h2>
           
           @if (errorMessage) {
-            <div class="badge-error mb-4 p-3 text-center w-full">
-              {{ errorMessage }}
+            <div class="bg-red-50 border-2 border-error rounded-2xl p-4 mb-6 text-center">
+              <p class="text-error font-medium">{{ errorMessage }}</p>
             </div>
           }
           
           @if (successMessage) {
-            <div class="badge-success mb-4 p-3 text-center w-full">
-              {{ successMessage }}
+            <div class="bg-green-50 border-2 border-success rounded-2xl p-4 mb-6 text-center">
+              <p class="text-success font-medium">{{ successMessage }}</p>
             </div>
           }
           
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-            <div class="mb-4">
-              <label for="username" class="block text-sm font-medium text-dark-purple mb-2">
+            <div class="mb-6">
+              <label for="username" class="block text-sm font-semibold text-dark-purple mb-2">
                 Nombre de usuario
               </label>
               <input
@@ -42,14 +42,12 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 placeholder="tu_usuario"
               >
               @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
-                <p class="text-error text-sm mt-1">
-                  El nombre de usuario es obligatorio
-                </p>
+                <p class="text-error text-sm mt-2">El nombre de usuario es obligatorio</p>
               }
             </div>
 
-            <div class="mb-4">
-              <label for="email" class="block text-sm font-medium text-dark-purple mb-2">
+            <div class="mb-6">
+              <label for="email" class="block text-sm font-semibold text-dark-purple mb-2">
                 Email
               </label>
               <input
@@ -60,7 +58,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 placeholder="tu@email.com"
               >
               @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-                <p class="text-error text-sm mt-1">
+                <p class="text-error text-sm mt-2">
                   @if (registerForm.get('email')?.errors?.['required']) {
                     El email es obligatorio
                   }
@@ -71,8 +69,8 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
               }
             </div>
 
-            <div class="mb-4">
-              <label for="password" class="block text-sm font-medium text-dark-purple mb-2">
+            <div class="mb-6">
+              <label for="password" class="block text-sm font-semibold text-dark-purple mb-2">
                 Contraseña
               </label>
               <input
@@ -83,7 +81,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 placeholder="••••••••"
               >
               @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-                <p class="text-error text-sm mt-1">
+                <p class="text-error text-sm mt-2">
                   @if (registerForm.get('password')?.errors?.['required']) {
                     La contraseña es obligatoria
                   }
@@ -94,8 +92,8 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
               }
             </div>
 
-            <div class="mb-6">
-              <label for="confirmPassword" class="block text-sm font-medium text-dark-purple mb-2">
+            <div class="mb-8">
+              <label for="confirmPassword" class="block text-sm font-semibold text-dark-purple mb-2">
                 Confirmar contraseña
               </label>
               <input
@@ -106,9 +104,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 placeholder="••••••••"
               >
               @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
-                <p class="text-error text-sm mt-1">
-                  Las contraseñas no coinciden
-                </p>
+                <p class="text-error text-sm mt-2">Las contraseñas no coinciden</p>
               }
             </div>
 
@@ -125,9 +121,9 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
             </button>
           </form>
 
-          <p class="text-center mt-6 text-slate-gray">
+          <p class="text-center mt-8 text-slate-gray">
             ¿Ya tienes cuenta?
-            <a routerLink="/login" class="text-cambridge-blue hover:text-zomp font-medium">
+            <a routerLink="/login" class="text-cambridge-blue hover:text-zomp font-semibold transition">
               Inicia sesión aquí
             </a>
           </p>
@@ -175,27 +171,22 @@ export class RegisterComponent {
       username: this.registerForm.value.username,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
-      roleId: 2 // USER por defecto
+      avatar: '/defaultProfilePicture.png', // ✅ Imagen predeterminada
+      roleId: 2
     };
 
     this.authService.register(userData).subscribe({
       next: (response) => {
-        console.log('✅ Registro exitoso, login automático completado:', response);
-        this.successMessage = '¡Cuenta creada! Redirigiendo al dashboard...';
-        
-        // Redirigir al dashboard después de 1.5 segundos (ya está autenticado)
+        this.successMessage = 'Cuenta creada exitosamente. Redirigiendo...';
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
-        }, 15);
+        }, 1500);
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('❌ Error en registro:', error);
-        
-        // Mensaje de error más específico
         if (error.error?.message) {
           this.errorMessage = error.error.message;
-        } else if (error.status === 409 || error.error?.includes('ya existe')) {
+        } else if (error.status === 409) {
           this.errorMessage = 'El email o username ya está registrado.';
         } else {
           this.errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';

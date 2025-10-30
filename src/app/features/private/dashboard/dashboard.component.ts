@@ -12,11 +12,7 @@ import {
   Plus,
   Heart,
   Users,
-  Settings,
-  TrendingUp,
-  Flame,
-  Apple,
-  Target
+  Settings
 } from 'lucide-angular';
 
 @Component({
@@ -26,222 +22,131 @@ import {
   template: `
     <app-navbar />
     
-    <div class="min-h-screen bg-gradient-to-br from-background to-celadon py-8">
+    <div class="min-h-screen bg-gradient-to-br from-background via-celadon to-background py-12">
       <div class="max-w-7xl mx-auto px-4">
         <!-- Header de bienvenida -->
-        <div class="mb-8">
-          <h1 class="mb-2">¡Bienvenido, {{ currentUser?.username }}! 👋</h1>
-          <p class="text-slate-gray text-lg">Aquí está tu resumen de la semana</p>
+        <div class="mb-12">
+          <h1 class="mb-3 text-5xl">Bienvenido, {{ currentUser?.username }}</h1>
+          <p class="text-slate-gray text-2xl">Tu espacio personal de planificación de comidas</p>
         </div>
 
         <!-- Cards principales -->
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
           <!-- Planner -->
           <a 
             routerLink="/planner" 
-            class="group card hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 border-transparent hover:border-cambridge-blue"
+            class="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-cambridge-blue"
           >
-            <div class="flex items-start justify-between mb-4">
-              <div class="p-3 bg-cambridge-blue bg-opacity-10 rounded-xl group-hover:bg-cambridge-blue group-hover:bg-opacity-100 transition-all">
-                <lucide-icon [img]="CalendarIcon" class="w-8 h-8 text-cambridge-blue group-hover:text-white transition-colors"></lucide-icon>
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-cambridge-blue to-zomp rounded-2xl group-hover:scale-110 transition-transform shadow-lg">
+                <lucide-icon [img]="CalendarIcon" class="w-10 h-10 text-white"></lucide-icon>
               </div>
-              <span class="text-xs text-slate-gray">Esta semana</span>
+              <span class="text-sm text-slate-gray font-medium">Esta semana</span>
             </div>
-            <h3 class="mb-2 group-hover:text-cambridge-blue transition-colors">Mi Planner</h3>
-            <p class="text-slate-gray text-sm mb-4">
+            <h3 class="mb-3 group-hover:text-cambridge-blue transition-colors text-2xl">Mi Planner</h3>
+            <p class="text-slate-gray mb-6 text-lg">
               Organiza tu menú semanal
             </p>
-            <div class="flex items-center text-cambridge-blue font-medium text-sm">
+            <div class="flex items-center text-cambridge-blue font-semibold text-lg">
               <span>Ver planner</span>
-              <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              <span class="ml-3 group-hover:translate-x-2 transition-transform text-2xl">→</span>
             </div>
           </a>
 
           <!-- Mis Recetas -->
           <a 
             routerLink="/recipes/my" 
-            class="group card hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 border-transparent hover:border-zomp"
+            class="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-zomp"
           >
-            <div class="flex items-start justify-between mb-4">
-              <div class="p-3 bg-zomp bg-opacity-10 rounded-xl group-hover:bg-zomp group-hover:bg-opacity-100 transition-all">
-                <lucide-icon [img]="BookIcon" class="w-8 h-8 text-zomp group-hover:text-white transition-colors"></lucide-icon>
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-zomp to-cambridge-blue rounded-2xl group-hover:scale-110 transition-transform shadow-lg">
+                <lucide-icon [img]="BookIcon" class="w-10 h-10 text-white"></lucide-icon>
               </div>
-              <span class="text-xs text-slate-gray">12 recetas</span>
+              <span class="text-sm text-slate-gray font-medium">Gestión</span>
             </div>
-            <h3 class="mb-2 group-hover:text-zomp transition-colors">Mis Recetas</h3>
-            <p class="text-slate-gray text-sm mb-4">
+            <h3 class="mb-3 group-hover:text-zomp transition-colors text-2xl">Mis Recetas</h3>
+            <p class="text-slate-gray mb-6 text-lg">
               Ver y editar tus recetas
             </p>
-            <div class="flex items-center text-zomp font-medium text-sm">
+            <div class="flex items-center text-zomp font-semibold text-lg">
               <span>Gestionar recetas</span>
-              <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              <span class="ml-3 group-hover:translate-x-2 transition-transform text-2xl">→</span>
             </div>
           </a>
 
           <!-- Lista de Compra -->
           <a 
             routerLink="/shopping-list" 
-            class="group card hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 border-transparent hover:border-success"
+            class="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-success"
           >
-            <div class="flex items-start justify-between mb-4">
-              <div class="p-3 bg-success bg-opacity-10 rounded-xl group-hover:bg-success group-hover:bg-opacity-100 transition-all">
-                <lucide-icon [img]="ShoppingCartIcon" class="w-8 h-8 text-success group-hover:text-white transition-colors"></lucide-icon>
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-success to-green-600 rounded-2xl group-hover:scale-110 transition-transform shadow-lg">
+                <lucide-icon [img]="ShoppingCartIcon" class="w-10 h-10 text-white"></lucide-icon>
               </div>
-              <span class="text-xs text-slate-gray">8 items</span>
+              <span class="text-sm text-slate-gray font-medium">Compras</span>
             </div>
-            <h3 class="mb-2 group-hover:text-success transition-colors">Lista de Compra</h3>
-            <p class="text-slate-gray text-sm mb-4">
+            <h3 class="mb-3 group-hover:text-success transition-colors text-2xl">Lista de Compra</h3>
+            <p class="text-slate-gray mb-6 text-lg">
               Tu lista generada automáticamente
             </p>
-            <div class="flex items-center text-success font-medium text-sm">
+            <div class="flex items-center text-success font-semibold text-lg">
               <span>Ver lista</span>
-              <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              <span class="ml-3 group-hover:translate-x-2 transition-transform text-2xl">→</span>
             </div>
           </a>
         </div>
 
         <!-- Acciones rápidas -->
-        <div class="mb-8">
-          <h2 class="mb-4 text-2xl">Acciones Rápidas</h2>
-          <div class="grid md:grid-cols-4 gap-4">
+        <div class="mb-12">
+          <h2 class="mb-6 text-3xl">Acciones Rápidas</h2>
+          <div class="grid md:grid-cols-4 gap-6">
             <a 
               routerLink="/recipes/new" 
-              class="card text-center hover:shadow-xl transition-all hover:-translate-y-1 group"
+              class="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all hover:-translate-y-1 group border border-gray-100"
             >
-              <div class="flex justify-center mb-3">
-                <div class="p-3 bg-cambridge-blue bg-opacity-10 rounded-full group-hover:bg-cambridge-blue transition-all">
-                  <lucide-icon [img]="PlusIcon" class="w-6 h-6 text-cambridge-blue group-hover:text-white transition-colors"></lucide-icon>
+              <div class="flex justify-center mb-4">
+                <div class="p-4 bg-cambridge-blue bg-opacity-10 rounded-2xl group-hover:bg-cambridge-blue transition-all">
+                  <lucide-icon [img]="PlusIcon" class="w-8 h-8 text-cambridge-blue group-hover:text-white transition-colors"></lucide-icon>
                 </div>
               </div>
-              <p class="font-semibold">Nueva Receta</p>
+              <p class="font-semibold text-lg">Nueva Receta</p>
             </a>
 
             <a 
               routerLink="/recipes/saved" 
-              class="card text-center hover:shadow-xl transition-all hover:-translate-y-1 group"
+              class="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all hover:-translate-y-1 group border border-gray-100"
             >
-              <div class="flex justify-center mb-3">
-                <div class="p-3 bg-error bg-opacity-10 rounded-full group-hover:bg-error transition-all">
-                  <lucide-icon [img]="HeartIcon" class="w-6 h-6 text-error group-hover:text-white transition-colors"></lucide-icon>
+              <div class="flex justify-center mb-4">
+                <div class="p-4 bg-error bg-opacity-10 rounded-2xl group-hover:bg-error transition-all">
+                  <lucide-icon [img]="HeartIcon" class="w-8 h-8 text-error group-hover:text-white transition-colors"></lucide-icon>
                 </div>
               </div>
-              <p class="font-semibold">Guardadas</p>
+              <p class="font-semibold text-lg">Guardadas</p>
             </a>
 
             <a 
               routerLink="/groups" 
-              class="card text-center hover:shadow-xl transition-all hover:-translate-y-1 group"
+              class="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all hover:-translate-y-1 group border border-gray-100"
             >
-              <div class="flex justify-center mb-3">
-                <div class="p-3 bg-dark-purple bg-opacity-10 rounded-full group-hover:bg-dark-purple transition-all">
-                  <lucide-icon [img]="UsersIcon" class="w-6 h-6 text-dark-purple group-hover:text-white transition-colors"></lucide-icon>
+              <div class="flex justify-center mb-4">
+                <div class="p-4 bg-dark-purple bg-opacity-10 rounded-2xl group-hover:bg-dark-purple transition-all">
+                  <lucide-icon [img]="UsersIcon" class="w-8 h-8 text-dark-purple group-hover:text-white transition-colors"></lucide-icon>
                 </div>
               </div>
-              <p class="font-semibold">Mis Grupos</p>
+              <p class="font-semibold text-lg">Mis Grupos</p>
             </a>
 
             <a 
               routerLink="/profile" 
-              class="card text-center hover:shadow-xl transition-all hover:-translate-y-1 group"
+              class="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all hover:-translate-y-1 group border border-gray-100"
             >
-              <div class="flex justify-center mb-3">
-                <div class="p-3 bg-zomp bg-opacity-10 rounded-full group-hover:bg-zomp transition-all">
-                  <lucide-icon [img]="SettingsIcon" class="w-6 h-6 text-zomp group-hover:text-white transition-colors"></lucide-icon>
+              <div class="flex justify-center mb-4">
+                <div class="p-4 bg-zomp bg-opacity-10 rounded-2xl group-hover:bg-zomp transition-all">
+                  <lucide-icon [img]="SettingsIcon" class="w-8 h-8 text-zomp group-hover:text-white transition-colors"></lucide-icon>
                 </div>
               </div>
-              <p class="font-semibold">Perfil</p>
+              <p class="font-semibold text-lg">Perfil</p>
             </a>
-          </div>
-        </div>
-
-        <!-- Resumen nutricional -->
-        <div class="card">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="mb-1">Resumen Nutricional de esta Semana</h3>
-              <p class="text-slate-gray text-sm">Promedio diario</p>
-            </div>
-            <div class="flex items-center space-x-2 text-success">
-              <lucide-icon [img]="TrendingUpIcon" class="w-5 h-5"></lucide-icon>
-              <span class="font-bold">+5%</span>
-            </div>
-          </div>
-
-          <div class="grid md:grid-cols-4 gap-4">
-            <!-- Calorías -->
-            <div class="text-center p-5 bg-gradient-to-br from-cambridge-blue to-zomp rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow">
-              <div class="flex justify-center mb-2">
-                <lucide-icon [img]="FlameIcon" class="w-8 h-8"></lucide-icon>
-              </div>
-              <div class="text-3xl font-bold mb-1">1,850</div>
-              <div class="text-sm opacity-90">Calorías/día</div>
-              <div class="mt-2 pt-2 border-t border-white border-opacity-30 text-xs">
-                Meta: 2,000 kcal
-              </div>
-            </div>
-
-            <!-- Proteína -->
-            <div class="text-center p-5 bg-gradient-to-br from-success to-green-600 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow">
-              <div class="flex justify-center mb-2">
-                <lucide-icon [img]="AppleIcon" class="w-8 h-8"></lucide-icon>
-              </div>
-              <div class="text-3xl font-bold mb-1">120g</div>
-              <div class="text-sm opacity-90">Proteína/día</div>
-              <div class="mt-2 pt-2 border-t border-white border-opacity-30 text-xs">
-                Meta: 150g
-              </div>
-            </div>
-
-            <!-- Carbohidratos -->
-            <div class="text-center p-5 bg-gradient-to-br from-zomp to-teal-600 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow">
-              <div class="flex justify-center mb-2">
-                <lucide-icon [img]="TargetIcon" class="w-8 h-8"></lucide-icon>
-              </div>
-              <div class="text-3xl font-bold mb-1">180g</div>
-              <div class="text-sm opacity-90">Carbohidratos/día</div>
-              <div class="mt-2 pt-2 border-t border-white border-opacity-30 text-xs">
-                Meta: 250g
-              </div>
-            </div>
-
-            <!-- Grasas -->
-            <div class="text-center p-5 bg-gradient-to-br from-dark-purple to-purple-900 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow">
-              <div class="flex justify-center mb-2">
-                <lucide-icon [img]="TargetIcon" class="w-8 h-8"></lucide-icon>
-              </div>
-              <div class="text-3xl font-bold mb-1">65g</div>
-              <div class="text-sm opacity-90">Grasas/día</div>
-              <div class="mt-2 pt-2 border-t border-white border-opacity-30 text-xs">
-                Meta: 70g
-              </div>
-            </div>
-          </div>
-
-          <!-- Barra de progreso semanal -->
-          <div class="mt-6 pt-6 border-t border-gray-200">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-sm font-medium">Progreso semanal</span>
-              <span class="text-sm text-slate-gray">5 de 7 días completados</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div class="bg-gradient-to-r from-cambridge-blue to-zomp h-3 rounded-full transition-all duration-500" style="width: 71%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tips y consejos -->
-        <div class="mt-8 card bg-gradient-to-r from-celadon to-cambridge-blue bg-opacity-20">
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 p-3 bg-white rounded-full">
-              <lucide-icon [img]="TargetIcon" class="w-6 h-6 text-cambridge-blue"></lucide-icon>
-            </div>
-            <div>
-              <h4 class="mb-2">💡 Consejo del día</h4>
-              <p class="text-slate-gray">
-                ¡Vas muy bien! Has completado el 71% de tus objetivos esta semana. 
-                Mantén el ritmo y alcanzarás todas tus metas nutricionales.
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -260,10 +165,6 @@ export class DashboardComponent implements OnInit {
   readonly HeartIcon = Heart;
   readonly UsersIcon = Users;
   readonly SettingsIcon = Settings;
-  readonly TrendingUpIcon = TrendingUp;
-  readonly FlameIcon = Flame;
-  readonly AppleIcon = Apple;
-  readonly TargetIcon = Target;
 
   constructor(private authService: AuthService) {}
 

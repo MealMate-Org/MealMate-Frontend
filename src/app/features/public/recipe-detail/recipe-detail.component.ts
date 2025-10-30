@@ -8,253 +8,297 @@ import { FavoriteService, RatingService } from '../../../core/services/user-acti
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe, NutritionInfo } from '../../../models/recipe.model';
 import { User } from '../../../models/user.model';
+import { 
+  LucideAngularModule,
+  Heart,
+  Edit,
+  Star,
+  ChefHat,
+  Clock,
+  Users,
+  Calendar,
+  ShoppingCart,
+  Share2,
+  AlertTriangle,
+  Flame,
+  Beef,
+  Wheat,
+  Droplet
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-recipe-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent],
+  imports: [CommonModule, RouterLink, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
     
     @if (isLoading) {
-      <div class="max-w-6xl mx-auto px-4 py-12 text-center">
-        <p class="text-slate-gray">Cargando receta...</p>
+      <div class="max-w-6xl mx-auto px-4 py-20 text-center">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-cambridge-blue mb-4"></div>
+        <p class="text-slate-gray text-lg">Cargando receta...</p>
       </div>
     }
 
     @if (!isLoading && recipe) {
-      <div class="max-w-6xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="mb-6">
-          <div class="flex justify-between items-start">
-            <div>
-              <h1 class="mb-2">{{ recipe.title }}</h1>
-              @if (recipe.description) {
-                <p class="text-slate-gray text-lg">{{ recipe.description }}</p>
-              }
-            </div>
-            <div class="flex gap-2">
-              @if (currentUser && recipe.authorId === currentUser.id) {
-                <a [routerLink]="['/recipes/edit', recipe.id]" class="btn-secondary">
-                  ✏️ Editar
-                </a>
-              }
-              @if (currentUser) {
-                <button 
-                  (click)="toggleFavorite()"
-                  [class]="isFavorite ? 'btn-accent' : 'btn-secondary'"
-                >
-                  {{ isFavorite ? '❤️ Guardada' : '🤍 Guardar' }}
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-
-        <div class="grid lg:grid-cols-3 gap-6">
-          <!-- Columna Principal -->
-          <div class="lg:col-span-2 space-y-6">
-            <!-- Imagen -->
-            @if (recipe.imagePath) {
-              <div class="card p-0 overflow-hidden">
-                <img 
-                  [src]="recipe.imagePath" 
-                  [alt]="recipe.title"
-                  class="w-full h-96 object-cover"
-                >
-              </div>
-            } @else {
-              <div class="card h-96 flex items-center justify-center bg-celadon">
-                <span class="text-9xl">🍽️</span>
-              </div>
-            }
-
-            <!-- Información básica -->
-            <div class="card">
-              <div class="flex gap-4 mb-4 flex-wrap">
-                @if (recipe.mealTypeId) {
-                  <div>
-                    <span class="text-sm text-slate-gray">Tipo</span>
-                    <p class="font-medium">{{ getMealTypeName(recipe.mealTypeId) }}</p>
-                  </div>
+      <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
+        <div class="max-w-7xl mx-auto px-4">
+          <!-- Header -->
+          <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h1 class="mb-4 text-4xl">{{ recipe.title }}</h1>
+                @if (recipe.description) {
+                  <p class="text-slate-gray text-xl leading-relaxed">{{ recipe.description }}</p>
                 }
-                <div>
-                  <span class="text-sm text-slate-gray">Autor</span>
-                  @if (author) {
-                    <a 
-                      [routerLink]="['/user', author.username]"
-                      class="font-medium text-cambridge-blue hover:text-zomp transition"
-                    >
-                      {{ author.username }}
-                    </a>
-                  } @else {
-                    <p class="font-medium">Usuario {{ recipe.authorId }}</p>
-                  }
-                </div>
-                <div>
-                  <span class="text-sm text-slate-gray">Visibilidad</span>
-                  <p class="font-medium">{{ recipe.isPublic ? '🌍 Pública' : '🔒 Privada' }}</p>
-                </div>
               </div>
-
-              <!-- Valoración -->
-              <div class="flex items-center gap-4 pt-4 border-t border-celadon">
-                <div class="flex items-center gap-2">
-                  @for (star of [1,2,3,4,5]; track star) {
-                    <button 
-                      (click)="setRating(star)"
-                      [class]="star <= (userRating || 0) ? 'text-yellow-500' : 'text-slate-gray'"
-                      class="text-2xl hover:text-yellow-500 transition"
-                      [disabled]="!currentUser"
-                    >
-                      ⭐
-                    </button>
-                  }
-                </div>
-                <div>
-                  <p class="text-sm">
-                    <span class="font-bold">{{ recipe.avgRating.toFixed(1) }}</span>
-                    <span class="text-slate-gray"> ({{ recipe.ratingCount }} valoraciones)</span>
-                  </p>
-                  @if (userRating) {
-                    <p class="text-xs text-slate-gray">Tu valoración: {{ userRating }}/5</p>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- Alérgenos -->
-            @if (recipe.allergens && recipe.allergens.length > 0) {
-              <div class="card bg-red-50">
-                <h3 class="mb-3">⚠️ Contiene Alérgenos</h3>
-                <div class="flex gap-2 flex-wrap">
-                  @for (allergen of recipe.allergens; track allergen.id) {
-                    <span class="badge-error">
-                      {{ allergen.name }}
-                    </span>
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- Ingredientes -->
-            <div class="card">
-              <h3 class="mb-4">Ingredientes</h3>
-              <ul class="space-y-2">
-                @for (ingredient of recipe.ingredients; track ingredient.name) {
-                  <li class="flex items-center gap-2">
-                    <span class="text-cambridge-blue">✓</span>
-                    <span>
-                      <strong>{{ ingredient.quantity }}</strong> 
-                      {{ ingredient.unit }} de 
-                      {{ ingredient.name }}
-                    </span>
-                  </li>
-                }
-              </ul>
-            </div>
-
-            <!-- Instrucciones -->
-            <div class="card">
-              <h3 class="mb-4">Instrucciones</h3>
-              <div class="prose max-w-none">
-                <pre class="whitespace-pre-wrap font-sans text-body">{{ recipe.instructions }}</pre>
-              </div>
-            </div>
-          </div>
-
-          <!-- Columna Lateral -->
-          <div class="space-y-6">
-            <!-- Información Nutricional -->
-            @if (nutritionInfo) {
-              <div class="card">
-                <h3 class="mb-4">Información Nutricional</h3>
-                <p class="text-sm text-slate-gray mb-4">
-                  Por porción ({{ nutritionInfo.portionSize }}g)
-                </p>
-                
-                <div class="space-y-3">
-                  <div class="flex justify-between items-center p-3 bg-celadon rounded">
-                    <span class="font-medium">Calorías</span>
-                    <span class="text-lg font-bold text-dark-purple">
-                      {{ nutritionInfo.calories }} kcal
-                    </span>
-                  </div>
-                  
-                  <div class="flex justify-between items-center p-2">
-                    <span>Proteína</span>
-                    <span class="font-bold">{{ nutritionInfo.protein }}g</span>
-                  </div>
-                  
-                  <div class="flex justify-between items-center p-2">
-                    <span>Carbohidratos</span>
-                    <span class="font-bold">{{ nutritionInfo.carbs }}g</span>
-                  </div>
-                  
-                  <div class="flex justify-between items-center p-2">
-                    <span>Grasas</span>
-                    <span class="font-bold">{{ nutritionInfo.fat }}g</span>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- Autor -->
-            @if (author) {
-              <div class="card">
-                <h4 class="mb-3">Sobre el autor</h4>
-                <a [routerLink]="['/user', author.username]" class="flex items-center gap-3 hover:bg-celadon p-3 rounded transition">
-                  <img 
-                    [src]="author.avatar || 'https://via.placeholder.com/60?text=' + author.username[0].toUpperCase()" 
-                    [alt]="author.username"
-                    class="w-12 h-12 rounded-full object-cover"
+              <div class="flex gap-3 ml-6">
+                @if (currentUser && recipe.authorId === currentUser.id) {
+                  <a 
+                    [routerLink]="['/recipes/edit', recipe.id]" 
+                    class="btn-secondary inline-flex items-center gap-2"
                   >
-                  <div>
-                    <p class="font-medium text-cambridge-blue">{{ author.username }}</p>
-                    @if (author.bio) {
-                      <p class="text-sm text-slate-gray line-clamp-2">{{ author.bio }}</p>
+                    <lucide-icon [img]="EditIcon" class="w-5 h-5"></lucide-icon>
+                    Editar
+                  </a>
+                }
+                @if (currentUser) {
+                  <button 
+                    (click)="toggleFavorite()"
+                    [class]="isFavorite ? 'btn-primary' : 'btn-secondary'"
+                    class="inline-flex items-center gap-2"
+                  >
+                    <lucide-icon [img]="HeartIcon" [class]="isFavorite ? 'fill-current' : ''" class="w-5 h-5"></lucide-icon>
+                    {{ isFavorite ? 'Guardada' : 'Guardar' }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Columna Principal -->
+            <div class="lg:col-span-2 space-y-8">
+              <!-- Imagen -->
+              @if (recipe.imagePath) {
+                <div class="bg-white rounded-3xl overflow-hidden shadow-xl">
+                  <img 
+                    [src]="recipe.imagePath" 
+                    [alt]="recipe.title"
+                    class="w-full h-96 object-cover"
+                  >
+                </div>
+              } @else {
+                <div class="bg-gradient-to-br from-celadon to-cambridge-blue rounded-3xl h-96 flex items-center justify-center">
+                  <lucide-icon [img]="ChefHatIcon" class="w-32 h-32 text-white opacity-50"></lucide-icon>
+                </div>
+              }
+
+              <!-- Meta info -->
+              <div class="bg-white rounded-3xl shadow-xl p-8">
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                  @if (recipe.mealTypeId) {
+                    <div class="text-center">
+                      <div class="inline-flex items-center justify-center w-14 h-14 bg-cambridge-blue bg-opacity-10 rounded-2xl mb-3">
+                        <lucide-icon [img]="ClockIcon" class="w-7 h-7 text-cambridge-blue"></lucide-icon>
+                      </div>
+                      <p class="text-sm text-slate-gray">Tipo</p>
+                      <p class="font-bold text-lg">{{ getMealTypeName(recipe.mealTypeId) }}</p>
+                    </div>
+                  }
+                  <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-zomp bg-opacity-10 rounded-2xl mb-3">
+                      <lucide-icon [img]="UsersIcon" class="w-7 h-7 text-zomp"></lucide-icon>
+                    </div>
+                    <p class="text-sm text-slate-gray">Autor</p>
+                    @if (author) {
+                      <a 
+                        [routerLink]="['/user', author.username]"
+                        class="font-bold text-lg text-cambridge-blue hover:text-zomp transition"
+                      >
+                        {{ author.username }}
+                      </a>
+                    } @else {
+                      <p class="font-bold text-lg">Usuario {{ recipe.authorId }}</p>
                     }
                   </div>
-                </a>
-              </div>
-            }
+                  <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-dark-purple bg-opacity-10 rounded-2xl mb-3">
+                      <lucide-icon [img]="CalendarIcon" class="w-7 h-7 text-dark-purple"></lucide-icon>
+                    </div>
+                    <p class="text-sm text-slate-gray">Creada</p>
+                    <p class="font-bold text-lg">{{ recipe.createdAt | date:'dd/MM/yy' }}</p>
+                  </div>
+                </div>
 
-            <!-- Acciones rápidas -->
-            @if (currentUser) {
-              <div class="card">
-                <h4 class="mb-3">Acciones</h4>
-                <div class="space-y-2">
-                  <button 
-                    (click)="addToPlanner()"
-                    class="btn-secondary w-full text-sm"
-                  >
-                    📅 Añadir al Planner
-                  </button>
-                  <button 
-                    (click)="addToShoppingList()"
-                    class="btn-secondary w-full text-sm"
-                  >
-                    🛒 Añadir a Lista de Compra
-                  </button>
-                  <button 
-                    (click)="shareRecipe()"
-                    class="btn-secondary w-full text-sm"
-                  >
-                    📤 Compartir Receta
-                  </button>
+                <!-- Valoración -->
+                <div class="pt-8 border-t border-gray-100">
+                  <h4 class="mb-4 text-lg font-semibold">Valorar esta receta</h4>
+                  <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <button 
+                          (click)="setRating(star)"
+                          [class]="star <= (userRating || 0) ? 'text-yellow-500' : 'text-gray-300'"
+                          class="hover:text-yellow-500 transition text-3xl"
+                          [disabled]="!currentUser"
+                        >
+                          <lucide-icon [img]="StarIcon" [class]="star <= (userRating || 0) ? 'fill-current' : ''" class="w-8 h-8"></lucide-icon>
+                        </button>
+                      }
+                    </div>
+                    <div>
+                      <p class="text-lg">
+                        <span class="font-bold text-2xl">{{ recipe.avgRating.toFixed(1) }}</span>
+                        <span class="text-slate-gray"> / 5</span>
+                      </p>
+                      <p class="text-sm text-slate-gray">{{ recipe.ratingCount }} valoraciones</p>
+                    </div>
+                  </div>
+                  @if (userRating) {
+                    <p class="text-sm text-slate-gray mt-3">Tu valoración: {{ userRating }}/5</p>
+                  }
                 </div>
               </div>
-            }
 
-            <!-- Info adicional -->
-            <div class="card text-sm">
-              <p class="text-slate-gray">
-                <strong>Creada:</strong> {{ recipe.createdAt | date:'dd/MM/yyyy' }}
-              </p>
-              @if (recipe.updatedAt) {
-                <p class="text-slate-gray mt-1">
-                  <strong>Actualizada:</strong> {{ recipe.updatedAt | date:'dd/MM/yyyy' }}
-                </p>
+              <!-- Alérgenos -->
+              @if (recipe.allergens && recipe.allergens.length > 0) {
+                <div class="bg-red-50 border-2 border-error rounded-3xl p-8">
+                  <div class="flex items-center gap-3 mb-4">
+                    <lucide-icon [img]="AlertIcon" class="w-8 h-8 text-error"></lucide-icon>
+                    <h3 class="text-error text-xl font-bold">Contiene Alérgenos</h3>
+                  </div>
+                  <div class="flex gap-3 flex-wrap">
+                    @for (allergen of recipe.allergens; track allergen.id) {
+                      <span class="inline-flex items-center gap-2 bg-white text-error px-4 py-2 rounded-xl font-semibold border-2 border-error">
+                        <lucide-icon [img]="AlertIcon" class="w-4 h-4"></lucide-icon>
+                        {{ allergen.name }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Ingredientes -->
+              <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="mb-6 text-2xl">Ingredientes</h3>
+                <ul class="space-y-3">
+                  @for (ingredient of recipe.ingredients; track ingredient.name) {
+                    <li class="flex items-center gap-3 p-3 hover:bg-celadon rounded-xl transition">
+                      <div class="w-2 h-2 bg-cambridge-blue rounded-full"></div>
+                      <span class="text-lg">
+                        <strong class="text-cambridge-blue">{{ ingredient.quantity }}</strong> 
+                        {{ ingredient.unit }} de 
+                        <strong>{{ ingredient.name }}</strong>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              </div>
+
+              <!-- Instrucciones -->
+              <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="mb-6 text-2xl">Instrucciones</h3>
+                <div class="prose max-w-none">
+                  <pre class="whitespace-pre-wrap font-sans text-lg text-slate-gray leading-relaxed">{{ recipe.instructions }}</pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna Lateral -->
+            <div class="space-y-8">
+              <!-- Información Nutricional -->
+              @if (nutritionInfo) {
+                <div class="bg-white rounded-3xl shadow-xl p-8">
+                  <h3 class="mb-4 text-xl">Información Nutricional</h3>
+                  <p class="text-sm text-slate-gray mb-6">
+                    Por porción ({{ nutritionInfo.portionSize }}g)
+                  </p>
+                  
+                  <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 bg-gradient-to-r from-cambridge-blue to-zomp rounded-2xl text-white">
+                      <div class="flex items-center gap-3">
+                        <lucide-icon [img]="FlameIcon" class="w-6 h-6"></lucide-icon>
+                        <span class="font-semibold">Calorías</span>
+                      </div>
+                      <span class="text-2xl font-bold">{{ nutritionInfo.calories }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-4 bg-celadon rounded-2xl">
+                      <div class="flex items-center gap-3">
+                        <lucide-icon [img]="BeefIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
+                        <span class="font-semibold">Proteína</span>
+                      </div>
+                      <span class="text-xl font-bold">{{ nutritionInfo.protein }}g</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-4 bg-celadon rounded-2xl">
+                      <div class="flex items-center gap-3">
+                        <lucide-icon [img]="WheatIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
+                        <span class="font-semibold">Carbohidratos</span>
+                      </div>
+                      <span class="text-xl font-bold">{{ nutritionInfo.carbs }}g</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-4 bg-celadon rounded-2xl">
+                      <div class="flex items-center gap-3">
+                        <lucide-icon [img]="DropletIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
+                        <span class="font-semibold">Grasas</span>
+                      </div>
+                      <span class="text-xl font-bold">{{ nutritionInfo.fat }}g</span>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Autor -->
+              @if (author) {
+                <div class="bg-white rounded-3xl shadow-xl p-8">
+                  <h4 class="mb-4 text-lg font-semibold">Sobre el autor</h4>
+                  <a [routerLink]="['/user', author.username]" class="flex items-center gap-4 hover:bg-celadon p-4 rounded-2xl transition">
+                    <img 
+                      [src]="author.avatar || '/defaultProfilePicture.png'" 
+                      [alt]="author.username"
+                      class="w-16 h-16 rounded-full object-cover border-2 border-cambridge-blue"
+                    >
+                    <div>
+                      <p class="font-bold text-lg text-cambridge-blue">{{ author.username }}</p>
+                      @if (author.bio) {
+                        <p class="text-sm text-slate-gray line-clamp-2">{{ author.bio }}</p>
+                      }
+                    </div>
+                  </a>
+                </div>
+              }
+
+              <!-- Acciones rápidas -->
+              @if (currentUser) {
+                <div class="bg-white rounded-3xl shadow-xl p-8">
+                  <h4 class="mb-4 text-lg font-semibold">Acciones</h4>
+                  <div class="space-y-3">
+                    <button 
+                      (click)="addToPlanner()"
+                      class="btn-secondary w-full text-base inline-flex items-center justify-center gap-2"
+                    >
+                      <lucide-icon [img]="CalendarIcon" class="w-5 h-5"></lucide-icon>
+                      Añadir al Planner
+                    </button>
+                    <button 
+                      (click)="addToShoppingList()"
+                      class="btn-secondary w-full text-base inline-flex items-center justify-center gap-2"
+                    >
+                      <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
+                      Añadir a Lista de Compra
+                    </button>
+                    <button 
+                      (click)="shareRecipe()"
+                      class="btn-secondary w-full text-base inline-flex items-center justify-center gap-2"
+                    >
+                      <lucide-icon [img]="ShareIcon" class="w-5 h-5"></lucide-icon>
+                      Compartir Receta
+                    </button>
+                  </div>
+                </div>
               }
             </div>
           </div>
@@ -263,10 +307,11 @@ import { User } from '../../../models/user.model';
     }
 
     @if (!isLoading && !recipe) {
-      <div class="max-w-6xl mx-auto px-4 py-12 text-center">
-        <div class="card">
-          <h2 class="mb-4">Receta no encontrada</h2>
-          <p class="text-slate-gray mb-6">
+      <div class="max-w-6xl mx-auto px-4 py-20 text-center">
+        <div class="bg-white rounded-3xl shadow-xl p-12">
+          <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
+          <h2 class="mb-4 text-3xl">Receta no encontrada</h2>
+          <p class="text-slate-gray mb-8 text-lg">
             Lo sentimos, no pudimos encontrar esta receta.
           </p>
           <a routerLink="/recipes" class="btn-primary">
@@ -301,6 +346,22 @@ export class RecipeDetailComponent implements OnInit {
   isFavorite = false;
   userRating: number | null = null;
   currentUser: any = null;
+
+  // Iconos
+  readonly HeartIcon = Heart;
+  readonly EditIcon = Edit;
+  readonly StarIcon = Star;
+  readonly ChefHatIcon = ChefHat;
+  readonly ClockIcon = Clock;
+  readonly UsersIcon = Users;
+  readonly CalendarIcon = Calendar;
+  readonly ShoppingCartIcon = ShoppingCart;
+  readonly ShareIcon = Share2;
+  readonly AlertIcon = AlertTriangle;
+  readonly FlameIcon = Flame;
+  readonly BeefIcon = Beef;
+  readonly WheatIcon = Wheat;
+  readonly DropletIcon = Droplet;
 
   constructor(
     private route: ActivatedRoute,
@@ -431,7 +492,6 @@ export class RecipeDetailComponent implements OnInit {
     this.ratingService.rateRecipe(ratingData).subscribe({
       next: () => {
         this.userRating = rating;
-        // Recargar receta para actualizar promedio
         if (this.recipe) {
           this.loadRecipe(this.recipe.id);
         }
@@ -465,7 +525,7 @@ export class RecipeDetailComponent implements OnInit {
     if (this.recipe) {
       const url = window.location.href;
       navigator.clipboard.writeText(url).then(() => {
-        alert('¡Enlace copiado al portapapeles!');
+        alert('Enlace copiado al portapapeles');
       });
     }
   }

@@ -7,118 +7,170 @@ import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe } from '../../../models/recipe.model';
 import { Favorite } from '../../../models/social.model';
+import { 
+  LucideAngularModule,
+  Heart,
+  Trash2,
+  Calendar,
+  Star,
+  ChefHat,
+  AlertTriangle,
+  Search
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-saved-recipes',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent],
+  imports: [CommonModule, RouterLink, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
-    <div class="max-w-7xl mx-auto px-4 py-8">
-      <div class="mb-6">
-        <h1>Recetas Guardadas</h1>
-        <p class="text-slate-gray">Tus recetas favoritas en un solo lugar</p>
-      </div>
-
-      @if (isLoading) {
-        <div class="text-center py-12">
-          <p class="text-slate-gray">Cargando recetas guardadas...</p>
+    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="mb-12">
+          <h1 class="mb-3 text-5xl">Recetas Guardadas</h1>
+          <p class="text-slate-gray text-xl">Tus recetas favoritas en un solo lugar</p>
         </div>
-      }
 
-      @if (errorMessage) {
-        <div class="card bg-red-50 border-2 border-error mb-6">
-          <p class="text-error">{{ errorMessage }}</p>
-        </div>
-      }
+        @if (isLoading) {
+          <div class="text-center py-20">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-cambridge-blue mb-4"></div>
+            <p class="text-slate-gray text-lg">Cargando recetas guardadas...</p>
+          </div>
+        }
 
-      @if (!isLoading && savedRecipes.length > 0) {
-        <div class="grid md:grid-cols-3 gap-6">
-          @for (recipe of savedRecipes; track recipe.id) {
-            <div class="card">
-              @if (recipe.imagePath) {
-                <img 
-                  [src]="recipe.imagePath" 
-                  [alt]="recipe.title"
-                  class="w-full h-48 object-cover rounded-t-card -mt-4 -mx-4 mb-4"
-                >
-              } @else {
-                <div class="w-full h-48 bg-celadon rounded-t-card -mt-4 -mx-4 mb-4 flex items-center justify-center">
-                  <span class="text-6xl">🍽️</span>
-                </div>
-              }
-
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="flex-1">{{ recipe.title }}</h3>
-                <button 
-                  (click)="removeFromFavorites(recipe)"
-                  class="text-2xl hover:scale-110 transition"
-                  title="Quitar de favoritos"
-                >
-                  ❤️
-                </button>
-              </div>
-
-              <p class="text-slate-gray text-sm mb-3 line-clamp-2">
-                {{ recipe.description || 'Sin descripción' }}
-              </p>
-
-              <div class="flex justify-between items-center mb-3 text-sm">
-                <div class="flex items-center gap-1">
-                  <span class="text-yellow-500">⭐</span>
-                  <span class="font-medium">{{ recipe.avgRating.toFixed(1) }}</span>
-                  <span class="text-slate-gray">({{ recipe.ratingCount }})</span>
-                </div>
-                @if (recipe.mealTypeId) {
-                  <span class="badge">
-                    {{ getMealTypeName(recipe.mealTypeId) }}
-                  </span>
-                }
-              </div>
-
-              @if (recipe.allergens && recipe.allergens.length > 0) {
-                <div class="mb-3 flex gap-1 flex-wrap">
-                  @for (allergen of recipe.allergens; track allergen.id) {
-                    <span class="badge-error text-xs">
-                      ⚠️ {{ allergen.name }}
-                    </span>
-                  }
-                </div>
-              }
-
-              <div class="flex gap-2 pt-3 border-t border-celadon">
-                <a 
-                  [routerLink]="['/recipes', recipe.id]" 
-                  class="btn-primary flex-1 text-center text-sm"
-                >
-                  Ver Receta
-                </a>
-                <button 
-                  (click)="addToPlanner(recipe)"
-                  class="btn-secondary text-sm px-3"
-                  title="Añadir al planner"
-                >
-                  📅
-                </button>
-              </div>
+        @if (errorMessage) {
+          <div class="bg-red-50 border-2 border-error rounded-3xl p-6 mb-8">
+            <div class="flex items-center gap-3">
+              <lucide-icon [img]="AlertIcon" class="w-6 h-6 text-error"></lucide-icon>
+              <p class="text-error font-semibold">{{ errorMessage }}</p>
             </div>
-          }
-        </div>
-      }
+          </div>
+        }
 
-      @if (!isLoading && savedRecipes.length === 0 && !errorMessage) {
-        <div class="card text-center py-12">
-          <div class="text-6xl mb-4">❤️</div>
-          <h3 class="mb-3">Aún no tienes recetas guardadas</h3>
-          <p class="text-slate-gray mb-6">
-            Explora recetas y guarda tus favoritas haciendo clic en el corazón
-          </p>
-          <a routerLink="/recipes" class="btn-primary">
-            Explorar Recetas
-          </a>
-        </div>
-      }
+        @if (!isLoading && savedRecipes.length > 0) {
+          <div class="mb-6 text-slate-gray text-lg">
+            {{ savedRecipes.length }} recetas guardadas
+          </div>
+          
+          <div class="grid md:grid-cols-3 gap-8">
+            @for (recipe of savedRecipes; track recipe.id) {
+              <div class="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                <!-- Imagen -->
+                @if (recipe.imagePath) {
+                  <div class="relative h-56 overflow-hidden">
+                    <img 
+                      [src]="recipe.imagePath" 
+                      [alt]="recipe.title"
+                      class="w-full h-full object-cover"
+                    >
+                  </div>
+                } @else {
+                  <div class="relative h-56 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+                    <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-white opacity-50"></lucide-icon>
+                  </div>
+                }
+
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-3">
+                    <h3 class="flex-1 text-xl">{{ recipe.title }}</h3>
+                    <button 
+                      (click)="removeFromFavorites(recipe)"
+                      class="text-error hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-xl"
+                      title="Quitar de favoritos"
+                    >
+                      <lucide-icon [img]="HeartIcon" class="w-6 h-6 fill-current"></lucide-icon>
+                    </button>
+                  </div>
+
+                  <p class="text-slate-gray mb-4 line-clamp-2 text-base">
+                    {{ recipe.description || 'Sin descripción' }}
+                  </p>
+
+                  <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-2">
+                      <lucide-icon [img]="StarIcon" class="w-5 h-5 text-yellow-500 fill-current"></lucide-icon>
+                      <span class="font-semibold text-lg">{{ recipe.avgRating.toFixed(1) }}</span>
+                      <span class="text-slate-gray text-sm">({{ recipe.ratingCount }})</span>
+                    </div>
+                    @if (recipe.mealTypeId) {
+                      <span class="bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium">
+                        {{ getMealTypeName(recipe.mealTypeId) }}
+                      </span>
+                    }
+                  </div>
+
+                  @if (recipe.allergens && recipe.allergens.length > 0) {
+                    <div class="mb-4 flex gap-2 flex-wrap">
+                      @for (allergen of recipe.allergens.slice(0, 2); track allergen.id) {
+                        <span class="inline-flex items-center gap-1 bg-red-50 text-error px-3 py-1 rounded-lg text-xs font-medium">
+                          <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
+                          {{ allergen.name }}
+                        </span>
+                      }
+                      @if (recipe.allergens.length > 2) {
+                        <span class="text-slate-gray text-xs px-3 py-1">
+                          +{{ recipe.allergens.length - 2 }} más
+                        </span>
+                      }
+                    </div>
+                  }
+
+                  <div class="flex gap-3 pt-4 border-t border-gray-100">
+                    <a 
+                      [routerLink]="['/recipes', recipe.id]" 
+                      class="flex-1 btn-primary text-center text-base"
+                    >
+                      Ver Receta
+                    </a>
+                    <button 
+                      (click)="addToPlanner(recipe)"
+                      class="btn-secondary px-4 inline-flex items-center justify-center"
+                      title="Añadir al planner"
+                    >
+                      <lucide-icon [img]="CalendarIcon" class="w-5 h-5"></lucide-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!isLoading && savedRecipes.length === 0 && !errorMessage) {
+          <div class="bg-white rounded-3xl shadow-xl text-center py-20 px-8">
+            <lucide-icon [img]="HeartIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
+            <h3 class="mb-4 text-3xl">Aún no tienes recetas guardadas</h3>
+            <p class="text-slate-gray mb-8 text-lg">
+              Explora recetas y guarda tus favoritas haciendo clic en el corazón
+            </p>
+            <a routerLink="/recipes" class="btn-primary inline-flex items-center gap-2">
+              <lucide-icon [img]="SearchIcon" class="w-5 h-5"></lucide-icon>
+              Explorar Recetas
+            </a>
+          </div>
+        }
+      </div>
     </div>
+
+    <!-- Modal de confirmación -->
+    @if (recipeToRemove) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+          <h3 class="mb-4 text-2xl">¿Quitar de favoritos?</h3>
+          <p class="text-slate-gray mb-8 text-lg">
+            ¿Estás seguro de que quieres quitar "<strong>{{ recipeToRemove.title }}</strong>" de tus recetas guardadas?
+          </p>
+          <div class="flex gap-4">
+            <button (click)="recipeToRemove = null" class="flex-1 btn-secondary">
+              Cancelar
+            </button>
+            <button (click)="confirmRemove()" class="flex-1 bg-error hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+              Quitar
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     .line-clamp-2 {
@@ -134,112 +186,90 @@ export class SavedRecipesComponent implements OnInit {
   favorites: Favorite[] = [];
   isLoading = true;
   errorMessage = '';
+  recipeToRemove: Recipe | null = null;
+
+  // Iconos
+  readonly HeartIcon = Heart;
+  readonly TrashIcon = Trash2;
+  readonly CalendarIcon = Calendar;
+  readonly StarIcon = Star;
+  readonly ChefHatIcon = ChefHat;
+  readonly AlertIcon = AlertTriangle;
+  readonly SearchIcon = Search;
 
   constructor(
     private favoriteService: FavoriteService,
     private recipeService: RecipeService,
     private authService: AuthService
-  ) {
-    console.log('🏗️ SavedRecipesComponent constructor ejecutado');
-  }
+  ) {}
 
   ngOnInit(): void {
-    console.log('🚀 SavedRecipesComponent ngOnInit iniciado');
     this.loadSavedRecipes();
   }
 
   loadSavedRecipes(): void {
-  console.log('📥 ===== INICIO loadSavedRecipes() =====');
-  this.isLoading = true;
-  this.errorMessage = '';
-  
-  const currentUser = this.authService.getCurrentUser();
-  console.log('👤 Usuario actual obtenido:', currentUser);
-
-  if (!currentUser) {
-    console.log('❌ No hay usuario logueado - Abortando');
-    this.errorMessage = 'Debes iniciar sesión para ver tus recetas guardadas';
-    this.isLoading = false;
-    return;
-  }
-
-  console.log('✅ Usuario válido, ID:', currentUser.id);
-  console.log('📞 Llamando a favoriteService.getAllFavorites()...');
-  
-  // ✅ EL BACKEND YA FILTRA POR USUARIO AUTENTICADO
-  this.favoriteService.getAllFavorites().subscribe({
-    next: (favorites) => {
-      console.log('✅ Favoritos recibidos del backend:', favorites);
-      console.log('📊 Total de favoritos:', favorites.length);
-      
-      // ✅ Ya vienen filtrados del backend, no hace falta filtrar aquí
-      this.favorites = favorites;
-      
-      if (this.favorites.length === 0) {
-        console.log('⚠️ El usuario no tiene favoritos - Finalizando');
-        this.isLoading = false;
-        return;
-      }
-
-      // Obtener los IDs de las recetas favoritas
-      const recipeIds = this.favorites.map(f => f.recipeId);
-      console.log('🆔 IDs de recetas favoritas:', recipeIds);
-      
-      // Cargar todas las recetas y filtrar las favoritas
-      console.log('📞 Llamando a recipeService.getAllRecipes()...');
-      this.recipeService.getAllRecipes().subscribe({
-        next: (recipes) => {
-          console.log('✅ Recetas recibidas del backend:', recipes.length, 'recetas');
-          
-          this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
-          console.log('🍽️ Recetas guardadas filtradas:', this.savedRecipes.length);
-          
-          this.isLoading = false;
-          console.log('✅ ===== FIN loadSavedRecipes() - ÉXITO =====');
-        },
-        error: (error) => {
-          console.error('❌ Error en recipeService.getAllRecipes():', error);
-          this.errorMessage = 'Error al cargar las recetas. Por favor, inténtalo de nuevo.';
-          this.isLoading = false;
-        }
-      });
-    },
-    error: (error) => {
-      console.error('❌ Error en favoriteService.getAllFavorites():', error);
-      this.errorMessage = 'Error al cargar favoritos. Por favor, inténtalo de nuevo.';
-      this.isLoading = false;
-    }
-  });
-}
-
-  removeFromFavorites(recipe: Recipe): void {
-    console.log('🗑️ removeFromFavorites() llamado para receta:', recipe.id);
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) {
-      console.log('❌ No hay usuario logueado');
-      return;
-    }
-
-    const confirmed = confirm(`¿Quitar "${recipe.title}" de favoritos?`);
-    console.log('❓ Usuario confirmó eliminación:', confirmed);
+    this.isLoading = true;
+    this.errorMessage = '';
     
-    if (!confirmed) {
-      console.log('❌ Eliminación cancelada por el usuario');
+    const currentUser = this.authService.getCurrentUser();
+
+    if (!currentUser) {
+      this.errorMessage = 'Debes iniciar sesión para ver tus recetas guardadas';
+      this.isLoading = false;
       return;
     }
 
-    console.log('📞 Llamando a favoriteService.removeFavorite()...');
-    this.favoriteService.removeFavorite(currentUser.id, recipe.id).subscribe({
-      next: () => {
-        console.log('✅ Favorito eliminado exitosamente');
-        // Quitar de la lista local
-        this.savedRecipes = this.savedRecipes.filter(r => r.id !== recipe.id);
-        this.favorites = this.favorites.filter(f => f.recipeId !== recipe.id);
-        console.log('✅ Listas locales actualizadas');
+    this.favoriteService.getAllFavorites().subscribe({
+      next: (favorites) => {
+        this.favorites = favorites;
+        
+        if (this.favorites.length === 0) {
+          this.isLoading = false;
+          return;
+        }
+
+        const recipeIds = this.favorites.map(f => f.recipeId);
+        
+        this.recipeService.getAllRecipes().subscribe({
+          next: (recipes) => {
+            this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error cargando recetas:', error);
+            this.errorMessage = 'Error al cargar las recetas. Por favor, inténtalo de nuevo.';
+            this.isLoading = false;
+          }
+        });
       },
       error: (error) => {
-        console.error('❌ Error quitando favorito:', error);
-        alert('Error al quitar de favoritos. Inténtalo de nuevo.');
+        console.error('Error cargando favoritos:', error);
+        this.errorMessage = 'Error al cargar favoritos. Por favor, inténtalo de nuevo.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  removeFromFavorites(recipe: Recipe): void {
+    this.recipeToRemove = recipe;
+  }
+
+  confirmRemove(): void {
+    if (!this.recipeToRemove) return;
+
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return;
+
+    this.favoriteService.removeFavorite(currentUser.id, this.recipeToRemove.id).subscribe({
+      next: () => {
+        this.savedRecipes = this.savedRecipes.filter(r => r.id !== this.recipeToRemove?.id);
+        this.favorites = this.favorites.filter(f => f.recipeId !== this.recipeToRemove?.id);
+        this.recipeToRemove = null;
+      },
+      error: (error) => {
+        console.error('Error quitando favorito:', error);
+        this.errorMessage = 'Error al quitar de favoritos. Inténtalo de nuevo.';
+        this.recipeToRemove = null;
       }
     });
   }
@@ -256,7 +286,6 @@ export class SavedRecipesComponent implements OnInit {
   }
 
   addToPlanner(recipe: Recipe): void {
-    console.log('📅 addToPlanner() llamado para receta:', recipe.id);
-    alert(`Función de añadir "${recipe.title}" al planner en desarrollo`);
+    alert('Función de añadir al planner en desarrollo');
   }
 }

@@ -34,31 +34,31 @@ import {
     <app-navbar />
     
     @if (isLoading) {
-      <div class="max-w-6xl mx-auto px-4 py-20 text-center">
-        <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-cambridge-blue mb-4"></div>
-        <p class="text-slate-gray text-lg">Cargando receta...</p>
+      <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-3"></div>
+        <p class="text-slate-gray text-base">Cargando receta...</p>
       </div>
     }
 
     @if (!isLoading && recipe) {
-      <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
-        <div class="max-w-7xl mx-auto px-4">
+      <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
+        <div class="max-w-6xl mx-auto px-6 sm:px-8">
           <!-- Header -->
-          <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+          <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <h1 class="mb-4 text-4xl">{{ recipe.title }}</h1>
+                <h1 class="mb-3 text-3xl">{{ recipe.title }}</h1>
                 @if (recipe.description) {
-                  <p class="text-slate-gray text-xl leading-relaxed">{{ recipe.description }}</p>
+                  <p class="text-slate-gray text-lg leading-relaxed">{{ recipe.description }}</p>
                 }
               </div>
-              <div class="flex gap-3 ml-6">
+              <div class="flex gap-2 ml-4">
                 @if (currentUser && recipe.authorId === currentUser.id) {
                   <a 
                     [routerLink]="['/recipes/edit', recipe.id]" 
-                    class="btn-secondary inline-flex items-center gap-2"
+                    class="btn-secondary inline-flex items-center gap-2 text-sm"
                   >
-                    <lucide-icon [img]="EditIcon" class="w-5 h-5"></lucide-icon>
+                    <lucide-icon [img]="EditIcon" class="w-4 h-4"></lucide-icon>
                     Editar
                   </a>
                 }
@@ -66,9 +66,9 @@ import {
                   <button 
                     (click)="toggleFavorite()"
                     [class]="isFavorite ? 'btn-primary' : 'btn-secondary'"
-                    class="inline-flex items-center gap-2"
+                    class="inline-flex items-center gap-2 text-sm"
                   >
-                    <lucide-icon [img]="HeartIcon" [class]="isFavorite ? 'fill-current' : ''" class="w-5 h-5"></lucide-icon>
+                    <lucide-icon [img]="HeartIcon" [class]="isFavorite ? 'fill-current' : ''" class="w-4 h-4"></lucide-icon>
                     {{ isFavorite ? 'Guardada' : 'Guardar' }}
                   </button>
                 }
@@ -76,102 +76,102 @@ import {
             </div>
           </div>
 
-          <div class="grid lg:grid-cols-3 gap-8">
+          <div class="grid lg:grid-cols-3 gap-6">
             <!-- Columna Principal -->
-            <div class="lg:col-span-2 space-y-8">
+            <div class="lg:col-span-2 space-y-6">
               <!-- Imagen -->
               @if (recipe.imagePath) {
-                <div class="bg-white rounded-3xl overflow-hidden shadow-xl">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
                   <img 
                     [src]="recipe.imagePath" 
                     [alt]="recipe.title"
-                    class="w-full h-96 object-cover"
+                    class="w-full h-80 object-cover"
                   >
                 </div>
               } @else {
-                <div class="bg-gradient-to-br from-celadon to-cambridge-blue rounded-3xl h-96 flex items-center justify-center">
-                  <lucide-icon [img]="ChefHatIcon" class="w-32 h-32 text-white opacity-50"></lucide-icon>
+                <div class="bg-gradient-to-br from-celadon to-cambridge-blue rounded-2xl h-80 flex items-center justify-center">
+                  <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-white opacity-50"></lucide-icon>
                 </div>
               }
 
               <!-- Meta info -->
-              <div class="bg-white rounded-3xl shadow-xl p-8">
-                <div class="grid md:grid-cols-3 gap-6 mb-8">
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
                   @if (recipe.mealTypeId) {
                     <div class="text-center">
-                      <div class="inline-flex items-center justify-center w-14 h-14 bg-cambridge-blue bg-opacity-10 rounded-2xl mb-3">
-                        <lucide-icon [img]="ClockIcon" class="w-7 h-7 text-cambridge-blue"></lucide-icon>
+                      <div class="inline-flex items-center justify-center w-12 h-12 bg-cambridge-blue bg-opacity-10 rounded-xl mb-2">
+                        <lucide-icon [img]="ClockIcon" class="w-6 h-6 text-cambridge-blue"></lucide-icon>
                       </div>
-                      <p class="text-sm text-slate-gray">Tipo</p>
-                      <p class="font-bold text-lg">{{ getMealTypeName(recipe.mealTypeId) }}</p>
+                      <p class="text-xs text-slate-gray">Tipo</p>
+                      <p class="font-bold text-base">{{ getMealTypeName(recipe.mealTypeId) }}</p>
                     </div>
                   }
                   <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-14 h-14 bg-zomp bg-opacity-10 rounded-2xl mb-3">
-                      <lucide-icon [img]="UsersIcon" class="w-7 h-7 text-zomp"></lucide-icon>
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-zomp bg-opacity-10 rounded-xl mb-2">
+                      <lucide-icon [img]="UsersIcon" class="w-6 h-6 text-zomp"></lucide-icon>
                     </div>
-                    <p class="text-sm text-slate-gray">Autor</p>
+                    <p class="text-xs text-slate-gray">Autor</p>
                     @if (author) {
                       <a 
                         [routerLink]="['/user', author.username]"
-                        class="font-bold text-lg text-cambridge-blue hover:text-zomp transition"
+                        class="font-bold text-base text-cambridge-blue hover:text-zomp transition"
                       >
                         {{ author.username }}
                       </a>
                     } @else {
-                      <p class="font-bold text-lg">Usuario {{ recipe.authorId }}</p>
+                      <p class="font-bold text-base">Usuario {{ recipe.authorId }}</p>
                     }
                   </div>
                   <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-14 h-14 bg-dark-purple bg-opacity-10 rounded-2xl mb-3">
-                      <lucide-icon [img]="CalendarIcon" class="w-7 h-7 text-dark-purple"></lucide-icon>
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-dark-purple bg-opacity-10 rounded-xl mb-2">
+                      <lucide-icon [img]="CalendarIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
                     </div>
-                    <p class="text-sm text-slate-gray">Creada</p>
-                    <p class="font-bold text-lg">{{ recipe.createdAt | date:'dd/MM/yy' }}</p>
+                    <p class="text-xs text-slate-gray">Creada</p>
+                    <p class="font-bold text-base">{{ recipe.createdAt | date:'dd/MM/yy' }}</p>
                   </div>
                 </div>
 
                 <!-- Valoración -->
-                <div class="pt-8 border-t border-gray-100">
-                  <h4 class="mb-4 text-lg font-semibold">Valorar esta receta</h4>
-                  <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-2">
+                <div class="pt-6 border-t border-gray-100">
+                  <h4 class="mb-3 text-base font-semibold">Valorar esta receta</h4>
+                  <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1">
                       @for (star of [1,2,3,4,5]; track star) {
                         <button 
                           (click)="setRating(star)"
                           [class]="star <= (userRating || 0) ? 'text-yellow-500' : 'text-gray-300'"
-                          class="hover:text-yellow-500 transition text-3xl"
+                          class="hover:text-yellow-500 transition text-2xl"
                           [disabled]="!currentUser"
                         >
-                          <lucide-icon [img]="StarIcon" [class]="star <= (userRating || 0) ? 'fill-current' : ''" class="w-8 h-8"></lucide-icon>
+                          <lucide-icon [img]="StarIcon" [class]="star <= (userRating || 0) ? 'fill-current' : ''" class="w-6 h-6"></lucide-icon>
                         </button>
                       }
                     </div>
                     <div>
-                      <p class="text-lg">
-                        <span class="font-bold text-2xl">{{ recipe.avgRating.toFixed(1) }}</span>
+                      <p class="text-base">
+                        <span class="font-bold text-xl">{{ recipe.avgRating.toFixed(1) }}</span>
                         <span class="text-slate-gray"> / 5</span>
                       </p>
-                      <p class="text-sm text-slate-gray">{{ recipe.ratingCount }} valoraciones</p>
+                      <p class="text-xs text-slate-gray">{{ recipe.ratingCount }} valoraciones</p>
                     </div>
                   </div>
                   @if (userRating) {
-                    <p class="text-sm text-slate-gray mt-3">Tu valoración: {{ userRating }}/5</p>
+                    <p class="text-xs text-slate-gray mt-2">Tu valoración: {{ userRating }}/5</p>
                   }
                 </div>
               </div>
 
               <!-- Alérgenos -->
               @if (recipe.allergens && recipe.allergens.length > 0) {
-                <div class="bg-red-50 border-2 border-error rounded-3xl p-8">
-                  <div class="flex items-center gap-3 mb-4">
-                    <lucide-icon [img]="AlertIcon" class="w-8 h-8 text-error"></lucide-icon>
-                    <h3 class="text-error text-xl font-bold">Contiene Alérgenos</h3>
+                <div class="bg-red-50 border-2 border-error rounded-2xl p-6">
+                  <div class="flex items-center gap-2 mb-3">
+                    <lucide-icon [img]="AlertIcon" class="w-6 h-6 text-error"></lucide-icon>
+                    <h3 class="text-error text-lg font-bold">Contiene Alérgenos</h3>
                   </div>
-                  <div class="flex gap-3 flex-wrap">
+                  <div class="flex gap-2 flex-wrap">
                     @for (allergen of recipe.allergens; track allergen.id) {
-                      <span class="inline-flex items-center gap-2 bg-white text-error px-4 py-2 rounded-xl font-semibold border-2 border-error">
-                        <lucide-icon [img]="AlertIcon" class="w-4 h-4"></lucide-icon>
+                      <span class="inline-flex items-center gap-1 bg-white text-error px-3 py-1 rounded-lg font-semibold border-2 border-error text-sm">
+                        <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
                         {{ allergen.name }}
                       </span>
                     }
@@ -180,13 +180,13 @@ import {
               }
 
               <!-- Ingredientes -->
-              <div class="bg-white rounded-3xl shadow-xl p-8">
-                <h3 class="mb-6 text-2xl">Ingredientes</h3>
-                <ul class="space-y-3">
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="mb-4 text-xl">Ingredientes</h3>
+                <ul class="space-y-2">
                   @for (ingredient of recipe.ingredients; track ingredient.name) {
-                    <li class="flex items-center gap-3 p-3 hover:bg-celadon rounded-xl transition">
-                      <div class="w-2 h-2 bg-cambridge-blue rounded-full"></div>
-                      <span class="text-lg">
+                    <li class="flex items-center gap-2 p-2 hover:bg-celadon rounded-lg transition">
+                      <div class="w-1.5 h-1.5 bg-cambridge-blue rounded-full"></div>
+                      <span class="text-base">
                         <strong class="text-cambridge-blue">{{ ingredient.quantity }}</strong> 
                         {{ ingredient.unit }} de 
                         <strong>{{ ingredient.name }}</strong>
@@ -197,55 +197,55 @@ import {
               </div>
 
               <!-- Instrucciones -->
-              <div class="bg-white rounded-3xl shadow-xl p-8">
-                <h3 class="mb-6 text-2xl">Instrucciones</h3>
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="mb-4 text-xl">Instrucciones</h3>
                 <div class="prose max-w-none">
-                  <pre class="whitespace-pre-wrap font-sans text-lg text-slate-gray leading-relaxed">{{ recipe.instructions }}</pre>
+                  <pre class="whitespace-pre-wrap font-sans text-base text-slate-gray leading-relaxed">{{ recipe.instructions }}</pre>
                 </div>
               </div>
             </div>
 
             <!-- Columna Lateral -->
-            <div class="space-y-8">
+            <div class="space-y-6">
               <!-- Información Nutricional -->
               @if (nutritionInfo) {
-                <div class="bg-white rounded-3xl shadow-xl p-8">
-                  <h3 class="mb-4 text-xl">Información Nutricional</h3>
-                  <p class="text-sm text-slate-gray mb-6">
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 class="mb-3 text-lg">Información Nutricional</h3>
+                  <p class="text-xs text-slate-gray mb-4">
                     Por porción ({{ nutritionInfo.portionSize }}g)
                   </p>
                   
-                  <div class="space-y-4">
-                    <div class="flex justify-between items-center p-4 bg-gradient-to-r from-cambridge-blue to-zomp rounded-2xl text-white">
-                      <div class="flex items-center gap-3">
-                        <lucide-icon [img]="FlameIcon" class="w-6 h-6"></lucide-icon>
-                        <span class="font-semibold">Calorías</span>
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gradient-to-r from-cambridge-blue to-zomp rounded-xl text-white">
+                      <div class="flex items-center gap-2">
+                        <lucide-icon [img]="FlameIcon" class="w-5 h-5"></lucide-icon>
+                        <span class="font-semibold text-sm">Calorías</span>
                       </div>
-                      <span class="text-2xl font-bold">{{ nutritionInfo.calories }}</span>
+                      <span class="text-xl font-bold">{{ nutritionInfo.calories }}</span>
                     </div>
                     
-                    <div class="flex justify-between items-center p-4 bg-celadon rounded-2xl">
-                      <div class="flex items-center gap-3">
-                        <lucide-icon [img]="BeefIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
-                        <span class="font-semibold">Proteína</span>
+                    <div class="flex justify-between items-center p-3 bg-celadon rounded-xl">
+                      <div class="flex items-center gap-2">
+                        <lucide-icon [img]="BeefIcon" class="w-5 h-5 text-dark-purple"></lucide-icon>
+                        <span class="font-semibold text-sm">Proteína</span>
                       </div>
-                      <span class="text-xl font-bold">{{ nutritionInfo.protein }}g</span>
+                      <span class="text-lg font-bold">{{ nutritionInfo.protein }}g</span>
                     </div>
                     
-                    <div class="flex justify-between items-center p-4 bg-celadon rounded-2xl">
-                      <div class="flex items-center gap-3">
-                        <lucide-icon [img]="WheatIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
-                        <span class="font-semibold">Carbohidratos</span>
+                    <div class="flex justify-between items-center p-3 bg-celadon rounded-xl">
+                      <div class="flex items-center gap-2">
+                        <lucide-icon [img]="WheatIcon" class="w-5 h-5 text-dark-purple"></lucide-icon>
+                        <span class="font-semibold text-sm">Carbohidratos</span>
                       </div>
-                      <span class="text-xl font-bold">{{ nutritionInfo.carbs }}g</span>
+                      <span class="text-lg font-bold">{{ nutritionInfo.carbs }}g</span>
                     </div>
                     
-                    <div class="flex justify-between items-center p-4 bg-celadon rounded-2xl">
-                      <div class="flex items-center gap-3">
-                        <lucide-icon [img]="DropletIcon" class="w-6 h-6 text-dark-purple"></lucide-icon>
-                        <span class="font-semibold">Grasas</span>
+                    <div class="flex justify-between items-center p-3 bg-celadon rounded-xl">
+                      <div class="flex items-center gap-2">
+                        <lucide-icon [img]="DropletIcon" class="w-5 h-5 text-dark-purple"></lucide-icon>
+                        <span class="font-semibold text-sm">Grasas</span>
                       </div>
-                      <span class="text-xl font-bold">{{ nutritionInfo.fat }}g</span>
+                      <span class="text-lg font-bold">{{ nutritionInfo.fat }}g</span>
                     </div>
                   </div>
                 </div>
@@ -253,18 +253,18 @@ import {
 
               <!-- Autor -->
               @if (author) {
-                <div class="bg-white rounded-3xl shadow-xl p-8">
-                  <h4 class="mb-4 text-lg font-semibold">Sobre el autor</h4>
-                  <a [routerLink]="['/user', author.username]" class="flex items-center gap-4 hover:bg-celadon p-4 rounded-2xl transition">
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h4 class="mb-3 text-base font-semibold">Sobre el autor</h4>
+                  <a [routerLink]="['/user', author.username]" class="flex items-center gap-3 hover:bg-celadon p-3 rounded-xl transition">
                     <img 
                       [src]="author.avatar || '/defaultProfilePicture.png'" 
                       [alt]="author.username"
-                      class="w-16 h-16 rounded-full object-cover border-2 border-cambridge-blue"
+                      class="w-12 h-12 rounded-full object-cover border-2 border-cambridge-blue"
                     >
                     <div>
-                      <p class="font-bold text-lg text-cambridge-blue">{{ author.username }}</p>
+                      <p class="font-bold text-base text-cambridge-blue">{{ author.username }}</p>
                       @if (author.bio) {
-                        <p class="text-sm text-slate-gray line-clamp-2">{{ author.bio }}</p>
+                        <p class="text-xs text-slate-gray line-clamp-2">{{ author.bio }}</p>
                       }
                     </div>
                   </a>
@@ -273,28 +273,28 @@ import {
 
               <!-- Acciones rápidas -->
               @if (currentUser) {
-                <div class="bg-white rounded-3xl shadow-xl p-8">
-                  <h4 class="mb-4 text-lg font-semibold">Acciones</h4>
-                  <div class="space-y-3">
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h4 class="mb-3 text-base font-semibold">Acciones</h4>
+                  <div class="space-y-2">
                     <button 
                       (click)="addToPlanner()"
-                      class="btn-secondary w-full text-base inline-flex items-center justify-center gap-2"
+                      class="btn-secondary w-full text-sm inline-flex items-center justify-center gap-2"
                     >
-                      <lucide-icon [img]="CalendarIcon" class="w-5 h-5"></lucide-icon>
+                      <lucide-icon [img]="CalendarIcon" class="w-4 h-4"></lucide-icon>
                       Añadir al Planner
                     </button>
                     <button 
                       (click)="addToShoppingList()"
-                      class="btn-secondary w-full text-base inline-flex items-center justify-center gap-2"
+                      class="btn-secondary w-full text-sm inline-flex items-center justify-center gap-2"
                     >
-                      <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
+                      <lucide-icon [img]="ShoppingCartIcon" class="w-4 h-4"></lucide-icon>
                       Añadir a Lista de Compra
                     </button>
                     <button 
                       (click)="shareRecipe()"
-                      class="btn-secondary w-full text-base inline-flex items-center justify-center gap-2"
+                      class="btn-secondary w-full text-sm inline-flex items-center justify-center gap-2"
                     >
-                      <lucide-icon [img]="ShareIcon" class="w-5 h-5"></lucide-icon>
+                      <lucide-icon [img]="ShareIcon" class="w-4 h-4"></lucide-icon>
                       Compartir Receta
                     </button>
                   </div>
@@ -307,11 +307,11 @@ import {
     }
 
     @if (!isLoading && !recipe) {
-      <div class="max-w-6xl mx-auto px-4 py-20 text-center">
-        <div class="bg-white rounded-3xl shadow-xl p-12">
-          <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
-          <h2 class="mb-4 text-3xl">Receta no encontrada</h2>
-          <p class="text-slate-gray mb-8 text-lg">
+      <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+          <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+          <h2 class="mb-3 text-2xl">Receta no encontrada</h2>
+          <p class="text-slate-gray mb-6 text-base">
             Lo sentimos, no pudimos encontrar esta receta.
           </p>
           <a routerLink="/recipes" class="btn-primary">

@@ -26,38 +26,38 @@ import {
   imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
-    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-between items-center mb-8">
+    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
+      <div class="max-w-6xl mx-auto px-6 sm:px-8">
+        <div class="flex justify-between items-center mb-6">
           <div>
-            <h1 class="mb-2 text-5xl">Mis Recetas</h1>
-            <p class="text-slate-gray text-xl">Gestiona todas tus recetas creadas</p>
+            <h1 class="mb-2 text-4xl">Mis Recetas</h1>
+            <p class="text-slate-gray text-lg">Gestiona todas tus recetas creadas</p>
           </div>
-          <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4">
-            <lucide-icon [img]="PlusIcon" class="w-6 h-6"></lucide-icon>
+          <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2 text-base px-6 py-3">
+            <lucide-icon [img]="PlusIcon" class="w-5 h-5"></lucide-icon>
             Nueva Receta
           </a>
         </div>
 
         <!-- Filtros -->
-        <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-          <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <div class="grid md:grid-cols-3 gap-4">
             <div class="relative">
-              <lucide-icon [img]="SearchIcon" class="w-5 h-5 text-slate-gray absolute left-4 top-1/2 transform -translate-y-1/2"></lucide-icon>
+              <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-slate-gray absolute left-3 top-1/2 transform -translate-y-1/2"></lucide-icon>
               <input
                 type="text"
                 [(ngModel)]="searchTerm"
                 (input)="filterRecipes()"
-                class="input w-full pl-12"
+                class="input w-full pl-10 text-sm"
                 placeholder="Buscar en mis recetas..."
               />
             </div>
-            <select [(ngModel)]="visibilityFilter" (change)="filterRecipes()" class="input">
+            <select [(ngModel)]="visibilityFilter" (change)="filterRecipes()" class="input text-sm">
               <option value="all">Todas</option>
               <option value="public">Públicas</option>
               <option value="private">Privadas</option>
             </select>
-            <select [(ngModel)]="mealTypeFilter" (change)="filterRecipes()" class="input">
+            <select [(ngModel)]="mealTypeFilter" (change)="filterRecipes()" class="input text-sm">
               <option [value]="null">Todos los tipos</option>
               <option [value]="1">Desayuno</option>
               <option [value]="2">Comida</option>
@@ -69,22 +69,22 @@ import {
         </div>
 
         @if (isLoading) {
-        <div class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-cambridge-blue mb-4"></div>
-          <p class="text-slate-gray text-lg">Cargando tus recetas...</p>
+        <div class="text-center py-16">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-3"></div>
+          <p class="text-slate-gray text-base">Cargando tus recetas...</p>
         </div>
         } 
         
         @if (!isLoading && filteredRecipes.length > 0) {
-        <div class="mb-6 text-slate-gray text-lg">
+        <div class="mb-5 text-slate-gray text-base">
           Mostrando {{ filteredRecipes.length }} de {{ myRecipes.length }} recetas
         </div>
         
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid md:grid-cols-3 gap-6">
           @for (recipe of filteredRecipes; track recipe.id) {
-          <div class="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+          <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
             @if (recipe.imagePath) {
-            <div class="relative h-56 overflow-hidden">
+            <div class="relative h-48 overflow-hidden">
               <img
                 [src]="recipe.imagePath"
                 [alt]="recipe.title"
@@ -92,40 +92,40 @@ import {
               />
             </div>
             } @else {
-            <div class="relative h-56 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
-              <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-white opacity-50"></lucide-icon>
+            <div class="relative h-48 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+              <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-white opacity-50"></lucide-icon>
             </div>
             }
 
-            <div class="p-6">
-              <div class="flex justify-between items-start mb-3">
-                <h3 class="flex-1 text-xl">{{ recipe.title }}</h3>
-                <div class="flex items-center gap-1 text-sm">
-                  <lucide-icon [img]="StarIcon" class="w-5 h-5 text-yellow-500 fill-current"></lucide-icon>
+            <div class="p-5">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="flex-1 text-lg">{{ recipe.title }}</h3>
+                <div class="flex items-center gap-1 text-xs">
+                  <lucide-icon [img]="StarIcon" class="w-4 h-4 text-yellow-500 fill-current"></lucide-icon>
                   <span class="font-semibold">{{ recipe.avgRating.toFixed(1) }}</span>
                 </div>
               </div>
 
-              <p class="text-slate-gray mb-4 line-clamp-2 text-base">
+              <p class="text-slate-gray mb-3 line-clamp-2 text-sm">
                 {{ recipe.description || 'Sin descripción' }}
               </p>
 
-              <div class="flex justify-between items-center mb-4">
-                <span [class]="recipe.isPublic ? 'inline-flex items-center gap-2 bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium' : 'inline-flex items-center gap-2 bg-slate-gray text-white px-3 py-1 rounded-full text-sm font-medium'">
+              <div class="flex justify-between items-center mb-3">
+                <span [class]="recipe.isPublic ? 'inline-flex items-center gap-1 bg-cambridge-blue text-white px-2 py-1 rounded-full text-xs font-medium' : 'inline-flex items-center gap-1 bg-slate-gray text-white px-2 py-1 rounded-full text-xs font-medium'">
                   <lucide-icon [img]="recipe.isPublic ? GlobeIcon : LockIcon" class="w-3 h-3"></lucide-icon>
                   {{ recipe.isPublic ? 'Pública' : 'Privada' }}
                 </span>
                 @if (recipe.mealTypeId) {
-                <span class="text-slate-gray text-sm">
+                <span class="text-slate-gray text-xs">
                   {{ getMealTypeName(recipe.mealTypeId) }}
                 </span>
                 }
               </div>
 
               @if (recipe.allergens && recipe.allergens.length > 0) {
-              <div class="mb-4 flex gap-2 flex-wrap">
+              <div class="mb-3 flex gap-1 flex-wrap">
                 @for (allergen of recipe.allergens.slice(0, 2); track allergen.id) {
-                <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded-lg text-xs font-medium">
+                <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded text-xs font-medium">
                   <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
                   {{ allergen.name }}
                 </span>
@@ -136,26 +136,26 @@ import {
               </div>
               }
 
-              <div class="flex gap-2 pt-4 border-t border-gray-100">
+              <div class="flex gap-2 pt-3 border-t border-gray-100">
                 <a
                   [routerLink]="['/recipes', recipe.id]"
-                  class="flex-1 btn-secondary text-center text-sm inline-flex items-center justify-center gap-2"
+                  class="flex-1 btn-secondary text-center text-xs inline-flex items-center justify-center gap-1"
                 >
-                  <lucide-icon [img]="EyeIcon" class="w-4 h-4"></lucide-icon>
+                  <lucide-icon [img]="EyeIcon" class="w-3 h-3"></lucide-icon>
                   Ver
                 </a>
                 <a
                   [routerLink]="['/recipes/edit', recipe.id]"
-                  class="flex-1 btn-secondary text-center text-sm inline-flex items-center justify-center gap-2"
+                  class="flex-1 btn-secondary text-center text-xs inline-flex items-center justify-center gap-1"
                 >
-                  <lucide-icon [img]="EditIcon" class="w-4 h-4"></lucide-icon>
+                  <lucide-icon [img]="EditIcon" class="w-3 h-3"></lucide-icon>
                   Editar
                 </a>
                 <button 
                   (click)="deleteRecipe(recipe)" 
-                  class="btn-secondary text-sm px-4 inline-flex items-center gap-1"
+                  class="btn-secondary text-xs px-3 inline-flex items-center gap-1"
                 >
-                  <lucide-icon [img]="TrashIcon" class="w-4 h-4 text-error"></lucide-icon>
+                  <lucide-icon [img]="TrashIcon" class="w-3 h-3 text-error"></lucide-icon>
                 </button>
               </div>
             </div>
@@ -165,23 +165,23 @@ import {
         } 
         
         @if (!isLoading && filteredRecipes.length === 0 && myRecipes.length === 0) {
-        <div class="bg-white rounded-3xl shadow-xl text-center py-20 px-8">
-          <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
-          <h3 class="mb-4 text-2xl">Aún no tienes recetas</h3>
-          <p class="text-slate-gray mb-8 text-lg">Empieza a crear tus propias recetas y guárdalas aquí</p>
-          <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2">
-            <lucide-icon [img]="PlusIcon" class="w-5 h-5"></lucide-icon>
+        <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+          <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+          <h3 class="mb-3 text-xl">Aún no tienes recetas</h3>
+          <p class="text-slate-gray mb-6 text-base">Empieza a crear tus propias recetas y guárdalas aquí</p>
+          <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2 text-sm">
+            <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
             Crear Mi Primera Receta
           </a>
         </div>
         } 
         
         @if (!isLoading && filteredRecipes.length === 0 && myRecipes.length > 0) {
-        <div class="bg-white rounded-3xl shadow-xl text-center py-20 px-8">
-          <lucide-icon [img]="SearchIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
-          <h3 class="mb-4 text-2xl">No se encontraron recetas</h3>
-          <p class="text-slate-gray mb-8 text-lg">Intenta con otros filtros o términos de búsqueda</p>
-          <button (click)="clearFilters()" class="btn-secondary">Limpiar Filtros</button>
+        <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+          <lucide-icon [img]="SearchIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+          <h3 class="mb-3 text-xl">No se encontraron recetas</h3>
+          <p class="text-slate-gray mb-6 text-base">Intenta con otros filtros o términos de búsqueda</p>
+          <button (click)="clearFilters()" class="btn-secondary text-sm">Limpiar Filtros</button>
         </div>
         }
       </div>
@@ -190,14 +190,14 @@ import {
     <!-- Modal de confirmación de eliminación -->
     @if (recipeToDelete) {
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-        <h3 class="mb-4 text-2xl">¿Eliminar receta?</h3>
-        <p class="text-slate-gray mb-8 text-lg">
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+        <h3 class="mb-3 text-xl">¿Eliminar receta?</h3>
+        <p class="text-slate-gray mb-6 text-base">
           ¿Estás seguro de que quieres eliminar "<strong>{{ recipeToDelete.title }}</strong>"? Esta acción no se puede deshacer.
         </p>
-        <div class="flex gap-4">
-          <button (click)="recipeToDelete = null" class="flex-1 btn-secondary">Cancelar</button>
-          <button (click)="confirmDelete()" class="flex-1 bg-error hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+        <div class="flex gap-3">
+          <button (click)="recipeToDelete = null" class="flex-1 btn-secondary text-sm">Cancelar</button>
+          <button (click)="confirmDelete()" class="flex-1 bg-error hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm">
             Eliminar
           </button>
         </div>

@@ -24,40 +24,40 @@ import {
   imports: [CommonModule, RouterLink, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
-    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="mb-12">
-          <h1 class="mb-3 text-5xl">Recetas Guardadas</h1>
-          <p class="text-slate-gray text-xl">Tus recetas favoritas en un solo lugar</p>
+    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
+      <div class="max-w-6xl mx-auto px-6 sm:px-8">
+        <div class="mb-8">
+          <h1 class="mb-2 text-4xl">Recetas Guardadas</h1>
+          <p class="text-slate-gray text-lg">Tus recetas favoritas en un solo lugar</p>
         </div>
 
         @if (isLoading) {
-          <div class="text-center py-20">
-            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-cambridge-blue mb-4"></div>
-            <p class="text-slate-gray text-lg">Cargando recetas guardadas...</p>
+          <div class="text-center py-16">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-3"></div>
+            <p class="text-slate-gray text-base">Cargando recetas guardadas...</p>
           </div>
         }
 
         @if (errorMessage) {
-          <div class="bg-red-50 border-2 border-error rounded-3xl p-6 mb-8">
-            <div class="flex items-center gap-3">
-              <lucide-icon [img]="AlertIcon" class="w-6 h-6 text-error"></lucide-icon>
-              <p class="text-error font-semibold">{{ errorMessage }}</p>
+          <div class="bg-red-50 border-2 border-error rounded-2xl p-4 mb-6">
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="AlertIcon" class="w-5 h-5 text-error"></lucide-icon>
+              <p class="text-error font-semibold text-sm">{{ errorMessage }}</p>
             </div>
           </div>
         }
 
         @if (!isLoading && savedRecipes.length > 0) {
-          <div class="mb-6 text-slate-gray text-lg">
+          <div class="mb-5 text-slate-gray text-base">
             {{ savedRecipes.length }} recetas guardadas
           </div>
           
-          <div class="grid md:grid-cols-3 gap-8">
+          <div class="grid md:grid-cols-3 gap-6">
             @for (recipe of savedRecipes; track recipe.id) {
-              <div class="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+              <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
                 <!-- Imagen -->
                 @if (recipe.imagePath) {
-                  <div class="relative h-56 overflow-hidden">
+                  <div class="relative h-48 overflow-hidden">
                     <img 
                       [src]="recipe.imagePath" 
                       [alt]="recipe.title"
@@ -65,69 +65,69 @@ import {
                     >
                   </div>
                 } @else {
-                  <div class="relative h-56 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
-                    <lucide-icon [img]="ChefHatIcon" class="w-24 h-24 text-white opacity-50"></lucide-icon>
+                  <div class="relative h-48 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+                    <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-white opacity-50"></lucide-icon>
                   </div>
                 }
 
-                <div class="p-6">
-                  <div class="flex justify-between items-start mb-3">
-                    <h3 class="flex-1 text-xl">{{ recipe.title }}</h3>
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="flex-1 text-lg">{{ recipe.title }}</h3>
                     <button 
                       (click)="removeFromFavorites(recipe)"
-                      class="text-error hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-xl"
+                      class="text-error hover:text-red-700 transition-colors p-1 hover:bg-red-50 rounded-lg"
                       title="Quitar de favoritos"
                     >
-                      <lucide-icon [img]="HeartIcon" class="w-6 h-6 fill-current"></lucide-icon>
+                      <lucide-icon [img]="HeartIcon" class="w-5 h-5 fill-current"></lucide-icon>
                     </button>
                   </div>
 
-                  <p class="text-slate-gray mb-4 line-clamp-2 text-base">
+                  <p class="text-slate-gray mb-3 line-clamp-2 text-sm">
                     {{ recipe.description || 'Sin descripción' }}
                   </p>
 
-                  <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center gap-2">
-                      <lucide-icon [img]="StarIcon" class="w-5 h-5 text-yellow-500 fill-current"></lucide-icon>
-                      <span class="font-semibold text-lg">{{ recipe.avgRating.toFixed(1) }}</span>
-                      <span class="text-slate-gray text-sm">({{ recipe.ratingCount }})</span>
+                  <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-1">
+                      <lucide-icon [img]="StarIcon" class="w-4 h-4 text-yellow-500 fill-current"></lucide-icon>
+                      <span class="font-semibold text-base">{{ recipe.avgRating.toFixed(1) }}</span>
+                      <span class="text-slate-gray text-xs">({{ recipe.ratingCount }})</span>
                     </div>
                     @if (recipe.mealTypeId) {
-                      <span class="bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <span class="bg-cambridge-blue text-white px-2 py-1 rounded-full text-xs font-medium">
                         {{ getMealTypeName(recipe.mealTypeId) }}
                       </span>
                     }
                   </div>
 
                   @if (recipe.allergens && recipe.allergens.length > 0) {
-                    <div class="mb-4 flex gap-2 flex-wrap">
+                    <div class="mb-3 flex gap-1 flex-wrap">
                       @for (allergen of recipe.allergens.slice(0, 2); track allergen.id) {
-                        <span class="inline-flex items-center gap-1 bg-red-50 text-error px-3 py-1 rounded-lg text-xs font-medium">
+                        <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded text-xs font-medium">
                           <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
                           {{ allergen.name }}
                         </span>
                       }
                       @if (recipe.allergens.length > 2) {
-                        <span class="text-slate-gray text-xs px-3 py-1">
+                        <span class="text-slate-gray text-xs px-2 py-1">
                           +{{ recipe.allergens.length - 2 }} más
                         </span>
                       }
                     </div>
                   }
 
-                  <div class="flex gap-3 pt-4 border-t border-gray-100">
+                  <div class="flex gap-2 pt-3 border-t border-gray-100">
                     <a 
                       [routerLink]="['/recipes', recipe.id]" 
-                      class="flex-1 btn-primary text-center text-base"
+                      class="flex-1 btn-primary text-center text-sm"
                     >
                       Ver Receta
                     </a>
                     <button 
                       (click)="addToPlanner(recipe)"
-                      class="btn-secondary px-4 inline-flex items-center justify-center"
+                      class="btn-secondary px-3 inline-flex items-center justify-center"
                       title="Añadir al planner"
                     >
-                      <lucide-icon [img]="CalendarIcon" class="w-5 h-5"></lucide-icon>
+                      <lucide-icon [img]="CalendarIcon" class="w-4 h-4"></lucide-icon>
                     </button>
                   </div>
                 </div>
@@ -137,14 +137,14 @@ import {
         }
 
         @if (!isLoading && savedRecipes.length === 0 && !errorMessage) {
-          <div class="bg-white rounded-3xl shadow-xl text-center py-20 px-8">
-            <lucide-icon [img]="HeartIcon" class="w-24 h-24 text-slate-gray mx-auto mb-6 opacity-30"></lucide-icon>
-            <h3 class="mb-4 text-3xl">Aún no tienes recetas guardadas</h3>
-            <p class="text-slate-gray mb-8 text-lg">
+          <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+            <lucide-icon [img]="HeartIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+            <h3 class="mb-3 text-xl">Aún no tienes recetas guardadas</h3>
+            <p class="text-slate-gray mb-6 text-base">
               Explora recetas y guarda tus favoritas haciendo clic en el corazón
             </p>
-            <a routerLink="/recipes" class="btn-primary inline-flex items-center gap-2">
-              <lucide-icon [img]="SearchIcon" class="w-5 h-5"></lucide-icon>
+            <a routerLink="/recipes" class="btn-primary inline-flex items-center gap-2 text-sm">
+              <lucide-icon [img]="SearchIcon" class="w-4 h-4"></lucide-icon>
               Explorar Recetas
             </a>
           </div>
@@ -155,16 +155,16 @@ import {
     <!-- Modal de confirmación -->
     @if (recipeToRemove) {
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-          <h3 class="mb-4 text-2xl">¿Quitar de favoritos?</h3>
-          <p class="text-slate-gray mb-8 text-lg">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+          <h3 class="mb-3 text-xl">¿Quitar de favoritos?</h3>
+          <p class="text-slate-gray mb-6 text-base">
             ¿Estás seguro de que quieres quitar "<strong>{{ recipeToRemove.title }}</strong>" de tus recetas guardadas?
           </p>
-          <div class="flex gap-4">
-            <button (click)="recipeToRemove = null" class="flex-1 btn-secondary">
+          <div class="flex gap-3">
+            <button (click)="recipeToRemove = null" class="flex-1 btn-secondary text-sm">
               Cancelar
             </button>
-            <button (click)="confirmRemove()" class="flex-1 bg-error hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+            <button (click)="confirmRemove()" class="flex-1 bg-error hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm">
               Quitar
             </button>
           </div>

@@ -136,26 +136,27 @@ import {
               </div>
               }
 
+              <!-- Botones actualizados -->
               <div class="flex gap-2 pt-3 border-t border-gray-100">
                 <a
                   [routerLink]="['/recipes', recipe.id]"
-                  class="flex-1 btn-secondary text-center text-xs inline-flex items-center justify-center gap-1"
+                  class="flex-1 bg-cambridge-blue text-white text-center py-2 px-3 rounded-lg hover:bg-zomp transition-colors text-xs font-medium inline-flex items-center justify-center gap-1"
                 >
                   <lucide-icon [img]="EyeIcon" class="w-3 h-3"></lucide-icon>
                   Ver
                 </a>
                 <a
                   [routerLink]="['/recipes/edit', recipe.id]"
-                  class="flex-1 btn-secondary text-center text-xs inline-flex items-center justify-center gap-1"
+                  class="flex-1 bg-celadon text-dark-purple border border-dark-purple text-center py-2 px-3 rounded-lg hover:bg-cambridge-blue hover:bg-opacity-50 transition-colors text-xs font-medium inline-flex items-center justify-center gap-1"
                 >
                   <lucide-icon [img]="EditIcon" class="w-3 h-3"></lucide-icon>
                   Editar
                 </a>
                 <button 
                   (click)="deleteRecipe(recipe)" 
-                  class="btn-secondary text-xs px-3 inline-flex items-center gap-1"
+                  class="bg-white text-error border border-error hover:bg-error hover:text-white transition-colors py-2 px-3 rounded-lg text-xs font-medium inline-flex items-center gap-1"
                 >
-                  <lucide-icon [img]="TrashIcon" class="w-3 h-3 text-error"></lucide-icon>
+                  <lucide-icon [img]="TrashIcon" class="w-3 h-3"></lucide-icon>
                 </button>
               </div>
             </div>

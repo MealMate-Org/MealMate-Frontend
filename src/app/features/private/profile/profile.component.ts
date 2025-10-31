@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,17 +14,26 @@ import {
   Save,
   AlertTriangle,
   Target,
-  Apple
+  Apple,
+  ArrowLeft
 } from 'lucide-angular';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
       <div class="max-w-4xl mx-auto px-4">
+        <!-- Botón Volver -->
+        <div class="mb-6">
+          <a routerLink="/home" class="inline-flex items-center gap-2 text-cambridge-blue hover:text-blue-700 transition-colors">
+            <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
+            <span class="font-semibold">Volver al inicio</span>
+          </a>
+        </div>
+
         <h1 class="mb-8 text-5xl">Mi Perfil</h1>
 
         @if (successMessage) {
@@ -47,28 +57,25 @@ import {
               <!-- Avatar -->
               <div class="flex items-center gap-6 mb-6 p-6 bg-celadon rounded-2xl">
                 <img 
-                  [src]="previewAvatar || currentUser?.avatar || '/defaultProfilePicture.png'" 
+                  [src]="currentUser?.avatar || '/defaultProfilePicture.png'" 
                   alt="Avatar"
                   class="w-24 h-24 rounded-full object-cover border-4 border-cambridge-blue shadow-lg"
+                  (error)="handleImageError($event)"
                 >
                 <div class="flex-1">
                   <label class="block text-sm font-semibold mb-2">Foto de Perfil</label>
-                  <div class="flex items-center gap-3">
-                    <label class="btn-secondary cursor-pointer inline-flex items-center gap-2">
-                      <lucide-icon [img]="UploadIcon" class="w-5 h-5"></lucide-icon>
-                      Seleccionar Imagen
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        (change)="onFileSelected($event)"
-                        class="hidden"
-                      >
-                    </label>
-                    @if (selectedFile) {
-                      <span class="text-sm text-slate-gray">{{ selectedFile.name }}</span>
-                    }
+                  <div class="mb-3">
+                    <input 
+                      type="text" 
+                      formControlName="avatar"
+                      class="input w-full" 
+                      placeholder="URL de la imagen (https://...)"
+                    >
                   </div>
-                  <p class="text-sm text-slate-gray mt-2">JPG, PNG o GIF. Máximo 5MB.</p>
+                  <p class="text-sm text-slate-gray">
+                    💡 Introduce una URL de imagen pública. <br>
+                    Ejemplo: <code class="text-xs bg-gray-100 px-2 py-1 rounded">https://i.pravatar.cc/300</code>
+                  </p>
                 </div>
               </div>
 
@@ -107,7 +114,11 @@ import {
                   class="input w-full" 
                   rows="3"
                   placeholder="Cuéntanos sobre ti..."
+                  maxlength="500"
                 ></textarea>
+                <p class="text-sm text-slate-gray mt-1">
+                  {{ userForm.get('bio')?.value?.length || 0 }}/500 caracteres
+                </p>
               </div>
 
               <div class="flex justify-end">
@@ -134,6 +145,13 @@ import {
               Configura tus objetivos diarios para seguimiento nutricional
             </p>
 
+            <!-- Información de límites -->
+            <div class="bg-blue-50 border-l-4 border-cambridge-blue p-4 mb-6">
+              <p class="text-sm text-blue-800">
+                <strong>Límites máximos:</strong> Calorías: 999,999 kcal | Macros: 9,999.99 g
+              </p>
+            </div>
+
             <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" class="space-y-6">
               <div>
                 <label class="block text-sm font-semibold mb-2">Dieta</label>
@@ -153,7 +171,15 @@ import {
                     formControlName="dailyCaloriesGoal"
                     class="input w-full" 
                     placeholder="2000"
+                    min="0"
+                    max="999999"
                   >
+                  @if (preferencesForm.get('dailyCaloriesGoal')?.hasError('max')) {
+                    <p class="text-error text-sm mt-2">Máximo 999,999 kcal</p>
+                  }
+                  @if (preferencesForm.get('dailyCaloriesGoal')?.hasError('min')) {
+                    <p class="text-error text-sm mt-2">No puede ser negativo</p>
+                  }
                 </div>
 
                 <div>
@@ -163,8 +189,13 @@ import {
                     formControlName="dailyProteinGoal"
                     class="input w-full" 
                     placeholder="150"
+                    min="0"
+                    max="9999.99"
                     step="0.1"
                   >
+                  @if (preferencesForm.get('dailyProteinGoal')?.hasError('max')) {
+                    <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
+                  }
                 </div>
 
                 <div>
@@ -174,8 +205,13 @@ import {
                     formControlName="dailyCarbsGoal"
                     class="input w-full" 
                     placeholder="250"
+                    min="0"
+                    max="9999.99"
                     step="0.1"
                   >
+                  @if (preferencesForm.get('dailyCarbsGoal')?.hasError('max')) {
+                    <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
+                  }
                 </div>
 
                 <div>
@@ -185,16 +221,21 @@ import {
                     formControlName="dailyFatGoal"
                     class="input w-full" 
                     placeholder="70"
+                    min="0"
+                    max="9999.99"
                     step="0.1"
                   >
+                  @if (preferencesForm.get('dailyFatGoal')?.hasError('max')) {
+                    <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
+                  }
                 </div>
               </div>
 
               <div class="flex justify-end">
                 <button 
                   type="submit" 
-                  [disabled]="isSavingPreferences"
-                  [class]="isSavingPreferences ? 'btn-disabled' : 'btn-primary'"
+                  [disabled]="preferencesForm.invalid || isSavingPreferences"
+                  [class]="preferencesForm.invalid || isSavingPreferences ? 'btn-disabled' : 'btn-primary'"
                   class="inline-flex items-center gap-2"
                 >
                   <lucide-icon [img]="SaveIcon" class="w-5 h-5"></lucide-icon>
@@ -215,7 +256,10 @@ import {
             </p>
 
             @if (isLoadingAllergens) {
-              <p class="text-slate-gray">Cargando alérgenos...</p>
+              <div class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue"></div>
+                <p class="text-slate-gray mt-4">Cargando alérgenos...</p>
+              </div>
             } @else {
               <div class="grid md:grid-cols-3 gap-4 mb-6">
                 @for (allergen of allergens; track allergen.id) {
@@ -259,9 +303,6 @@ export class ProfileComponent implements OnInit {
   allergens: Allergen[] = [];
   userAllergenIds: number[] = [];
   
-  selectedFile: File | null = null;
-  previewAvatar: string | null = null;
-  
   isSavingUser = false;
   isSavingPreferences = false;
   isSavingAllergens = false;
@@ -276,24 +317,27 @@ export class ProfileComponent implements OnInit {
   readonly AlertIcon = AlertTriangle;
   readonly TargetIcon = Target;
   readonly AppleIcon = Apple;
+  readonly ArrowLeftIcon = ArrowLeft;
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private recipeService: RecipeService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.userForm = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      bio: ['']
+      bio: ['', Validators.maxLength(500)],
+      avatar: ['']
     });
 
     this.preferencesForm = this.fb.group({
-      dailyCaloriesGoal: [null],
-      dailyCarbsGoal: [null],
-      dailyProteinGoal: [null],
-      dailyFatGoal: [null],
+      dailyCaloriesGoal: [null, [Validators.min(0), Validators.max(999999)]],
+      dailyCarbsGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
+      dailyProteinGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
+      dailyFatGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
       dietId: [null]
     });
   }
@@ -305,6 +349,7 @@ export class ProfileComponent implements OnInit {
       this.loadDiets();
       this.loadAllergens();
       this.loadPreferences();
+      this.loadUserAllergens();
     }
   }
 
@@ -314,22 +359,13 @@ export class ProfileComponent implements OnInit {
     this.userForm.patchValue({
       username: this.currentUser.username,
       email: this.currentUser.email,
-      bio: this.currentUser.bio
+      bio: this.currentUser.bio,
+      avatar: this.currentUser.avatar
     });
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      
-      // Crear preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewAvatar = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+  handleImageError(event: any): void {
+    event.target.src = '/defaultProfilePicture.png';
   }
 
   loadDiets(): void {
@@ -353,6 +389,19 @@ export class ProfileComponent implements OnInit {
       error: (error) => {
         console.error('Error cargando alérgenos:', error);
         this.isLoadingAllergens = false;
+      }
+    });
+  }
+
+  loadUserAllergens(): void {
+    if (!this.currentUser) return;
+
+    this.userService.getUserAllergens(this.currentUser.id).subscribe({
+      next: (allergens) => {
+        this.userAllergenIds = allergens.map(a => a.id);
+      },
+      error: (error) => {
+        console.error('Error cargando alérgenos del usuario:', error);
       }
     });
   }
@@ -383,9 +432,7 @@ export class ProfileComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // En producción, aquí subirías la imagen a un servidor
-    // Por ahora, usamos la URL de preview o la imagen actual
-    const avatarUrl = this.previewAvatar || this.currentUser.avatar || '/defaultProfilePicture.png';
+    const avatarUrl = this.userForm.value.avatar || this.currentUser.avatar || '/defaultProfilePicture.png';
 
     const userData = {
       username: this.userForm.value.username,
@@ -396,18 +443,19 @@ export class ProfileComponent implements OnInit {
     };
 
     this.userService.updateUser(this.currentUser.id, userData).subscribe({
-      next: () => {
-        this.successMessage = 'Información personal actualizada';
+      next: (updatedUser) => {
+        this.successMessage = 'Información personal actualizada correctamente';
         this.isSavingUser = false;
         
         // Actualizar usuario en localStorage
-        const updatedUser = { ...this.currentUser, ...userData };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        const user = { ...this.currentUser, ...updatedUser };
+        localStorage.setItem('user', JSON.stringify(user));
+        this.currentUser = user;
         
         setTimeout(() => this.successMessage = '', 3000);
       },
       error: (error) => {
-        this.errorMessage = 'Error al actualizar información personal';
+        this.errorMessage = this.extractErrorMessage(error);
         console.error('Error:', error);
         this.isSavingUser = false;
       }
@@ -415,7 +463,10 @@ export class ProfileComponent implements OnInit {
   }
 
   savePreferences(): void {
-    if (!this.currentUser) return;
+    if (this.preferencesForm.invalid || !this.currentUser) {
+      this.errorMessage = 'Por favor verifica que todos los valores estén dentro de los límites permitidos';
+      return;
+    }
 
     this.isSavingPreferences = true;
     this.errorMessage = '';
@@ -432,12 +483,12 @@ export class ProfileComponent implements OnInit {
 
     this.userService.saveUserPreferences(preferences).subscribe({
       next: () => {
-        this.successMessage = 'Preferencias nutricionales actualizadas';
+        this.successMessage = 'Preferencias nutricionales actualizadas correctamente';
         this.isSavingPreferences = false;
         setTimeout(() => this.successMessage = '', 3000);
       },
       error: (error) => {
-        this.errorMessage = 'Error al actualizar preferencias';
+        this.errorMessage = this.extractErrorMessage(error);
         console.error('Error:', error);
         this.isSavingPreferences = false;
       }
@@ -458,10 +509,46 @@ export class ProfileComponent implements OnInit {
   }
 
   saveAllergens(): void {
-    // TODO: Implementar guardado de alérgenos del usuario
+    if (!this.currentUser) return;
+
     this.isSavingAllergens = true;
-    this.successMessage = 'Alergias actualizadas';
-    this.isSavingAllergens = false;
-    setTimeout(() => this.successMessage = '', 3000);
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.userService.saveUserAllergens(this.currentUser.id, this.userAllergenIds).subscribe({
+      next: () => {
+        this.successMessage = 'Alergias actualizadas correctamente';
+        this.isSavingAllergens = false;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error) => {
+        this.errorMessage = this.extractErrorMessage(error);
+        console.error('Error:', error);
+        this.isSavingAllergens = false;
+      }
+    });
+  }
+
+  // ✅ MÉTODO PARA EXTRAER MENSAJES DE ERROR CLAROS
+  private extractErrorMessage(error: any): string {
+    if (error.error?.message) {
+      return error.error.message;
+    }
+    
+    if (typeof error.error === 'string') {
+      // Buscar mensajes de validación del backend
+      if (error.error.includes('no pueden exceder')) {
+        return error.error;
+      }
+      if (error.error.includes('numeric field overflow')) {
+        return 'Uno o más valores exceden el máximo permitido. Calorías máx: 999,999 | Macros máx: 9,999.99 g';
+      }
+    }
+    
+    if (error.message) {
+      return error.message;
+    }
+    
+    return 'Ha ocurrido un error. Por favor, inténtalo de nuevo.';
   }
 }

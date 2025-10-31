@@ -50,12 +50,13 @@ import {
               
               <!-- Preview -->
               <div class="flex items-start gap-6">
-                @if (previewImage || recipeForm.value.imagePath) {
+                @if (recipeForm.value.imagePath) {
                   <div class="relative">
                     <img 
-                      [src]="previewImage || recipeForm.value.imagePath" 
+                      [src]="recipeForm.value.imagePath" 
                       alt="Preview"
                       class="w-48 h-48 rounded-2xl object-cover border-2 border-cambridge-blue shadow-lg"
+                      (error)="handleImageError($event)"
                     >
                     <button 
                       type="button"
@@ -72,21 +73,17 @@ import {
                 }
                 
                 <div class="flex-1">
-                  <label class="btn-secondary cursor-pointer inline-flex items-center gap-2">
-                    <lucide-icon [img]="UploadIcon" class="w-5 h-5"></lucide-icon>
-                    Seleccionar Imagen
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      (change)="onImageSelected($event)"
-                      class="hidden"
-                    >
-                  </label>
-                  @if (selectedImageFile) {
-                    <p class="text-sm text-slate-gray mt-2">{{ selectedImageFile.name }}</p>
-                  }
-                  <p class="text-sm text-slate-gray mt-4">
-                    JPG, PNG o GIF. Máximo 5MB. Si no seleccionas una imagen, se usará una imagen predeterminada.
+                  <input 
+                    type="text" 
+                    formControlName="imagePath"
+                    class="input w-full mb-3" 
+                    placeholder="URL de la imagen (https://...)"
+                  >
+                  <p class="text-sm text-slate-gray">
+                    💡 Introduce una URL de imagen pública. Si no añades una, se usará una imagen predeterminada.
+                  </p>
+                  <p class="text-sm text-slate-gray mt-2">
+                    Ejemplo: <code class="text-xs bg-gray-100 px-2 py-1 rounded">https://picsum.photos/400/400</code>
                   </p>
                 </div>
               </div>
@@ -345,9 +342,6 @@ export class RecipeFormComponent implements OnInit {
   errorMessage = '';
   allergens: Allergen[] = [];
   selectedAllergenIds: number[] = [];
-  
-  selectedImageFile: File | null = null;
-  previewImage: string | null = null;
 
   // Iconos
   readonly SaveIcon = Save;
@@ -412,24 +406,12 @@ export class RecipeFormComponent implements OnInit {
     this.ingredients.removeAt(index);
   }
 
-  onImageSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedImageFile = file;
-      
-      // Crear preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewImage = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+  removeImage(): void {
+    this.recipeForm.patchValue({ imagePath: '' });
   }
 
-  removeImage(): void {
-    this.selectedImageFile = null;
-    this.previewImage = null;
-    this.recipeForm.patchValue({ imagePath: '' });
+  handleImageError(event: any): void {
+    event.target.src = '/defaultRecipeImage.png';
   }
 
   loadAllergens(): void {
@@ -457,6 +439,7 @@ export class RecipeFormComponent implements OnInit {
         this.selectedAllergenIds.splice(index, 1);
       }
     }
+    console.log('Alérgenos seleccionados:', this.selectedAllergenIds);
   }
 
   loadRecipe(id: number): void {
@@ -483,6 +466,7 @@ export class RecipeFormComponent implements OnInit {
         });
 
         this.selectedAllergenIds = recipe.allergens.map(a => a.id);
+        console.log('Alérgenos cargados:', this.selectedAllergenIds);
 
         if (recipe.id) {
           this.recipeService.getNutritionInfo(recipe.id).subscribe({
@@ -527,26 +511,36 @@ export class RecipeFormComponent implements OnInit {
       return;
     }
 
-    // En producción, aquí subirías la imagen a un servidor
-    // Por ahora, usamos la URL de preview o la imagen predeterminada
+    // Si no hay imagen, usar imagen predeterminada
     let imageUrl = this.recipeForm.value.imagePath;
-    if (this.previewImage) {
-      imageUrl = this.previewImage;
-    } else if (!imageUrl) {
-      imageUrl = '/defaultRecipeImage.png'; // ✅ Imagen predeterminada
+    if (!imageUrl || imageUrl.trim() === '') {
+      imageUrl = '/defaultRecipeImage.png';
     }
 
-    const recipeData = {
+    // ✅ CONSTRUIR DATOS CON ALÉRGENOS CORRECTAMENTE
+    const recipeData: any = {
       title: this.recipeForm.value.title,
       description: this.recipeForm.value.description,
       instructions: this.recipeForm.value.instructions,
       imagePath: imageUrl,
-      authorId: currentUser.id,
       isPublic: this.recipeForm.value.isPublic,
       mealTypeId: this.recipeForm.value.mealTypeId,
-      ingredients: this.ingredients.value,
-      allergenIds: this.selectedAllergenIds
+      ingredients: this.ingredients.value
     };
+
+    // ✅ PARA CREAR: usar allergenIds (array de IDs)
+    // ✅ PARA ACTUALIZAR: usar allergens (array de objetos {id, name})
+    if (this.isEditMode) {
+      recipeData.allergens = this.selectedAllergenIds.map(id => {
+        const allergen = this.allergens.find(a => a.id === id);
+        return { id: id, name: allergen?.name || '' };
+      });
+      console.log('Enviando al actualizar:', recipeData.allergens);
+    } else {
+      recipeData.authorId = currentUser.id;
+      recipeData.allergenIds = this.selectedAllergenIds;
+      console.log('Enviando al crear:', recipeData.allergenIds);
+    }
 
     const request = this.isEditMode && this.recipeId
       ? this.recipeService.updateRecipe(this.recipeId, recipeData)
@@ -554,6 +548,7 @@ export class RecipeFormComponent implements OnInit {
 
     request.subscribe({
       next: (recipe) => {
+        console.log('Receta guardada exitosamente');
         const hasNutrition = this.recipeForm.value.calories || 
                             this.recipeForm.value.protein || 
                             this.recipeForm.value.carbs || 
@@ -584,7 +579,7 @@ export class RecipeFormComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'Error al guardar la receta. Inténtalo de nuevo.';
+        this.errorMessage = 'Error al guardar la receta: ' + (error.error?.message || error.message);
         console.error('Error:', error);
       }
     });

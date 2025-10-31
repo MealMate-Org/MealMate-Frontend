@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Recipe } from '../../../models/recipe.model';
+import { Recipe, Allergen } from '../../../models/recipe.model';
 import { 
   LucideAngularModule,
   Plus,
@@ -17,7 +17,8 @@ import {
   Globe,
   Lock,
   ChefHat,
-  AlertTriangle
+  AlertTriangle,
+  SlidersHorizontal
 } from 'lucide-angular';
 
 @Component({
@@ -41,30 +42,137 @@ import {
 
         <!-- Filtros -->
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div class="grid md:grid-cols-3 gap-4">
+          <!-- Barra de búsqueda -->
+          <div class="mb-5">
             <div class="relative">
               <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-slate-gray absolute left-3 top-1/2 transform -translate-y-1/2"></lucide-icon>
               <input
                 type="text"
                 [(ngModel)]="searchTerm"
-                (input)="filterRecipes()"
+                (input)="applyFilters()"
                 class="input w-full pl-10 text-sm"
                 placeholder="Buscar en mis recetas..."
               />
             </div>
-            <select [(ngModel)]="visibilityFilter" (change)="filterRecipes()" class="input text-sm">
-              <option value="all">Todas</option>
-              <option value="public">Públicas</option>
-              <option value="private">Privadas</option>
-            </select>
-            <select [(ngModel)]="mealTypeFilter" (change)="filterRecipes()" class="input text-sm">
-              <option [value]="null">Todos los tipos</option>
-              <option [value]="1">Desayuno</option>
-              <option [value]="2">Comida</option>
-              <option [value]="3">Cena</option>
-              <option [value]="4">Aperitivo</option>
-              <option [value]="5">Merienda</option>
-            </select>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Visibilidad y tipo de comida en la misma fila -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <h3 class="text-sm font-semibold mb-2 text-dark-purple">Visibilidad</h3>
+                <div class="flex gap-2">
+                  <button
+                    (click)="visibilityFilter = 'all'; applyFilters()"
+                    [class]="visibilityFilter === 'all' ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm flex-1"
+                  >
+                    Todas
+                  </button>
+                  <button
+                    (click)="visibilityFilter = 'public'; applyFilters()"
+                    [class]="visibilityFilter === 'public' ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm flex-1"
+                  >
+                    Públicas
+                  </button>
+                  <button
+                    (click)="visibilityFilter = 'private'; applyFilters()"
+                    [class]="visibilityFilter === 'private' ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm flex-1"
+                  >
+                    Privadas
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-sm font-semibold mb-2 text-dark-purple">Ordenar por</h3>
+                <select [(ngModel)]="sortBy" (change)="applyFilters()" class="input text-sm w-full">
+                  <option value="newest">Más recientes</option>
+                  <option value="oldest">Más antiguas</option>
+                  <option value="popularity">Más populares</option>
+                  <option value="rating">Mejor valoradas</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tipo de comida -->
+            <div>
+              <h3 class="text-sm font-semibold mb-2 text-dark-purple flex items-center gap-2">
+                <lucide-icon [img]="FiltersIcon" class="w-4 h-4"></lucide-icon>
+                Tipo de comida
+              </h3>
+              <div class="flex gap-2 flex-wrap">
+                <button
+                  (click)="mealTypeFilter = null; applyFilters()"
+                  [class]="mealTypeFilter === null ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                  class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                >
+                  Todos
+                </button>
+                <button
+                  (click)="mealTypeFilter = 1; applyFilters()"
+                  [class]="mealTypeFilter === 1 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                  class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                >
+                  Desayuno
+                </button>
+                <button
+                  (click)="mealTypeFilter = 2; applyFilters()"
+                  [class]="mealTypeFilter === 2 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                  class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                >
+                  Comida
+                </button>
+                <button
+                  (click)="mealTypeFilter = 3; applyFilters()"
+                  [class]="mealTypeFilter === 3 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                  class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                >
+                  Cena
+                </button>
+                <button
+                  (click)="mealTypeFilter = 4; applyFilters()"
+                  [class]="mealTypeFilter === 4 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                  class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                >
+                  Aperitivo
+                </button>
+              </div>
+            </div>
+
+            <!-- Excluir alérgenos -->
+            @if (allergens.length > 0) {
+              <div>
+                <h3 class="text-sm font-semibold mb-2 text-dark-purple flex items-center gap-2">
+                  <lucide-icon [img]="AlertIcon" class="w-4 h-4 text-error"></lucide-icon>
+                  Excluir alérgenos
+                </h3>
+                <div class="grid md:grid-cols-4 gap-2">
+                  @for (allergen of allergens; track allergen.id) {
+                    <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-celadon rounded-lg transition text-sm">
+                      <input 
+                        type="checkbox"
+                        [value]="allergen.id"
+                        (change)="toggleAllergenFilter(allergen.id)"
+                        [checked]="excludedAllergenIds.includes(allergen.id)"
+                        class="w-4 h-4"
+                      >
+                      <span>{{ allergen.name }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (hasActiveFilters()) {
+              <div class="pt-3 border-t">
+                <button (click)="clearFilters()" class="btn-secondary text-sm w-full">
+                  Limpiar todos los filtros
+                </button>
+              </div>
+            }
           </div>
         </div>
 
@@ -83,19 +191,13 @@ import {
         <div class="grid md:grid-cols-3 gap-6">
           @for (recipe of filteredRecipes; track recipe.id) {
           <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-            @if (recipe.imagePath) {
-            <div class="relative h-48 overflow-hidden">
-              <img
-                [src]="recipe.imagePath"
+            <div class="relative h-48 overflow-hidden bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+              <img 
+                [src]="recipe.imagePath || '/MMLogo.png'" 
                 [alt]="recipe.title"
-                class="w-full h-full object-cover"
+                [class]="recipe.imagePath ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'"
               />
             </div>
-            } @else {
-            <div class="relative h-48 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
-              <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-white opacity-50"></lucide-icon>
-            </div>
-            }
 
             <div class="p-5">
               <div class="flex justify-between items-start mb-2">
@@ -136,7 +238,6 @@ import {
               </div>
               }
 
-              <!-- Botones actualizados -->
               <div class="flex gap-2 pt-3 border-t border-gray-100">
                 <a
                   [routerLink]="['/recipes', recipe.id]"
@@ -188,7 +289,6 @@ import {
       </div>
     </div>
 
-    <!-- Modal de confirmación de eliminación -->
     @if (recipeToDelete) {
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
@@ -206,27 +306,28 @@ import {
     </div>
     }
   `,
-  styles: [
-    `
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-    `,
-  ],
+  styles: [`
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  `]
 })
 export class MyRecipesComponent implements OnInit {
   myRecipes: Recipe[] = [];
   filteredRecipes: Recipe[] = [];
+  allergens: Allergen[] = [];
+  
   isLoading = true;
   searchTerm = '';
   visibilityFilter = 'all';
   mealTypeFilter: number | null = null;
+  sortBy = 'newest';
+  excludedAllergenIds: number[] = [];
   recipeToDelete: Recipe | null = null;
 
-  // Iconos
   readonly PlusIcon = Plus;
   readonly SearchIcon = Search;
   readonly EyeIcon = Eye;
@@ -237,11 +338,16 @@ export class MyRecipesComponent implements OnInit {
   readonly LockIcon = Lock;
   readonly ChefHatIcon = ChefHat;
   readonly AlertIcon = AlertTriangle;
+  readonly FiltersIcon = SlidersHorizontal;
 
-  constructor(private recipeService: RecipeService, private authService: AuthService) { }
+  constructor(
+    private recipeService: RecipeService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadMyRecipes();
+    this.loadAllergens();
   }
 
   loadMyRecipes(): void {
@@ -256,7 +362,7 @@ export class MyRecipesComponent implements OnInit {
     this.recipeService.getRecipesByAuthor(currentUser.id).subscribe({
       next: (recipes) => {
         this.myRecipes = recipes;
-        this.filteredRecipes = [...this.myRecipes];
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
@@ -266,9 +372,29 @@ export class MyRecipesComponent implements OnInit {
     });
   }
 
-  filterRecipes(): void {
+  loadAllergens(): void {
+    this.recipeService.getAllAllergens().subscribe({
+      next: (allergens) => {
+        this.allergens = allergens;
+      },
+      error: (error) => console.error('Error cargando alérgenos:', error)
+    });
+  }
+
+  toggleAllergenFilter(allergenId: number): void {
+    const index = this.excludedAllergenIds.indexOf(allergenId);
+    if (index > -1) {
+      this.excludedAllergenIds.splice(index, 1);
+    } else {
+      this.excludedAllergenIds.push(allergenId);
+    }
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
     let filtered = [...this.myRecipes];
 
+    // Búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -278,23 +404,61 @@ export class MyRecipesComponent implements OnInit {
       );
     }
 
+    // Visibilidad
     if (this.visibilityFilter !== 'all') {
       const isPublic = this.visibilityFilter === 'public';
       filtered = filtered.filter((recipe) => recipe.isPublic === isPublic);
     }
 
+    // Tipo de comida
     if (this.mealTypeFilter !== null) {
       filtered = filtered.filter((recipe) => recipe.mealTypeId === this.mealTypeFilter);
     }
 
+    // Alérgenos excluidos
+    if (this.excludedAllergenIds.length > 0) {
+      filtered = filtered.filter((recipe) => {
+        const recipeAllergenIds = recipe.allergens.map(a => a.id);
+        return !this.excludedAllergenIds.some(id => recipeAllergenIds.includes(id));
+      });
+    }
+
+    // Ordenación
+    filtered = this.sortRecipes(filtered);
+
     this.filteredRecipes = filtered;
+  }
+
+  sortRecipes(recipes: Recipe[]): Recipe[] {
+    switch (this.sortBy) {
+      case 'newest':
+        return recipes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case 'oldest':
+        return recipes.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      case 'popularity':
+        return recipes.sort((a, b) => b.ratingCount - a.ratingCount);
+      case 'rating':
+        return recipes.sort((a, b) => b.avgRating - a.avgRating);
+      default:
+        return recipes;
+    }
+  }
+
+  hasActiveFilters(): boolean {
+    return this.searchTerm.trim() !== '' || 
+           this.visibilityFilter !== 'all' ||
+           this.mealTypeFilter !== null ||
+           this.excludedAllergenIds.length > 0 ||
+           this.sortBy !== 'newest';
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.visibilityFilter = 'all';
     this.mealTypeFilter = null;
-    this.filterRecipes();
+    this.sortBy = 'newest';
+    this.excludedAllergenIds = [];
+    this.applyFilters();
   }
 
   getMealTypeName(id: number): string {
@@ -302,8 +466,7 @@ export class MyRecipesComponent implements OnInit {
       1: 'Desayuno',
       2: 'Comida',
       3: 'Cena',
-      4: 'Aperitivo',
-      5: 'Merienda',
+      4: 'Aperitivo'
     };
     return types[id] || 'Otro';
   }
@@ -318,14 +481,14 @@ export class MyRecipesComponent implements OnInit {
     this.recipeService.deleteRecipe(this.recipeToDelete.id).subscribe({
       next: () => {
         this.myRecipes = this.myRecipes.filter((r) => r.id !== this.recipeToDelete?.id);
-        this.filterRecipes();
+        this.applyFilters();
         this.recipeToDelete = null;
       },
       error: (error) => {
         console.error('Error eliminando receta:', error);
         alert('Error al eliminar la receta. Inténtalo de nuevo.');
         this.recipeToDelete = null;
-      },
+      }
     });
   }
 }

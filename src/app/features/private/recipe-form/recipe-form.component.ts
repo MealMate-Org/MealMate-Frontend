@@ -125,7 +125,6 @@ import {
                     <option [value]="2">Comida</option>
                     <option [value]="3">Cena</option>
                     <option [value]="4">Aperitivo</option>
-                    <option [value]="5">Merienda</option>
                   </select>
                 </div>
                 <div>

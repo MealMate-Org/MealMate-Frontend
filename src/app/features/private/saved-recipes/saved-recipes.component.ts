@@ -1,27 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { FavoriteService } from '../../../core/services/user-actions.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Recipe } from '../../../models/recipe.model';
+import { Recipe, Allergen } from '../../../models/recipe.model';
 import { Favorite } from '../../../models/social.model';
 import { 
   LucideAngularModule,
   Heart,
-  Trash2,
   Calendar,
   Star,
   ChefHat,
   AlertTriangle,
-  Search
+  Search,
+  SlidersHorizontal
 } from 'lucide-angular';
 
 @Component({
   selector: 'app-saved-recipes',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
@@ -29,6 +30,114 @@ import {
         <div class="mb-8">
           <h1 class="mb-2 text-4xl">Recetas Guardadas</h1>
           <p class="text-slate-gray text-lg">Tus recetas favoritas en un solo lugar</p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <!-- Barra de búsqueda -->
+          <div class="mb-5">
+            <div class="relative">
+              <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-slate-gray absolute left-3 top-1/2 transform -translate-y-1/2"></lucide-icon>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (input)="applyFilters()"
+                class="input w-full pl-10 text-sm"
+                placeholder="Buscar en recetas guardadas..."
+              />
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Tipo de comida y ordenación -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <h3 class="text-sm font-semibold mb-2 text-dark-purple flex items-center gap-2">
+                  <lucide-icon [img]="FiltersIcon" class="w-4 h-4"></lucide-icon>
+                  Tipo de comida
+                </h3>
+                <div class="flex gap-2 flex-wrap">
+                  <button
+                    (click)="mealTypeFilter = null; applyFilters()"
+                    [class]="mealTypeFilter === null ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                  >
+                    Todos
+                  </button>
+                  <button
+                    (click)="mealTypeFilter = 1; applyFilters()"
+                    [class]="mealTypeFilter === 1 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                  >
+                    Desayuno
+                  </button>
+                  <button
+                    (click)="mealTypeFilter = 2; applyFilters()"
+                    [class]="mealTypeFilter === 2 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                  >
+                    Comida
+                  </button>
+                  <button
+                    (click)="mealTypeFilter = 3; applyFilters()"
+                    [class]="mealTypeFilter === 3 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                  >
+                    Cena
+                  </button>
+                  <button
+                    (click)="mealTypeFilter = 4; applyFilters()"
+                    [class]="mealTypeFilter === 4 ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray hover:bg-gray-200'"
+                    class="px-3 py-2 rounded-lg font-medium transition-all text-sm"
+                  >
+                    Aperitivo
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-sm font-semibold mb-2 text-dark-purple">Ordenar por</h3>
+                <select [(ngModel)]="sortBy" (change)="applyFilters()" class="input text-sm w-full">
+                  <option value="newest">Más recientes</option>
+                  <option value="oldest">Más antiguas</option>
+                  <option value="popularity">Más populares</option>
+                  <option value="rating">Mejor valoradas</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Excluir alérgenos -->
+            @if (allergens.length > 0) {
+              <div>
+                <h3 class="text-sm font-semibold mb-2 text-dark-purple flex items-center gap-2">
+                  <lucide-icon [img]="AlertIcon" class="w-4 h-4 text-error"></lucide-icon>
+                  Excluir alérgenos
+                </h3>
+                <div class="grid md:grid-cols-4 gap-2">
+                  @for (allergen of allergens; track allergen.id) {
+                    <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-celadon rounded-lg transition text-sm">
+                      <input 
+                        type="checkbox"
+                        [value]="allergen.id"
+                        (change)="toggleAllergenFilter(allergen.id)"
+                        [checked]="excludedAllergenIds.includes(allergen.id)"
+                        class="w-4 h-4"
+                      >
+                      <span>{{ allergen.name }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (hasActiveFilters()) {
+              <div class="pt-3 border-t">
+                <button (click)="clearFilters()" class="btn-secondary text-sm w-full">
+                  Limpiar todos los filtros
+                </button>
+              </div>
+            }
+          </div>
         </div>
 
         @if (isLoading) {
@@ -47,28 +156,21 @@ import {
           </div>
         }
 
-        @if (!isLoading && savedRecipes.length > 0) {
+        @if (!isLoading && filteredRecipes.length > 0) {
           <div class="mb-5 text-slate-gray text-base">
-            {{ savedRecipes.length }} recetas guardadas
+            Mostrando {{ filteredRecipes.length }} de {{ savedRecipes.length }} recetas guardadas
           </div>
           
           <div class="grid md:grid-cols-3 gap-6">
-            @for (recipe of savedRecipes; track recipe.id) {
+            @for (recipe of filteredRecipes; track recipe.id) {
               <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-                <!-- Imagen -->
-                @if (recipe.imagePath) {
-                  <div class="relative h-48 overflow-hidden">
-                    <img 
-                      [src]="recipe.imagePath" 
-                      [alt]="recipe.title"
-                      class="w-full h-full object-cover"
-                    >
-                  </div>
-                } @else {
-                  <div class="relative h-48 bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
-                    <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-white opacity-50"></lucide-icon>
-                  </div>
-                }
+                <div class="relative h-48 overflow-hidden bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+                  <img 
+                    [src]="recipe.imagePath || '/MMLogo.png'" 
+                    [alt]="recipe.title"
+                    [class]="recipe.imagePath ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'"
+                  />
+                </div>
 
                 <div class="p-5">
                   <div class="flex justify-between items-start mb-2">
@@ -149,10 +251,18 @@ import {
             </a>
           </div>
         }
+
+        @if (!isLoading && filteredRecipes.length === 0 && savedRecipes.length > 0) {
+          <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+            <lucide-icon [img]="SearchIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+            <h3 class="mb-3 text-xl">No se encontraron recetas</h3>
+            <p class="text-slate-gray mb-6 text-base">Intenta con otros filtros o términos de búsqueda</p>
+            <button (click)="clearFilters()" class="btn-secondary text-sm">Limpiar Filtros</button>
+          </div>
+        }
       </div>
     </div>
 
-    <!-- Modal de confirmación -->
     @if (recipeToRemove) {
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
@@ -183,19 +293,26 @@ import {
 })
 export class SavedRecipesComponent implements OnInit {
   savedRecipes: Recipe[] = [];
+  filteredRecipes: Recipe[] = [];
   favorites: Favorite[] = [];
+  allergens: Allergen[] = [];
+  
   isLoading = true;
   errorMessage = '';
   recipeToRemove: Recipe | null = null;
 
-  // Iconos
+  searchTerm = '';
+  mealTypeFilter: number | null = null;
+  sortBy = 'newest';
+  excludedAllergenIds: number[] = [];
+
   readonly HeartIcon = Heart;
-  readonly TrashIcon = Trash2;
   readonly CalendarIcon = Calendar;
   readonly StarIcon = Star;
   readonly ChefHatIcon = ChefHat;
   readonly AlertIcon = AlertTriangle;
   readonly SearchIcon = Search;
+  readonly FiltersIcon = SlidersHorizontal;
 
   constructor(
     private favoriteService: FavoriteService,
@@ -205,6 +322,7 @@ export class SavedRecipesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSavedRecipes();
+    this.loadAllergens();
   }
 
   loadSavedRecipes(): void {
@@ -233,6 +351,7 @@ export class SavedRecipesComponent implements OnInit {
         this.recipeService.getAllRecipes().subscribe({
           next: (recipes) => {
             this.savedRecipes = recipes.filter(r => recipeIds.includes(r.id));
+            this.applyFilters();
             this.isLoading = false;
           },
           error: (error) => {
@@ -250,6 +369,87 @@ export class SavedRecipesComponent implements OnInit {
     });
   }
 
+  loadAllergens(): void {
+    this.recipeService.getAllAllergens().subscribe({
+      next: (allergens) => {
+        this.allergens = allergens;
+      },
+      error: (error) => console.error('Error cargando alérgenos:', error)
+    });
+  }
+
+  toggleAllergenFilter(allergenId: number): void {
+    const index = this.excludedAllergenIds.indexOf(allergenId);
+    if (index > -1) {
+      this.excludedAllergenIds.splice(index, 1);
+    } else {
+      this.excludedAllergenIds.push(allergenId);
+    }
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    let filtered = [...this.savedRecipes];
+
+    // Búsqueda
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (recipe) =>
+          recipe.title.toLowerCase().includes(term) ||
+          recipe.description?.toLowerCase().includes(term)
+      );
+    }
+
+    // Tipo de comida
+    if (this.mealTypeFilter !== null) {
+      filtered = filtered.filter((recipe) => recipe.mealTypeId === this.mealTypeFilter);
+    }
+
+    // Alérgenos excluidos
+    if (this.excludedAllergenIds.length > 0) {
+      filtered = filtered.filter((recipe) => {
+        const recipeAllergenIds = recipe.allergens.map(a => a.id);
+        return !this.excludedAllergenIds.some(id => recipeAllergenIds.includes(id));
+      });
+    }
+
+    // Ordenación
+    filtered = this.sortRecipes(filtered);
+
+    this.filteredRecipes = filtered;
+  }
+
+  sortRecipes(recipes: Recipe[]): Recipe[] {
+    switch (this.sortBy) {
+      case 'newest':
+        return recipes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case 'oldest':
+        return recipes.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      case 'popularity':
+        return recipes.sort((a, b) => b.ratingCount - a.ratingCount);
+      case 'rating':
+        return recipes.sort((a, b) => b.avgRating - a.avgRating);
+      default:
+        return recipes;
+    }
+  }
+
+  hasActiveFilters(): boolean {
+    return this.searchTerm.trim() !== '' || 
+           this.mealTypeFilter !== null ||
+           this.excludedAllergenIds.length > 0 ||
+           this.sortBy !== 'newest';
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.mealTypeFilter = null;
+    this.sortBy = 'newest';
+    this.excludedAllergenIds = [];
+    this.applyFilters();
+  }
+
   removeFromFavorites(recipe: Recipe): void {
     this.recipeToRemove = recipe;
   }
@@ -264,6 +464,7 @@ export class SavedRecipesComponent implements OnInit {
       next: () => {
         this.savedRecipes = this.savedRecipes.filter(r => r.id !== this.recipeToRemove?.id);
         this.favorites = this.favorites.filter(f => f.recipeId !== this.recipeToRemove?.id);
+        this.applyFilters();
         this.recipeToRemove = null;
       },
       error: (error) => {
@@ -279,8 +480,7 @@ export class SavedRecipesComponent implements OnInit {
       1: 'Desayuno',
       2: 'Comida',
       3: 'Cena',
-      4: 'Aperitivo',
-      5: 'Merienda'
+      4: 'Aperitivo'
     };
     return types[id] || 'Otro';
   }

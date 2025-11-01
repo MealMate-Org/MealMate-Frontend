@@ -25,6 +25,18 @@ export interface UserCreateDTO {
 
 export interface UserPreference {
   userId: number;
+  // Modo de cálculo
+  useAutomaticCalculation?: boolean;
+  
+  // Campos para cálculo automático (NO se guardan en BD, solo se usan para calcular)
+  gender?: 'male' | 'female';
+  age?: number;
+  weight?: number;
+  height?: number;
+  activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+  goal?: 'deficit' | 'maintenance' | 'surplus';
+  
+  // Objetivos manuales
   dailyCaloriesGoal?: number;
   dailyCarbsGoal?: number;
   dailyProteinGoal?: number;

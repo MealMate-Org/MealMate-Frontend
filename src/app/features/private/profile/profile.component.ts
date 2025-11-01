@@ -15,7 +15,9 @@ import {
   AlertTriangle,
   Target,
   Apple,
-  ArrowLeft
+  ArrowLeft,
+  Calculator,
+  Info
 } from 'lucide-angular';
 
 @Component({
@@ -28,9 +30,9 @@ import {
       <div class="max-w-4xl mx-auto px-4">
         <!-- Botón Volver -->
         <div class="mb-6">
-          <a routerLink="/home" class="inline-flex items-center gap-2 text-cambridge-blue hover:text-blue-700 transition-colors">
+          <a routerLink="/dashboard" class="inline-flex items-center gap-2 text-cambridge-blue hover:text-blue-700 transition-colors">
             <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-semibold">Volver al inicio</span>
+            <span class="font-semibold">Volver al dashboard</span>
           </a>
         </div>
 
@@ -145,91 +147,234 @@ import {
               Configura tus objetivos diarios para seguimiento nutricional
             </p>
 
-            <!-- Información de límites -->
-            <div class="bg-blue-50 border-l-4 border-cambridge-blue p-4 mb-6">
-              <p class="text-sm text-blue-800">
-                <strong>Límites máximos:</strong> Calorías: 999,999 kcal | Macros: 9,999.99 g
-              </p>
-            </div>
-
             <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" class="space-y-6">
-              <div>
-                <label class="block text-sm font-semibold mb-2">Dieta</label>
-                <select formControlName="dietId" class="input w-full">
-                  <option [value]="null">Seleccionar...</option>
-                  @for (diet of diets; track diet.id) {
-                    <option [value]="diet.id">{{ diet.name }}</option>
-                  }
-                </select>
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Calorías diarias (kcal)</label>
-                  <input 
-                    type="number" 
-                    formControlName="dailyCaloriesGoal"
-                    class="input w-full" 
-                    placeholder="2000"
-                    min="0"
-                    max="999999"
-                  >
-                  @if (preferencesForm.get('dailyCaloriesGoal')?.hasError('max')) {
-                    <p class="text-error text-sm mt-2">Máximo 999,999 kcal</p>
-                  }
-                  @if (preferencesForm.get('dailyCaloriesGoal')?.hasError('min')) {
-                    <p class="text-error text-sm mt-2">No puede ser negativo</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Proteína diaria (g)</label>
-                  <input 
-                    type="number" 
-                    formControlName="dailyProteinGoal"
-                    class="input w-full" 
-                    placeholder="150"
-                    min="0"
-                    max="9999.99"
-                    step="0.1"
-                  >
-                  @if (preferencesForm.get('dailyProteinGoal')?.hasError('max')) {
-                    <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Carbohidratos diarios (g)</label>
-                  <input 
-                    type="number" 
-                    formControlName="dailyCarbsGoal"
-                    class="input w-full" 
-                    placeholder="250"
-                    min="0"
-                    max="9999.99"
-                    step="0.1"
-                  >
-                  @if (preferencesForm.get('dailyCarbsGoal')?.hasError('max')) {
-                    <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-semibold mb-2">Grasas diarias (g)</label>
-                  <input 
-                    type="number" 
-                    formControlName="dailyFatGoal"
-                    class="input w-full" 
-                    placeholder="70"
-                    min="0"
-                    max="9999.99"
-                    step="0.1"
-                  >
-                  @if (preferencesForm.get('dailyFatGoal')?.hasError('max')) {
-                    <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
-                  }
+              <!-- Selector de modo: Manual vs Automático -->
+              <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+                <div class="flex items-start gap-3 mb-4">
+                  <lucide-icon [img]="CalculatorIcon" class="w-6 h-6 text-blue-600 flex-shrink-0 mt-1"></lucide-icon>
+                  <div class="flex-1">
+                    <h4 class="font-bold text-dark-purple mb-2">Modo de Cálculo</h4>
+                    <div class="space-y-3">
+                      <label class="flex items-start gap-3 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          [value]="false"
+                          formControlName="useAutomaticCalculation"
+                          class="mt-1"
+                        >
+                        <div>
+                          <span class="font-medium text-dark-purple">Manual</span>
+                          <p class="text-sm text-slate-gray">Introduce tus objetivos manualmente</p>
+                        </div>
+                      </label>
+                      
+                      <label class="flex items-start gap-3 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          [value]="true"
+                          formControlName="useAutomaticCalculation"
+                          class="mt-1"
+                        >
+                        <div>
+                          <span class="font-medium text-dark-purple">Automático</span>
+                          <p class="text-sm text-slate-gray">Calcula automáticamente basado en tus datos</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              <!-- Campos para cálculo automático -->
+              @if (preferencesForm.get('useAutomaticCalculation')?.value) {
+                <div class="bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 border-2 border-cambridge-blue rounded-2xl p-6 space-y-4">
+                  <h4 class="font-bold text-dark-purple mb-4">Datos para Cálculo Automático</h4>
+                  
+                  <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                    <div class="flex gap-2">
+                      <lucide-icon [img]="InfoIcon" class="w-5 h-5 text-yellow-600 flex-shrink-0"></lucide-icon>
+                      <p class="text-sm text-yellow-800">
+                        <strong>Nota importante:</strong> Los valores calculados son orientativos y se basan en fórmulas estándar. 
+                        Esta información no sustituye el consejo de un nutricionista profesional.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Género *</label>
+                      <select formControlName="gender" class="input w-full">
+                        <option value="">Seleccionar...</option>
+                        <option value="male">Masculino</option>
+                        <option value="female">Femenino</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Edad *</label>
+                      <input 
+                        type="number" 
+                        formControlName="age"
+                        class="input w-full" 
+                        placeholder="25"
+                        min="15"
+                        max="100"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Peso (kg) *</label>
+                      <input 
+                        type="number" 
+                        formControlName="weight"
+                        class="input w-full" 
+                        placeholder="70"
+                        min="30"
+                        max="300"
+                        step="0.1"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Altura (cm) *</label>
+                      <input 
+                        type="number" 
+                        formControlName="height"
+                        class="input w-full" 
+                        placeholder="170"
+                        min="100"
+                        max="250"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Nivel de Actividad *</label>
+                      <select formControlName="activityLevel" class="input w-full">
+                        <option value="">Seleccionar...</option>
+                        <option value="sedentary">Sedentario (poco o ningún ejercicio)</option>
+                        <option value="light">Ligero (1-3 días/semana)</option>
+                        <option value="moderate">Moderado (3-5 días/semana)</option>
+                        <option value="active">Activo (6-7 días/semana)</option>
+                        <option value="very_active">Muy activo (ejercicio intenso diario)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Objetivo *</label>
+                      <select formControlName="goal" class="input w-full">
+                        <option value="">Seleccionar...</option>
+                        <option value="deficit">Déficit (perder peso)</option>
+                        <option value="maintenance">Mantenimiento</option>
+                        <option value="surplus">Superávit (ganar peso)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  @if (showAutomaticPreview) {
+                    <div class="mt-6 p-4 bg-white rounded-xl border-2 border-success">
+                      <h5 class="font-bold text-dark-purple mb-3">Vista Previa del Cálculo:</h5>
+                      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-cambridge-blue">{{ calculatedMacros.calories }}</div>
+                          <div class="text-xs text-slate-gray">kcal/día</div>
+                        </div>
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-success">{{ calculatedMacros.protein }}g</div>
+                          <div class="text-xs text-slate-gray">Proteína</div>
+                        </div>
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-yellow-500">{{ calculatedMacros.carbs }}g</div>
+                          <div class="text-xs text-slate-gray">Carbohidratos</div>
+                        </div>
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-purple-500">{{ calculatedMacros.fat }}g</div>
+                          <div class="text-xs text-slate-gray">Grasas</div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Campos manuales -->
+              @if (!preferencesForm.get('useAutomaticCalculation')?.value) {
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Dieta</label>
+                    <select formControlName="dietId" class="input w-full">
+                      <option [value]="null">Seleccionar...</option>
+                      @for (diet of diets; track diet.id) {
+                        <option [value]="diet.id">{{ diet.name }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="bg-blue-50 border-l-4 border-cambridge-blue p-4 mb-4">
+                    <p class="text-sm text-blue-800">
+                      <strong>Límites máximos:</strong> Calorías: 999,999 kcal | Macros: 9,999.99 g
+                    </p>
+                  </div>
+
+                  <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Calorías diarias (kcal)</label>
+                      <input 
+                        type="number" 
+                        formControlName="dailyCaloriesGoal"
+                        class="input w-full" 
+                        placeholder="2000"
+                        min="0"
+                        max="999999"
+                      >
+                      @if (preferencesForm.get('dailyCaloriesGoal')?.hasError('max')) {
+                        <p class="text-error text-sm mt-2">Máximo 999,999 kcal</p>
+                      }
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Proteína diaria (g)</label>
+                      <input 
+                        type="number" 
+                        formControlName="dailyProteinGoal"
+                        class="input w-full" 
+                        placeholder="150"
+                        min="0"
+                        max="9999.99"
+                        step="0.1"
+                      >
+                      @if (preferencesForm.get('dailyProteinGoal')?.hasError('max')) {
+                        <p class="text-error text-sm mt-2">Máximo 9,999.99 g</p>
+                      }
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Carbohidratos diarios (g)</label>
+                      <input 
+                        type="number" 
+                        formControlName="dailyCarbsGoal"
+                        class="input w-full" 
+                        placeholder="250"
+                        min="0"
+                        max="9999.99"
+                        step="0.1"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-semibold mb-2">Grasas diarias (g)</label>
+                      <input 
+                        type="number" 
+                        formControlName="dailyFatGoal"
+                        class="input w-full" 
+                        placeholder="70"
+                        min="0"
+                        max="9999.99"
+                        step="0.1"
+                      >
+                    </div>
+                  </div>
+                </div>
+              }
 
               <div class="flex justify-end">
                 <button 
@@ -310,6 +455,14 @@ export class ProfileComponent implements OnInit {
   
   successMessage = '';
   errorMessage = '';
+  
+  showAutomaticPreview = false;
+  calculatedMacros = {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
+  };
 
   // Iconos
   readonly UploadIcon = Upload;
@@ -318,6 +471,8 @@ export class ProfileComponent implements OnInit {
   readonly TargetIcon = Target;
   readonly AppleIcon = Apple;
   readonly ArrowLeftIcon = ArrowLeft;
+  readonly CalculatorIcon = Calculator;
+  readonly InfoIcon = Info;
 
   constructor(
     private fb: FormBuilder,
@@ -334,11 +489,27 @@ export class ProfileComponent implements OnInit {
     });
 
     this.preferencesForm = this.fb.group({
+      useAutomaticCalculation: [false],
+      // Campos automáticos
+      gender: [''],
+      age: [null, [Validators.min(15), Validators.max(100)]],
+      weight: [null, [Validators.min(30), Validators.max(300)]],
+      height: [null, [Validators.min(100), Validators.max(250)]],
+      activityLevel: [''],
+      goal: [''],
+      // Campos manuales
       dailyCaloriesGoal: [null, [Validators.min(0), Validators.max(999999)]],
       dailyCarbsGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
       dailyProteinGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
       dailyFatGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
       dietId: [null]
+    });
+
+    // Suscribirse a cambios en el formulario de preferencias para vista previa
+    this.preferencesForm.valueChanges.subscribe(() => {
+      if (this.preferencesForm.get('useAutomaticCalculation')?.value) {
+        this.updateAutomaticPreview();
+      }
     });
   }
 
@@ -412,17 +583,97 @@ export class ProfileComponent implements OnInit {
     this.userService.getUserPreferences(this.currentUser.id).subscribe({
       next: (preferences) => {
         this.preferencesForm.patchValue({
+          useAutomaticCalculation: preferences.useAutomaticCalculation || false,
+          gender: preferences.gender || '',
+          age: preferences.age || null,
+          weight: preferences.weight || null,
+          height: preferences.height || null,
+          activityLevel: preferences.activityLevel || '',
+          goal: preferences.goal || '',
           dailyCaloriesGoal: preferences.dailyCaloriesGoal,
           dailyCarbsGoal: preferences.dailyCarbsGoal,
           dailyProteinGoal: preferences.dailyProteinGoal,
           dailyFatGoal: preferences.dailyFatGoal,
           dietId: preferences.dietId
         });
+
+        if (preferences.useAutomaticCalculation) {
+          this.updateAutomaticPreview();
+        }
       },
       error: () => {
         // No hay preferencias guardadas
       }
     });
+  }
+
+  updateAutomaticPreview(): void {
+    const form = this.preferencesForm.value;
+    
+    if (!form.gender || !form.age || !form.weight || !form.height || !form.activityLevel || !form.goal) {
+      this.showAutomaticPreview = false;
+      return;
+    }
+
+    const macros = this.calculateAutomaticMacros(
+      form.gender,
+      form.age,
+      form.weight,
+      form.height,
+      form.activityLevel,
+      form.goal
+    );
+
+    this.calculatedMacros = macros;
+    this.showAutomaticPreview = true;
+  }
+
+  calculateAutomaticMacros(
+    gender: string,
+    age: number,
+    weight: number,
+    height: number,
+    activityLevel: string,
+    goal: string
+  ): { calories: number; protein: number; carbs: number; fat: number } {
+    // Fórmula Harris-Benedict revisada
+    let bmr = 0;
+    if (gender === 'male') {
+      bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+    } else {
+      bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+    }
+
+    // Factor de actividad
+    const activityFactors: { [key: string]: number } = {
+      sedentary: 1.2,
+      light: 1.375,
+      moderate: 1.55,
+      active: 1.725,
+      very_active: 1.9
+    };
+    const activityFactor = activityFactors[activityLevel] || 1.55;
+    let tdee = bmr * activityFactor;
+
+    // Ajustar según objetivo
+    if (goal === 'deficit') {
+      tdee *= 0.85; // -15%
+    } else if (goal === 'surplus') {
+      tdee *= 1.10; // +10%
+    }
+
+    // Calcular macros
+    const protein = weight * 2; // 2g por kg
+    const fat = (tdee * 0.25) / 9; // 25% de calorías
+    const remainingCalories = tdee - (protein * 4) - (fat * 9);
+    const carbs = remainingCalories / 4;
+
+    return {
+      calories: Math.round(tdee),
+      protein: Math.round(protein * 10) / 10,
+      carbs: Math.round(carbs * 10) / 10,
+      fat: Math.round(fat * 10) / 10
+    };
   }
 
   saveUserInfo(): void {
@@ -452,7 +703,10 @@ export class ProfileComponent implements OnInit {
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUser = user;
         
-        setTimeout(() => this.successMessage = '', 3000);
+        // ✅ REFRESCAR LA PÁGINA PARA EVITAR BUGS
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       },
       error: (error) => {
         this.errorMessage = this.extractErrorMessage(error);
@@ -464,7 +718,7 @@ export class ProfileComponent implements OnInit {
 
   savePreferences(): void {
     if (this.preferencesForm.invalid || !this.currentUser) {
-      this.errorMessage = 'Por favor verifica que todos los valores estén dentro de los límites permitidos';
+      this.errorMessage = 'Por favor completa todos los campos requeridos correctamente';
       return;
     }
 
@@ -472,13 +726,32 @@ export class ProfileComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    const form = this.preferencesForm.value;
+    const useAuto = form.useAutomaticCalculation;
+
+    // Validar campos según el modo
+    if (useAuto) {
+      if (!form.gender || !form.age || !form.weight || !form.height || !form.activityLevel || !form.goal) {
+        this.errorMessage = 'Por favor completa todos los campos requeridos para el cálculo automático';
+        this.isSavingPreferences = false;
+        return;
+      }
+    }
+
     const preferences: UserPreference = {
       userId: this.currentUser.id,
-      dailyCaloriesGoal: this.preferencesForm.value.dailyCaloriesGoal,
-      dailyCarbsGoal: this.preferencesForm.value.dailyCarbsGoal,
-      dailyProteinGoal: this.preferencesForm.value.dailyProteinGoal,
-      dailyFatGoal: this.preferencesForm.value.dailyFatGoal,
-      dietId: this.preferencesForm.value.dietId
+      useAutomaticCalculation: useAuto,
+      gender: useAuto ? form.gender : undefined,
+      age: useAuto ? form.age : undefined,
+      weight: useAuto ? form.weight : undefined,
+      height: useAuto ? form.height : undefined,
+      activityLevel: useAuto ? form.activityLevel : undefined,
+      goal: useAuto ? form.goal : undefined,
+      dailyCaloriesGoal: !useAuto ? form.dailyCaloriesGoal : undefined,
+      dailyCarbsGoal: !useAuto ? form.dailyCarbsGoal : undefined,
+      dailyProteinGoal: !useAuto ? form.dailyProteinGoal : undefined,
+      dailyFatGoal: !useAuto ? form.dailyFatGoal : undefined,
+      dietId: !useAuto ? form.dietId : undefined
     };
 
     this.userService.saveUserPreferences(preferences).subscribe({
@@ -529,14 +802,12 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // ✅ MÉTODO PARA EXTRAER MENSAJES DE ERROR CLAROS
   private extractErrorMessage(error: any): string {
     if (error.error?.message) {
       return error.error.message;
     }
     
     if (typeof error.error === 'string') {
-      // Buscar mensajes de validación del backend
       if (error.error.includes('no pueden exceder')) {
         return error.error;
       }

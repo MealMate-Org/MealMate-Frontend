@@ -403,31 +403,33 @@ export class RecipeDetailComponent implements OnInit {
     });
   }
 
-  checkIfFavorite(recipeId: number): void {
-    if (!this.currentUser) return;
+checkIfFavorite(recipeId: number): void {
+  if (!this.currentUser) return;
 
-    this.favoriteService.getFavoriteById(this.currentUser.id, recipeId).subscribe({
-      next: () => {
-        this.isFavorite = true;
-      },
-      error: () => {
-        this.isFavorite = false;
-      }
-    });
-  }
+  this.favoriteService.getFavoriteById(this.currentUser.id, recipeId).subscribe({
+    next: (favorite) => {
+      this.isFavorite = favorite !== null; // Si es null, no es favorito
+    },
+    error: (error) => {
+      console.error('Error real verificando favorito:', error);
+      this.isFavorite = false;
+    }
+  });
+}
 
-  loadUserRating(recipeId: number): void {
-    if (!this.currentUser) return;
+loadUserRating(recipeId: number): void {
+  if (!this.currentUser) return;
 
-    this.ratingService.getRating(recipeId, this.currentUser.id).subscribe({
-      next: (rating) => {
-        this.userRating = rating.score;
-      },
-      error: () => {
-        // No hay valoración
-      }
-    });
-  }
+  this.ratingService.getRating(recipeId, this.currentUser.id).subscribe({
+    next: (rating) => {
+      this.userRating = rating ? rating.score : null; // Si es null, no hay rating
+    },
+    error: (error) => {
+      console.error('Error real cargando valoración:', error);
+      this.userRating = null;
+    }
+  });
+}
 
   toggleFavorite(): void {
     if (!this.currentUser || !this.recipe) return;

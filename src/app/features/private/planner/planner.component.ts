@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { PlannerService } from '../../../core/services/planner.service';
 import { RecipeService } from '../../../core/services/recipe.service';
-import { FavoriteService } from '../../../core/services/user-actions.service';
+import { FavoriteService, ShoppingListService } from '../../../core/services/user-actions.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe, NutritionInfo } from '../../../models/recipe.model';
 import { User, UserPreference } from '../../../models/user.model';
+import { MealPlan, MealPlanItem, MealPlanItemCreateDTO, MealType, ShoppingItem } from '../../../models/planner.model';
 import { 
   LucideAngularModule,
   Calendar,
@@ -20,8 +21,10 @@ import {
   TrendingUp,
   Target,
   ShoppingCart,
-  Info
+  Info,
+  Loader2
 } from 'lucide-angular';
+import { forkJoin } from 'rxjs';
 
 interface DayPlan {
   date: Date;
@@ -35,6 +38,7 @@ interface DayPlan {
 interface PlannedMeal {
   recipe: Recipe;
   nutritionInfo?: NutritionInfo;
+  itemId?: number; // ID del meal plan item en la BD
 }
 
 interface MacroTotals {
@@ -62,10 +66,15 @@ interface MacroTotals {
             <button 
               (click)="generateShoppingList()"
               class="btn-primary inline-flex items-center gap-2"
-              [disabled]="!hasAnyMeals()"
+              [disabled]="!hasAnyMeals() || isGeneratingShoppingList"
             >
-              <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
-              Generar Lista de Compra
+              @if (isGeneratingShoppingList) {
+                <lucide-icon [img]="Loader2Icon" class="w-5 h-5 animate-spin"></lucide-icon>
+                Generando...
+              } @else {
+                <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
+                Generar Lista de Compra
+              }
             </button>
           </div>
 
@@ -75,6 +84,7 @@ interface MacroTotals {
               <button 
                 (click)="previousWeek()"
                 class="btn-secondary px-4 py-2 inline-flex items-center gap-2"
+                [disabled]="isLoading"
               >
                 <lucide-icon [img]="ChevronLeftIcon" class="w-5 h-5"></lucide-icon>
                 Anterior
@@ -104,6 +114,7 @@ interface MacroTotals {
               <button 
                 (click)="nextWeek()"
                 class="btn-secondary px-4 py-2 inline-flex items-center gap-2"
+                [disabled]="isLoading"
               >
                 Siguiente
                 <lucide-icon [img]="ChevronRightIcon" class="w-5 h-5"></lucide-icon>
@@ -171,6 +182,7 @@ interface MacroTotals {
                         <button 
                           (click)="removeMeal(day.date, 'breakfast')"
                           class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          [disabled]="isSaving"
                         >
                           <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
                         </button>
@@ -209,6 +221,7 @@ interface MacroTotals {
                         <button 
                           (click)="removeMeal(day.date, 'lunch')"
                           class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          [disabled]="isSaving"
                         >
                           <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
                         </button>
@@ -247,6 +260,7 @@ interface MacroTotals {
                         <button 
                           (click)="removeMeal(day.date, 'dinner')"
                           class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          [disabled]="isSaving"
                         >
                           <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
                         </button>
@@ -311,7 +325,7 @@ interface MacroTotals {
                 </div>
                 <div class="text-sm text-slate-gray">Calorías totales</div>
                 @if (userPreferences) {
-                  <div class="text-xs text-cambridge-blue mt-2">
+                  <div class="text-xs text-dark-purple mt-2 font-medium">
                     / {{ (getTargetCalories() * 7).toFixed(0) }} objetivo
                   </div>
                 }
@@ -323,7 +337,7 @@ interface MacroTotals {
                 </div>
                 <div class="text-sm text-slate-gray">Proteína total</div>
                 @if (userPreferences) {
-                  <div class="text-xs text-cambridge-blue mt-2">
+                  <div class="text-xs text-dark-purple mt-2 font-medium">
                     / {{ (getTargetProtein() * 7).toFixed(0) }}g objetivo
                   </div>
                 }
@@ -335,7 +349,7 @@ interface MacroTotals {
                 </div>
                 <div class="text-sm text-slate-gray">Carbohidratos</div>
                 @if (userPreferences) {
-                  <div class="text-xs text-cambridge-blue mt-2">
+                  <div class="text-xs text-dark-purple mt-2 font-medium">
                     / {{ (getTargetCarbs() * 7).toFixed(0) }}g objetivo
                   </div>
                 }
@@ -347,7 +361,7 @@ interface MacroTotals {
                 </div>
                 <div class="text-sm text-slate-gray">Grasas</div>
                 @if (userPreferences) {
-                  <div class="text-xs text-cambridge-blue mt-2">
+                  <div class="text-xs text-dark-purple mt-2 font-medium">
                     / {{ (getTargetFat() * 7).toFixed(0) }}g objetivo
                   </div>
                 }
@@ -492,11 +506,16 @@ export class PlannerComponent implements OnInit {
   weeklyTotals: MacroTotals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
   userPreferences: UserPreference | null = null;
   
+  currentMealPlan: MealPlan | null = null;
+  mealTypes: MealType[] = [];
+  
   myRecipes: Recipe[] = [];
   savedRecipes: Recipe[] = [];
   recipesNutrition: Map<number, NutritionInfo> = new Map();
   
   isLoading = true;
+  isSaving = false;
+  isGeneratingShoppingList = false;
   showRecipeSelector = false;
   selectedDate: Date | null = null;
   selectedMealType: 'breakfast' | 'lunch' | 'dinner' | null = null;
@@ -515,13 +534,16 @@ export class PlannerComponent implements OnInit {
   readonly TargetIcon = Target;
   readonly ShoppingCartIcon = ShoppingCart;
   readonly InfoIcon = Info;
+  readonly Loader2Icon = Loader2;
 
   constructor(
     private plannerService: PlannerService,
     private recipeService: RecipeService,
     private favoriteService: FavoriteService,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private shoppingListService: ShoppingListService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -530,27 +552,168 @@ export class PlannerComponent implements OnInit {
       this.goToCurrentWeek();
       this.loadUserPreferences();
       this.loadRecipes();
+      this.loadMealTypes();
     }
+  }
+
+  loadMealTypes(): void {
+    this.plannerService.getAllMealTypes().subscribe({
+      next: (types) => {
+        this.mealTypes = types;
+        console.log('Loaded meal types:', types);
+      },
+      error: (error) => {
+        console.error('Error cargando tipos de comida:', error);
+        // Usar valores por defecto según tu BD
+        this.mealTypes = [
+          { id: 1, name: 'Desayuno' },
+          { id: 2, name: 'Comida' },
+          { id: 3, name: 'Cena' }
+        ];
+      }
+    });
   }
 
   goToCurrentWeek(): void {
     const today = new Date();
     const dayOfWeek = today.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Ajustar para que lunes sea el primer día
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     this.currentWeekStart = new Date(today);
     this.currentWeekStart.setDate(today.getDate() + diff);
     this.currentWeekStart.setHours(0, 0, 0, 0);
-    this.generateWeekPlan();
+    this.loadWeekData();
   }
 
   previousWeek(): void {
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
-    this.generateWeekPlan();
+    this.loadWeekData();
   }
 
   nextWeek(): void {
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
-    this.generateWeekPlan();
+    this.loadWeekData();
+  }
+
+  loadWeekData(): void {
+    if (!this.currentUser) return;
+
+    this.isLoading = true;
+    const weekEnd = new Date(this.currentWeekStart);
+    weekEnd.setDate(this.currentWeekStart.getDate() + 6);
+
+    // Obtener o crear meal plan para esta semana
+    this.plannerService.getOrCreateMealPlanForWeek(
+      this.currentUser.id,
+      this.formatDateISO(this.currentWeekStart),
+      this.formatDateISO(weekEnd)
+    ).subscribe({
+      next: (mealPlan) => {
+        this.currentMealPlan = mealPlan;
+        this.generateWeekPlan();
+        this.loadMealPlanItems();
+      },
+      error: (error) => {
+        console.error('Error cargando meal plan:', error);
+        this.generateWeekPlan();
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadMealPlanItems(): void {
+    if (!this.currentMealPlan) return;
+
+    const weekEnd = new Date(this.currentWeekStart);
+    weekEnd.setDate(this.currentWeekStart.getDate() + 6);
+
+    this.plannerService.getItemsByMealPlanAndDateRange(
+      this.currentMealPlan.id,
+      this.formatDateISO(this.currentWeekStart),
+      this.formatDateISO(weekEnd)
+    ).subscribe({
+      next: (items) => {
+        // Cargar los detalles de cada item
+        this.loadItemsDetails(items);
+      },
+      error: (error) => {
+        console.error('Error cargando items:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadItemsDetails(items: MealPlanItem[]): void {
+    if (items.length === 0) {
+      this.isLoading = false;
+      return;
+    }
+
+    const recipeObservables = items.map(item => 
+      this.recipeService.getRecipeById(item.recipeId)
+    );
+
+    forkJoin(recipeObservables).subscribe({
+      next: (recipes) => {
+        items.forEach((item, index) => {
+          const recipe = recipes[index];
+          const itemDate = new Date(item.date);
+          const day = this.weekPlan.find(d => 
+            d.date.toDateString() === itemDate.toDateString()
+          );
+
+          if (day) {
+            const mealType = this.getMealTypeFromId(item.mealTypeId);
+            const nutritionInfo = this.getRecipeNutrition(recipe.id);
+            
+            const plannedMeal: PlannedMeal = {
+              recipe,
+              nutritionInfo,
+              itemId: item.id
+            };
+
+            switch (mealType) {
+              case 'breakfast':
+                day.breakfast = plannedMeal;
+                break;
+              case 'lunch':
+                day.lunch = plannedMeal;
+                break;
+              case 'dinner':
+                day.dinner = plannedMeal;
+                break;
+            }
+
+            this.calculateDayTotals(day);
+          }
+        });
+
+        this.calculateWeeklyTotals();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando detalles de recetas:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  getMealTypeFromId(mealTypeId: number): 'breakfast' | 'lunch' | 'dinner' | null {
+    // IDs según tu BD: 1=Desayuno, 2=Comida, 3=Cena
+    switch (mealTypeId) {
+      case 1: return 'breakfast';
+      case 2: return 'lunch';
+      case 3: return 'dinner';
+      default: return null;
+    }
+  }
+
+  getMealTypeId(mealType: 'breakfast' | 'lunch' | 'dinner'): number {
+    // IDs según tu BD: 1=Desayuno, 2=Comida, 3=Cena
+    switch (mealType) {
+      case 'breakfast': return 1;
+      case 'lunch': return 2;
+      case 'dinner': return 3;
+    }
   }
 
   isCurrentWeek(): boolean {
@@ -592,9 +755,6 @@ export class PlannerComponent implements OnInit {
         dailyTotals: { calories: 0, protein: 0, carbs: 0, fat: 0 }
       });
     }
-    
-    this.calculateWeeklyTotals();
-    this.isLoading = false;
   }
 
   loadUserPreferences(): void {
@@ -605,7 +765,6 @@ export class PlannerComponent implements OnInit {
         this.userPreferences = preferences;
       },
       error: () => {
-        // Usuario sin preferencias configuradas
         this.userPreferences = null;
       }
     });
@@ -614,7 +773,6 @@ export class PlannerComponent implements OnInit {
   loadRecipes(): void {
     if (!this.currentUser) return;
 
-    // Cargar mis recetas
     this.recipeService.getRecipesByAuthor(this.currentUser.id).subscribe({
       next: (recipes) => {
         this.myRecipes = recipes;
@@ -623,7 +781,6 @@ export class PlannerComponent implements OnInit {
       error: (error) => console.error('Error cargando mis recetas:', error)
     });
 
-    // Cargar recetas guardadas
     this.favoriteService.getAllFavorites().subscribe({
       next: (favorites) => {
         const recipeIds = favorites.map(f => f.recipeId);
@@ -647,9 +804,7 @@ export class PlannerComponent implements OnInit {
         next: (nutrition) => {
           this.recipesNutrition.set(recipe.id, nutrition);
         },
-        error: () => {
-          // Receta sin info nutricional
-        }
+        error: () => {}
       });
     });
   }
@@ -669,6 +824,10 @@ export class PlannerComponent implements OnInit {
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
   }
 
+  formatDateISO(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
   openRecipeSelector(date: Date, mealType: 'breakfast' | 'lunch' | 'dinner'): void {
     this.selectedDate = date;
     this.selectedMealType = mealType;
@@ -686,56 +845,99 @@ export class PlannerComponent implements OnInit {
   }
 
   selectRecipe(recipe: Recipe): void {
-    if (!this.selectedDate || !this.selectedMealType) return;
+    if (!this.selectedDate || !this.selectedMealType || !this.currentMealPlan) return;
 
-    const day = this.weekPlan.find(d => 
-      d.date.toDateString() === this.selectedDate!.toDateString()
-    );
+    this.isSaving = true;
 
-    if (day) {
-      const nutritionInfo = this.getRecipeNutrition(recipe.id);
-      const plannedMeal: PlannedMeal = { recipe, nutritionInfo };
+    const itemCreate: MealPlanItemCreateDTO = {
+      mealPlanId: this.currentMealPlan.id,
+      recipeId: recipe.id,
+      mealTypeId: this.getMealTypeId(this.selectedMealType),
+      date: this.formatDateISO(this.selectedDate)
+    };
 
-      switch (this.selectedMealType) {
-        case 'breakfast':
-          day.breakfast = plannedMeal;
-          break;
-        case 'lunch':
-          day.lunch = plannedMeal;
-          break;
-        case 'dinner':
-          day.dinner = plannedMeal;
-          break;
+    console.log('Creating meal plan item:', itemCreate);
+
+    this.plannerService.addMealPlanItem(itemCreate).subscribe({
+      next: (savedItem) => {
+        const day = this.weekPlan.find(d => 
+          d.date.toDateString() === this.selectedDate!.toDateString()
+        );
+
+        if (day) {
+          const nutritionInfo = this.getRecipeNutrition(recipe.id);
+          const plannedMeal: PlannedMeal = { 
+            recipe, 
+            nutritionInfo,
+            itemId: savedItem.id
+          };
+
+          switch (this.selectedMealType) {
+            case 'breakfast':
+              day.breakfast = plannedMeal;
+              break;
+            case 'lunch':
+              day.lunch = plannedMeal;
+              break;
+            case 'dinner':
+              day.dinner = plannedMeal;
+              break;
+          }
+
+          this.calculateDayTotals(day);
+          this.calculateWeeklyTotals();
+        }
+
+        this.isSaving = false;
+        this.closeRecipeSelector();
+      },
+      error: (error) => {
+        console.error('Error guardando receta:', error);
+        alert('Error al guardar la receta. Por favor, inténtalo de nuevo.');
+        this.isSaving = false;
       }
-
-      this.calculateDayTotals(day);
-      this.calculateWeeklyTotals();
-    }
-
-    this.closeRecipeSelector();
+    });
   }
 
   removeMeal(date: Date, mealType: 'breakfast' | 'lunch' | 'dinner'): void {
+    if (!this.currentMealPlan) return;
+
     const day = this.weekPlan.find(d => 
       d.date.toDateString() === date.toDateString()
     );
 
-    if (day) {
-      switch (mealType) {
-        case 'breakfast':
-          day.breakfast = undefined;
-          break;
-        case 'lunch':
-          day.lunch = undefined;
-          break;
-        case 'dinner':
-          day.dinner = undefined;
-          break;
-      }
+    if (!day) return;
 
-      this.calculateDayTotals(day);
-      this.calculateWeeklyTotals();
-    }
+    this.isSaving = true;
+
+    this.plannerService.deleteMealPlanItemByDetails(
+      this.currentMealPlan.id,
+      this.formatDateISO(date),
+      this.getMealTypeId(mealType)
+    ).subscribe({
+      next: () => {
+        switch (mealType) {
+          case 'breakfast':
+            day.breakfast = undefined;
+            break;
+          case 'lunch':
+            day.lunch = undefined;
+            break;
+          case 'dinner':
+            day.dinner = undefined;
+            break;
+        }
+
+        this.calculateDayTotals(day);
+        this.calculateWeeklyTotals();
+        this.isSaving = false;
+      },
+      error: (error) => {
+        console.error('Error eliminando receta:', error);
+        alert('Error al eliminar la receta. Por favor, inténtalo de nuevo.');
+        this.isSaving = false;
+      }
+    });
   }
 
   calculateDayTotals(day: DayPlan): void {
@@ -880,7 +1082,6 @@ export class PlannerComponent implements OnInit {
     activityLevel: string,
     goal: string
   ): { calories: number; protein: number; carbs: number; fat: number } {
-    // Fórmula Mifflin-St Jeor
     let bmr = 0;
     if (gender === 'male') {
       bmr = 10 * weight + 6.25 * height - 5 * age + 5;
@@ -888,7 +1089,6 @@ export class PlannerComponent implements OnInit {
       bmr = 10 * weight + 6.25 * height - 5 * age - 161;
     }
 
-    // Factor de actividad
     const activityFactors: { [key: string]: number } = {
       sedentary: 1.2,
       light: 1.375,
@@ -899,16 +1099,14 @@ export class PlannerComponent implements OnInit {
     const activityFactor = activityFactors[activityLevel] || 1.55;
     let tdee = bmr * activityFactor;
 
-    // Ajustar según objetivo
     if (goal === 'deficit') {
-      tdee *= 0.85; // -15%
+      tdee *= 0.85;
     } else if (goal === 'surplus') {
-      tdee *= 1.10; // +10%
+      tdee *= 1.10;
     }
 
-    // Calcular macros
-    const protein = weight * 2; // 2g por kg
-    const fat = (tdee * 0.25) / 9; // 25% de calorías
+    const protein = weight * 2;
+    const fat = (tdee * 0.25) / 9;
     const remainingCalories = tdee - (protein * 4) - (fat * 9);
     const carbs = remainingCalories / 4;
 
@@ -927,7 +1125,81 @@ export class PlannerComponent implements OnInit {
   }
 
   generateShoppingList(): void {
-    // TODO: Implementar generación de lista de compra
-    alert('Función de generación de lista de compra en desarrollo');
+    if (!this.currentUser || !this.currentMealPlan) return;
+
+    this.isGeneratingShoppingList = true;
+
+    // Recopilar todas las recetas de la semana
+    const allRecipes: Recipe[] = [];
+    this.weekPlan.forEach(day => {
+      if (day.breakfast) allRecipes.push(day.breakfast.recipe);
+      if (day.lunch) allRecipes.push(day.lunch.recipe);
+      if (day.dinner) allRecipes.push(day.dinner.recipe);
+    });
+
+    if (allRecipes.length === 0) {
+      alert('No hay recetas planificadas para esta semana');
+      this.isGeneratingShoppingList = false;
+      return;
+    }
+
+    // Consolidar ingredientes
+    const ingredientsMap = new Map<string, { quantity: number; unit: string }>();
+
+    allRecipes.forEach(recipe => {
+      if (recipe.ingredients) {
+        try {
+          const ingredients = JSON.parse(recipe.ingredients as any);
+          ingredients.forEach((ing: any) => {
+            const key = `${ing.name}|${ing.unit}`;
+            if (ingredientsMap.has(key)) {
+              const existing = ingredientsMap.get(key)!;
+              existing.quantity += ing.quantity || 0;
+            } else {
+              ingredientsMap.set(key, {
+                quantity: ing.quantity || 0,
+                unit: ing.unit || ''
+              });
+            }
+          });
+        } catch (e) {
+          console.warn('Error parsing ingredients:', e);
+        }
+      }
+    });
+
+    // Crear array de ShoppingItems
+    const items: ShoppingItem[] = [];
+    ingredientsMap.forEach((value, key) => {
+      const [name] = key.split('|');
+      items.push({
+        name,
+        quantity: value.quantity,
+        unit: value.unit,
+        checked: false
+      });
+    });
+
+    // Crear shopping list
+    const weekEnd = new Date(this.currentWeekStart);
+    weekEnd.setDate(this.currentWeekStart.getDate() + 6);
+
+    this.shoppingListService.createShoppingList({
+      userId: this.currentUser.id,
+      mealPlanId: this.currentMealPlan.id,
+      weekStartDate: this.formatDateISO(this.currentWeekStart),
+      weekEndDate: this.formatDateISO(weekEnd),
+      items
+    }).subscribe({
+      next: () => {
+        this.isGeneratingShoppingList = false;
+        this.router.navigate(['/shopping-list']);
+      },
+      error: (error) => {
+        console.error('Error generando lista de compra:', error);
+        alert('Error al generar la lista de compra');
+        this.isGeneratingShoppingList = false;
+      }
+    });
   }
 }

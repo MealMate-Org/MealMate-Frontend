@@ -28,7 +28,7 @@ import { Recipe } from '../../../models/recipe.model';
           <div class="card mb-8">
             <div class="flex items-start gap-6">
               <img 
-                [src]="user.avatar || 'https://via.placeholder.com/150?text=' + user.username[0].toUpperCase()" 
+                [src]="user.avatar || '' + user.username[0].toUpperCase()" 
                 [alt]="user.username"
                 class="w-32 h-32 rounded-full object-cover border-4 border-cambridge-blue"
               >

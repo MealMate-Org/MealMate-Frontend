@@ -23,17 +23,20 @@ import {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
       <div class="max-w-4xl mx-auto px-4">
-        <!-- Botón Volver -->
+        <!-- Botón Volver MODIFICADO -->
         <div class="mb-6">
-          <a routerLink="/dashboard" class="inline-flex items-center gap-2 text-cambridge-blue hover:text-blue-700 transition-colors">
+          <button 
+            (click)="goBackToProfile()"
+            class="inline-flex items-center gap-2 text-cambridge-blue hover:text-blue-700 transition-colors cursor-pointer"
+          >
             <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-semibold">Volver al dashboard</span>
-          </a>
+            <span class="font-semibold">Volver al perfil</span>
+          </button>
         </div>
 
         <h1 class="mb-8 text-5xl">Mi Perfil</h1>
@@ -299,15 +302,6 @@ import {
               <!-- Campos manuales -->
               @if (!preferencesForm.get('useAutomaticCalculation')?.value) {
                 <div class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-semibold mb-2">Dieta</label>
-                    <select formControlName="dietId" class="input w-full">
-                      <option [value]="null">Seleccionar...</option>
-                      @for (diet of diets; track diet.id) {
-                        <option [value]="diet.id">{{ diet.name }}</option>
-                      }
-                    </select>
-                  </div>
 
                   <div class="bg-blue-50 border-l-4 border-cambridge-blue p-4 mb-4">
                     <p class="text-sm text-blue-800">
@@ -424,8 +418,8 @@ import {
               <div class="flex justify-end">
                 <button 
                   (click)="saveAllergens()"
-                  [disabled]="isSavingAllergens"
-                  [class]="isSavingAllergens ? 'btn-disabled' : 'btn-primary'"
+                  [disabled]="isSavingAllergens || !hasAllergensChanged()"
+                  [class]="isSavingAllergens || !hasAllergensChanged() ? 'btn-disabled' : 'btn-primary'"
                   class="inline-flex items-center gap-2"
                 >
                   <lucide-icon [img]="SaveIcon" class="w-5 h-5"></lucide-icon>
@@ -447,6 +441,7 @@ export class ProfileComponent implements OnInit {
   diets: Diet[] = [];
   allergens: Allergen[] = [];
   userAllergenIds: number[] = [];
+  originalUserAllergenIds: number[] = []; // Para trackear cambios
   
   isSavingUser = false;
   isSavingPreferences = false;
@@ -570,6 +565,7 @@ export class ProfileComponent implements OnInit {
     this.userService.getUserAllergens(this.currentUser.id).subscribe({
       next: (allergens) => {
         this.userAllergenIds = allergens.map(a => a.id);
+        this.originalUserAllergenIds = [...this.userAllergenIds]; // Guardar copia original
       },
       error: (error) => {
         console.error('Error cargando alérgenos del usuario:', error);
@@ -703,10 +699,9 @@ export class ProfileComponent implements OnInit {
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUser = user;
         
-        // ✅ REFRESCAR LA PÁGINA PARA EVITAR BUGS
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        // ✅ REFRESCAR LA PÁGINA Y VOLVER AL TOP
+        window.scrollTo(0, 0);
+        window.location.reload();
       },
       error: (error) => {
         this.errorMessage = this.extractErrorMessage(error);
@@ -758,7 +753,10 @@ export class ProfileComponent implements OnInit {
       next: () => {
         this.successMessage = 'Preferencias nutricionales actualizadas correctamente';
         this.isSavingPreferences = false;
-        setTimeout(() => this.successMessage = '', 3000);
+        
+        // ✅ REFRESCAR LA PÁGINA Y VOLVER AL TOP
+        window.scrollTo(0, 0);
+        window.location.reload();
       },
       error: (error) => {
         this.errorMessage = this.extractErrorMessage(error);
@@ -781,25 +779,62 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  hasAllergensChanged(): boolean {
+    if (this.userAllergenIds.length !== this.originalUserAllergenIds.length) {
+      return true;
+    }
+    
+    // Verificar si los arrays tienen los mismos elementos (sin importar el orden)
+    const sortedCurrent = [...this.userAllergenIds].sort();
+    const sortedOriginal = [...this.originalUserAllergenIds].sort();
+    
+    return !sortedCurrent.every((value, index) => value === sortedOriginal[index]);
+  }
+
   saveAllergens(): void {
     if (!this.currentUser) return;
+
+    // Si no hay cambios, no hacer nada
+    if (!this.hasAllergensChanged()) {
+      this.successMessage = 'No hay cambios en las alergias para guardar';
+      setTimeout(() => this.successMessage = '', 3000);
+      return;
+    }
 
     this.isSavingAllergens = true;
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.userService.saveUserAllergens(this.currentUser.id, this.userAllergenIds).subscribe({
+    // Usar replaceUserAllergens en lugar de saveUserAllergens para evitar duplicados
+    this.userService.replaceUserAllergens(this.currentUser.id, this.userAllergenIds).subscribe({
       next: () => {
         this.successMessage = 'Alergias actualizadas correctamente';
         this.isSavingAllergens = false;
-        setTimeout(() => this.successMessage = '', 3000);
+        this.originalUserAllergenIds = [...this.userAllergenIds]; // Actualizar original
+        
+        // ✅ REFRESCAR LA PÁGINA Y VOLVER AL TOP
+        window.scrollTo(0, 0);
+        window.location.reload();
       },
       error: (error) => {
         this.errorMessage = this.extractErrorMessage(error);
         console.error('Error:', error);
         this.isSavingAllergens = false;
+        
+        // Si falla, revertir a los originales
+        this.userAllergenIds = [...this.originalUserAllergenIds];
       }
     });
+  }
+
+  goBackToProfile(): void {
+    if (this.currentUser) {
+      // Navegar al perfil del usuario: /user/{username}
+      this.router.navigate(['/user', this.currentUser.username]);
+    } else {
+      // Si no hay usuario, ir hacia atrás en el historial
+      window.history.back();
+    }
   }
 
   private extractErrorMessage(error: any): string {
@@ -813,6 +848,9 @@ export class ProfileComponent implements OnInit {
       }
       if (error.error.includes('numeric field overflow')) {
         return 'Uno o más valores exceden el máximo permitido. Calorías máx: 999,999 | Macros máx: 9,999.99 g';
+      }
+      if (error.error.includes('duplicate key value')) {
+        return 'Error: Alergia duplicada. Por favor, recarga la página e intenta nuevamente.';
       }
     }
     

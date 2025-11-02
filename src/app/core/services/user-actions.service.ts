@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators'; // ← AÑADE ESTA IMPORTACIÓN
 import { Rating, Favorite } from '../../models/social.model';
 import { ShoppingList, ShoppingListCreateDTO } from '../../models/planner.model';
 
@@ -28,8 +29,15 @@ export class FavoriteService {
   /**
    * Obtener favorito específico (verificar si existe)
    */
-  getFavoriteById(userId: number, recipeId: number): Observable<Favorite> {
-    return this.http.get<Favorite>(`${this.apiUrl}/${userId}/${recipeId}`);
+  getFavoriteById(userId: number, recipeId: number): Observable<Favorite | null> {
+    return this.http.get<Favorite>(`${this.apiUrl}/${userId}/${recipeId}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          return of(null); // Devuelve null en lugar de error
+        }
+        throw error; // Relanza otros errores
+      })
+    );
   }
 
   /**
@@ -78,8 +86,15 @@ export class RatingService {
   /**
    * Obtener valoración específica
    */
-  getRating(recipeId: number, userId: number): Observable<Rating> {
-    return this.http.get<Rating>(`${this.apiUrl}/${recipeId}/${userId}`);
+  getRating(recipeId: number, userId: number): Observable<Rating | null> {
+    return this.http.get<Rating>(`${this.apiUrl}/${recipeId}/${userId}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          return of(null); // Devuelve null en lugar de error
+        }
+        throw error;
+      })
+    );
   }
 
   /**

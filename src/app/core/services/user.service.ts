@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { User, UserPreference, Diet } from '../../models/user.model';
 import { Allergen } from '../../models/recipe.model';
 
@@ -67,5 +67,15 @@ export class UserService {
 
   deleteUserAllergens(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.userAllergensUrl}/${userId}`);
+  }
+
+  // ✅ MÉTODO MEJORADO: Reemplazar completamente los alérgenos del usuario
+  // Si el endpoint PUT no existe, usamos esta implementación que primero elimina y luego crea
+  replaceUserAllergens(userId: number, allergenIds: number[]): Observable<void> {
+    // Primero eliminamos todos los alérgenos existentes
+    return this.deleteUserAllergens(userId).pipe(
+      // Luego creamos los nuevos alérgenos
+      switchMap(() => this.saveUserAllergens(userId, allergenIds))
+    );
   }
 }

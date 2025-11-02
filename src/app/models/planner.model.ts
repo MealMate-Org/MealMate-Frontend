@@ -1,18 +1,16 @@
-// ============================================
-// MODELOS DE PLANIFICACIÓN
-// ============================================
-
 export interface MealPlan {
   id: number;
   userId: number;
-  startDate: Date;
-  endDate: Date;
-  createdAt: Date;
+  startDate: string; // ISO date format
+  endDate: string;
+  createdAt?: string;
+  isActive?: boolean;
 }
 
 export interface MealPlanCreateDTO {
   userId: number;
-  weekStart: Date;
+  startDate: string;
+  endDate: string;
 }
 
 export interface MealPlanItem {
@@ -20,14 +18,14 @@ export interface MealPlanItem {
   mealPlanId: number;
   recipeId: number;
   mealTypeId: number;
-  date: Date;
+  date: string; // ISO date format
 }
 
 export interface MealPlanItemCreateDTO {
   mealPlanId: number;
   recipeId: number;
   mealTypeId: number;
-  date: Date;
+  date: string;
 }
 
 export interface MealType {
@@ -35,25 +33,25 @@ export interface MealType {
   name: string;
 }
 
-// ============================================
-// MODELOS DE LISTA DE COMPRA
-// ============================================
-
 export interface ShoppingList {
   id: number;
+  userId: number;
   mealPlanId?: number;
   groupId?: number;
-  userId: number;
-  createdAt: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
+  weekStartDate?: string;
+  weekEndDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
   items: ShoppingItem[];
 }
 
 export interface ShoppingListCreateDTO {
+  userId: number;
   mealPlanId?: number;
   groupId?: number;
-  userId: number;
+  weekStartDate?: string;
+  weekEndDate?: string;
   items: ShoppingItem[];
 }
 
@@ -61,5 +59,5 @@ export interface ShoppingItem {
   name: string;
   quantity: number;
   unit: string;
-  checked: boolean;
+  checked?: boolean;
 }

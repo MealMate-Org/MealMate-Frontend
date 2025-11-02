@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { UserService } from '../../../core/services/user.service';
 import { Recipe, Allergen } from '../../../models/recipe.model';
@@ -12,7 +13,7 @@ import { LucideAngularModule, Search, Star, ChefHat, AlertTriangle, SlidersHoriz
 @Component({
   selector: 'app-recipes-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent, FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
 
@@ -242,6 +243,8 @@ import { LucideAngularModule, Search, Star, ChefHat, AlertTriangle, SlidersHoriz
         }
       </div>
     </div>
+
+    <app-footer />
   `,
   styles: [
     `

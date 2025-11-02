@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { 
-  MealPlan, 
-  MealPlanCreateDTO, 
-  MealPlanItem, 
+import {
+  MealPlan,
+  MealPlanCreateDTO,
+  MealPlanItem,
   MealPlanItemCreateDTO,
-  MealType 
+  MealType,
 } from '../../models/planner.model';
 
 /**
@@ -16,7 +16,7 @@ import {
  */
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PlannerService {
   private apiUrl = 'http://localhost:8080/api/v1';
@@ -43,18 +43,13 @@ export class PlannerService {
    * Obtener o crear plan para una semana específica
    */
   getOrCreateMealPlanForWeek(
-    userId: number, 
-    weekStart: string, 
+    userId: number,
+    weekStart: string,
     weekEnd: string
   ): Observable<MealPlan> {
-    const params = new HttpParams()
-      .set('weekStart', weekStart)
-      .set('weekEnd', weekEnd);
-    
-    return this.http.get<MealPlan>(
-      `${this.apiUrl}/meal-plans/user/${userId}/week`,
-      { params }
-    );
+    const params = new HttpParams().set('weekStart', weekStart).set('weekEnd', weekEnd);
+
+    return this.http.get<MealPlan>(`${this.apiUrl}/meal-plans/user/${userId}/week`, { params });
   }
 
   /**
@@ -62,10 +57,7 @@ export class PlannerService {
    */
   getActiveMealPlanForDate(userId: number, date: string): Observable<MealPlan> {
     const params = new HttpParams().set('date', date);
-    return this.http.get<MealPlan>(
-      `${this.apiUrl}/meal-plans/user/${userId}/active`,
-      { params }
-    );
+    return this.http.get<MealPlan>(`${this.apiUrl}/meal-plans/user/${userId}/active`, { params });
   }
 
   createMealPlan(plan: MealPlanCreateDTO): Observable<MealPlan> {
@@ -89,9 +81,7 @@ export class PlannerService {
   }
 
   getItemsByMealPlanId(mealPlanId: number): Observable<MealPlanItem[]> {
-    return this.http.get<MealPlanItem[]>(
-      `${this.apiUrl}/meal-plan-items/meal-plan/${mealPlanId}`
-    );
+    return this.http.get<MealPlanItem[]>(`${this.apiUrl}/meal-plan-items/meal-plan/${mealPlanId}`);
   }
 
   /**
@@ -102,10 +92,8 @@ export class PlannerService {
     startDate: string,
     endDate: string
   ): Observable<MealPlanItem[]> {
-    const params = new HttpParams()
-      .set('startDate', startDate)
-      .set('endDate', endDate);
-    
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
+
     return this.http.get<MealPlanItem[]>(
       `${this.apiUrl}/meal-plan-items/meal-plan/${mealPlanId}/date-range`,
       { params }
@@ -120,10 +108,8 @@ export class PlannerService {
     startDate: string,
     endDate: string
   ): Observable<MealPlanItem[]> {
-    const params = new HttpParams()
-      .set('startDate', startDate)
-      .set('endDate', endDate);
-    
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
+
     return this.http.get<MealPlanItem[]>(
       `${this.apiUrl}/meal-plan-items/user/${userId}/date-range`,
       { params }
@@ -160,6 +146,12 @@ export class PlannerService {
     date: string,
     mealTypeId: number
   ): Observable<void> {
+    console.log('Enviando solicitud de eliminación al backend:', {
+      mealPlanId,
+      date,
+      mealTypeId,
+    });
+
     return this.http.delete<void>(
       `${this.apiUrl}/meal-plan-items/meal-plan/${mealPlanId}/date/${date}/meal-type/${mealTypeId}`
     );

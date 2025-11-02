@@ -10,8 +10,15 @@ import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe, NutritionInfo } from '../../../models/recipe.model';
 import { User, UserPreference } from '../../../models/user.model';
-import { MealPlan, MealPlanItem, MealPlanItemCreateDTO, MealType, ShoppingItem } from '../../../models/planner.model';
-import { 
+import {
+  MealPlan,
+  MealPlanItem,
+  MealPlanItemCreateDTO,
+  MealType,
+  ShoppingItem,
+  ShoppingListCreateDTO,
+} from '../../../models/planner.model';
+import {
   LucideAngularModule,
   Calendar,
   ChevronLeft,
@@ -22,7 +29,7 @@ import {
   Target,
   ShoppingCart,
   Info,
-  Loader2
+  Loader2,
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
 
@@ -58,30 +65,30 @@ interface MacroTotals {
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <!-- Header -->
         <div class="mb-8">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4"
+          >
             <div>
               <h1 class="text-4xl font-bold text-dark-purple mb-2">Planificador Semanal</h1>
               <p class="text-slate-gray text-lg">Organiza tu menú y controla tus macros</p>
             </div>
-            <button 
+            <button
               (click)="generateShoppingList()"
               class="btn-primary inline-flex items-center gap-2"
               [disabled]="!hasAnyMeals() || isGeneratingShoppingList"
             >
               @if (isGeneratingShoppingList) {
-                <lucide-icon [img]="Loader2Icon" class="w-5 h-5 animate-spin"></lucide-icon>
-                Generando...
-              } @else {
-                <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
-                Generar Lista de Compra
-              }
+              <lucide-icon [img]="Loader2Icon" class="w-5 h-5 animate-spin"></lucide-icon>
+              Generando... } @else {
+              <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
+              Generar Lista de Compra }
             </button>
           </div>
 
           <!-- Selector de semana -->
           <div class="bg-white rounded-2xl shadow-lg p-6">
             <div class="flex items-center justify-between gap-4">
-              <button 
+              <button
                 (click)="previousWeek()"
                 class="btn-secondary px-4 py-2 inline-flex items-center gap-2"
                 [disabled]="isLoading"
@@ -89,29 +96,34 @@ interface MacroTotals {
                 <lucide-icon [img]="ChevronLeftIcon" class="w-5 h-5"></lucide-icon>
                 Anterior
               </button>
-              
+
               <div class="text-center flex-1">
                 <div class="flex items-center justify-center gap-3 mb-2">
-                  <lucide-icon [img]="CalendarIcon" class="w-6 h-6 text-cambridge-blue"></lucide-icon>
+                  <lucide-icon
+                    [img]="CalendarIcon"
+                    class="w-6 h-6 text-cambridge-blue"
+                  ></lucide-icon>
                   <h3 class="text-xl font-bold text-dark-purple">
                     {{ getWeekRange() }}
                   </h3>
                 </div>
                 @if (isCurrentWeek()) {
-                  <span class="inline-block bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Semana actual
-                  </span>
+                <span
+                  class="inline-block bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium"
+                >
+                  Semana actual
+                </span>
                 } @else {
-                  <button 
-                    (click)="goToCurrentWeek()"
-                    class="text-cambridge-blue hover:text-zomp font-medium text-sm transition-colors"
-                  >
-                    Ir a semana actual
-                  </button>
+                <button
+                  (click)="goToCurrentWeek()"
+                  class="text-cambridge-blue hover:text-zomp font-medium text-sm transition-colors"
+                >
+                  Ir a semana actual
+                </button>
                 }
               </div>
-              
-              <button 
+
+              <button
                 (click)="nextWeek()"
                 class="btn-secondary px-4 py-2 inline-flex items-center gap-2"
                 [disabled]="isLoading"
@@ -124,395 +136,432 @@ interface MacroTotals {
         </div>
 
         @if (isLoading) {
-          <div class="text-center py-16">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-4"></div>
-            <p class="text-slate-gray text-lg">Cargando planner...</p>
-          </div>
-        }
+        <div class="text-center py-16">
+          <div
+            class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-4"
+          ></div>
+          <p class="text-slate-gray text-lg">Cargando planner...</p>
+        </div>
+        } @if (!isLoading) {
+        <!-- Grid de días -->
+        <div class="grid grid-cols-1 lg:grid-cols-7 gap-4 mb-8">
+          @for (day of weekPlan; track day.date.toISOString()) {
+          <div
+            class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition-all duration-200"
+            [class.border-cambridge-blue]="isToday(day.date)"
+            [class.border-gray-100]="!isToday(day.date)"
+          >
+            <!-- Header del día -->
+            <div
+              class="p-4 text-center"
+              [class.bg-cambridge-blue]="isToday(day.date)"
+              [class.bg-gradient-to-r]="isToday(day.date)"
+              [class.from-cambridge-blue]="isToday(day.date)"
+              [class.to-zomp]="isToday(day.date)"
+              [class.bg-celadon]="!isToday(day.date)"
+            >
+              <h4
+                class="font-bold mb-1"
+                [class.text-white]="isToday(day.date)"
+                [class.text-dark-purple]="!isToday(day.date)"
+              >
+                {{ day.dayName }}
+              </h4>
+              <p
+                class="text-sm"
+                [class.text-white]="isToday(day.date)"
+                [class.opacity-90]="isToday(day.date)"
+                [class.text-slate-gray]="!isToday(day.date)"
+              >
+                {{ formatDate(day.date) }}
+              </p>
+              @if (isToday(day.date)) {
+              <span
+                class="inline-block mt-2 bg-white text-cambridge-blue px-2 py-0.5 rounded-full text-xs font-bold"
+              >
+                HOY
+              </span>
+              }
+            </div>
 
-        @if (!isLoading) {
-          <!-- Grid de días -->
-          <div class="grid grid-cols-1 lg:grid-cols-7 gap-4 mb-8">
-            @for (day of weekPlan; track day.date.toISOString()) {
-              <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition-all duration-200"
-                   [class.border-cambridge-blue]="isToday(day.date)"
-                   [class.border-gray-100]="!isToday(day.date)">
-                <!-- Header del día -->
-                <div class="p-4 text-center"
-                     [class.bg-cambridge-blue]="isToday(day.date)"
-                     [class.bg-gradient-to-r]="isToday(day.date)"
-                     [class.from-cambridge-blue]="isToday(day.date)"
-                     [class.to-zomp]="isToday(day.date)"
-                     [class.bg-celadon]="!isToday(day.date)">
-                  <h4 class="font-bold mb-1"
-                      [class.text-white]="isToday(day.date)"
-                      [class.text-dark-purple]="!isToday(day.date)">
-                    {{ day.dayName }}
-                  </h4>
-                  <p class="text-sm"
-                     [class.text-white]="isToday(day.date)"
-                     [class.opacity-90]="isToday(day.date)"
-                     [class.text-slate-gray]="!isToday(day.date)">
-                    {{ formatDate(day.date) }}
-                  </p>
-                  @if (isToday(day.date)) {
-                    <span class="inline-block mt-2 bg-white text-cambridge-blue px-2 py-0.5 rounded-full text-xs font-bold">
-                      HOY
-                    </span>
+            <!-- Comidas -->
+            <div class="p-3 space-y-3">
+              <!-- Desayuno -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-semibold text-slate-gray">🌅 Desayuno</span>
+                  @if (!day.breakfast) {
+                  <button
+                    (click)="openRecipeSelector(day.date, 'breakfast')"
+                    class="text-cambridge-blue hover:text-zomp transition-colors"
+                  >
+                    <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
+                  </button>
                   }
                 </div>
-
-                <!-- Comidas -->
-                <div class="p-3 space-y-3">
-                  <!-- Desayuno -->
-                  <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-xs font-semibold text-slate-gray">🌅 Desayuno</span>
-                      @if (!day.breakfast) {
-                        <button 
-                          (click)="openRecipeSelector(day.date, 'breakfast')"
-                          class="text-cambridge-blue hover:text-zomp transition-colors"
-                        >
-                          <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
-                        </button>
-                      }
-                    </div>
-                    @if (day.breakfast) {
-                      <div class="bg-celadon rounded-lg p-2 group relative">
-                        <button 
-                          (click)="removeMeal(day.date, 'breakfast')"
-                          class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          [disabled]="isSaving"
-                        >
-                          <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
-                        </button>
-                        <p class="text-xs font-medium text-dark-purple line-clamp-2">
-                          {{ day.breakfast.recipe.title }}
-                        </p>
-                        @if (day.breakfast.nutritionInfo?.calories) {
-                          <p class="text-xs text-slate-gray mt-1">
-                            {{ day.breakfast.nutritionInfo?.calories }} kcal
-                          </p>
-                        }
-                      </div>
-                    } @else {
-                      <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
-                           (click)="openRecipeSelector(day.date, 'breakfast')">
-                        Añadir receta
-                      </div>
-                    }
-                  </div>
-
-                  <!-- Comida -->
-                  <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-xs font-semibold text-slate-gray">☀️ Comida</span>
-                      @if (!day.lunch) {
-                        <button 
-                          (click)="openRecipeSelector(day.date, 'lunch')"
-                          class="text-cambridge-blue hover:text-zomp transition-colors"
-                        >
-                          <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
-                        </button>
-                      }
-                    </div>
-                    @if (day.lunch) {
-                      <div class="bg-celadon rounded-lg p-2 group relative">
-                        <button 
-                          (click)="removeMeal(day.date, 'lunch')"
-                          class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          [disabled]="isSaving"
-                        >
-                          <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
-                        </button>
-                        <p class="text-xs font-medium text-dark-purple line-clamp-2">
-                          {{ day.lunch.recipe.title }}
-                        </p>
-                        @if (day.lunch.nutritionInfo?.calories) {
-                          <p class="text-xs text-slate-gray mt-1">
-                            {{ day.lunch.nutritionInfo?.calories }} kcal
-                          </p>
-                        }
-                      </div>
-                    } @else {
-                      <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
-                           (click)="openRecipeSelector(day.date, 'lunch')">
-                        Añadir receta
-                      </div>
-                    }
-                  </div>
-
-                  <!-- Cena -->
-                  <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-xs font-semibold text-slate-gray">🌙 Cena</span>
-                      @if (!day.dinner) {
-                        <button 
-                          (click)="openRecipeSelector(day.date, 'dinner')"
-                          class="text-cambridge-blue hover:text-zomp transition-colors"
-                        >
-                          <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
-                        </button>
-                      }
-                    </div>
-                    @if (day.dinner) {
-                      <div class="bg-celadon rounded-lg p-2 group relative">
-                        <button 
-                          (click)="removeMeal(day.date, 'dinner')"
-                          class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          [disabled]="isSaving"
-                        >
-                          <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
-                        </button>
-                        <p class="text-xs font-medium text-dark-purple line-clamp-2">
-                          {{ day.dinner.recipe.title }}
-                        </p>
-                        @if (day.dinner.nutritionInfo?.calories) {
-                          <p class="text-xs text-slate-gray mt-1">
-                            {{ day.dinner.nutritionInfo?.calories }} kcal
-                          </p>
-                        }
-                      </div>
-                    } @else {
-                      <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
-                           (click)="openRecipeSelector(day.date, 'dinner')">
-                        Añadir receta
-                      </div>
-                    }
-                  </div>
-
-                  <!-- Totales del día -->
-                  <div class="pt-3 border-t border-gray-200">
-                    <div class="text-xs space-y-1">
-                      <div class="flex justify-between">
-                        <span class="text-slate-gray">Total:</span>
-                        <span class="font-bold text-dark-purple">
-                          {{ day.dailyTotals.calories }} kcal
-                        </span>
-                      </div>
-                      @if (userPreferences) {
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            class="h-2 rounded-full transition-all"
-                            [class.bg-success]="getDayProgress(day) <= 110"
-                            [class.bg-yellow-500]="getDayProgress(day) > 110 && getDayProgress(day) <= 130"
-                            [class.bg-error]="getDayProgress(day) > 130"
-                            [style.width.%]="Math.min(getDayProgress(day), 100)"
-                          ></div>
-                        </div>
-                        <p class="text-slate-gray text-center">
-                          {{ getDayProgress(day).toFixed(0) }}% del objetivo
-                        </p>
-                      }
-                    </div>
-                  </div>
+                @if (day.breakfast) {
+                <div class="bg-celadon rounded-lg p-2 group relative">
+                  <button
+                    (click)="removeMeal(day.date, 'breakfast')"
+                    class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    [disabled]="isSaving"
+                  >
+                    <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
+                  </button>
+                  <p class="text-xs font-medium text-dark-purple line-clamp-2">
+                    {{ day.breakfast.recipe.title }}
+                  </p>
+                  @if (day.breakfast.nutritionInfo?.calories) {
+                  <p class="text-xs text-slate-gray mt-1">
+                    {{ day.breakfast.nutritionInfo?.calories }} kcal
+                  </p>
+                  }
                 </div>
-              </div>
-            }
-          </div>
-
-          <!-- Resumen semanal -->
-          <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
-            <div class="flex items-center gap-3 mb-6">
-              <lucide-icon [img]="TrendingUpIcon" class="w-8 h-8 text-cambridge-blue"></lucide-icon>
-              <h3 class="text-2xl font-bold text-dark-purple">Resumen Nutricional de la Semana</h3>
-            </div>
-            
-            <div class="grid md:grid-cols-4 gap-6 mb-6">
-              <div class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl">
-                <div class="text-3xl font-bold text-dark-purple mb-1">
-                  {{ weeklyTotals.calories }}
+                } @else {
+                <div
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
+                  (click)="openRecipeSelector(day.date, 'breakfast')"
+                >
+                  Añadir receta
                 </div>
-                <div class="text-sm text-slate-gray">Calorías totales</div>
-                @if (userPreferences) {
-                  <div class="text-xs text-dark-purple mt-2 font-medium">
-                    / {{ (getTargetCalories() * 7).toFixed(0) }} objetivo
-                  </div>
                 }
               </div>
-              
-              <div class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl">
-                <div class="text-3xl font-bold text-dark-purple mb-1">
-                  {{ weeklyTotals.protein.toFixed(1) }}g
+
+              <!-- Comida -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-semibold text-slate-gray">☀️ Comida</span>
+                  @if (!day.lunch) {
+                  <button
+                    (click)="openRecipeSelector(day.date, 'lunch')"
+                    class="text-cambridge-blue hover:text-zomp transition-colors"
+                  >
+                    <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
+                  </button>
+                  }
                 </div>
-                <div class="text-sm text-slate-gray">Proteína total</div>
-                @if (userPreferences) {
-                  <div class="text-xs text-dark-purple mt-2 font-medium">
-                    / {{ (getTargetProtein() * 7).toFixed(0) }}g objetivo
-                  </div>
+                @if (day.lunch) {
+                <div class="bg-celadon rounded-lg p-2 group relative">
+                  <button
+                    (click)="removeMeal(day.date, 'lunch')"
+                    class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    [disabled]="isSaving"
+                  >
+                    <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
+                  </button>
+                  <p class="text-xs font-medium text-dark-purple line-clamp-2">
+                    {{ day.lunch.recipe.title }}
+                  </p>
+                  @if (day.lunch.nutritionInfo?.calories) {
+                  <p class="text-xs text-slate-gray mt-1">
+                    {{ day.lunch.nutritionInfo?.calories }} kcal
+                  </p>
+                  }
+                </div>
+                } @else {
+                <div
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
+                  (click)="openRecipeSelector(day.date, 'lunch')"
+                >
+                  Añadir receta
+                </div>
                 }
               </div>
-              
-              <div class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl">
-                <div class="text-3xl font-bold text-dark-purple mb-1">
-                  {{ weeklyTotals.carbs.toFixed(1) }}g
+
+              <!-- Cena -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-semibold text-slate-gray">🌙 Cena</span>
+                  @if (!day.dinner) {
+                  <button
+                    (click)="openRecipeSelector(day.date, 'dinner')"
+                    class="text-cambridge-blue hover:text-zomp transition-colors"
+                  >
+                    <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
+                  </button>
+                  }
                 </div>
-                <div class="text-sm text-slate-gray">Carbohidratos</div>
-                @if (userPreferences) {
-                  <div class="text-xs text-dark-purple mt-2 font-medium">
-                    / {{ (getTargetCarbs() * 7).toFixed(0) }}g objetivo
-                  </div>
+                @if (day.dinner) {
+                <div class="bg-celadon rounded-lg p-2 group relative">
+                  <button
+                    (click)="removeMeal(day.date, 'dinner')"
+                    class="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    [disabled]="isSaving"
+                  >
+                    <lucide-icon [img]="XIcon" class="w-3 h-3"></lucide-icon>
+                  </button>
+                  <p class="text-xs font-medium text-dark-purple line-clamp-2">
+                    {{ day.dinner.recipe.title }}
+                  </p>
+                  @if (day.dinner.nutritionInfo?.calories) {
+                  <p class="text-xs text-slate-gray mt-1">
+                    {{ day.dinner.nutritionInfo?.calories }} kcal
+                  </p>
+                  }
+                </div>
+                } @else {
+                <div
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
+                  (click)="openRecipeSelector(day.date, 'dinner')"
+                >
+                  Añadir receta
+                </div>
                 }
               </div>
-              
-              <div class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl">
-                <div class="text-3xl font-bold text-dark-purple mb-1">
-                  {{ weeklyTotals.fat.toFixed(1) }}g
-                </div>
-                <div class="text-sm text-slate-gray">Grasas</div>
-                @if (userPreferences) {
-                  <div class="text-xs text-dark-purple mt-2 font-medium">
-                    / {{ (getTargetFat() * 7).toFixed(0) }}g objetivo
+
+              <!-- Totales del día -->
+              <div class="pt-3 border-t border-gray-200">
+                <div class="text-xs space-y-1">
+                  <div class="flex justify-between">
+                    <span class="text-slate-gray">Total:</span>
+                    <span class="font-bold text-dark-purple">
+                      {{ day.dailyTotals.calories }} kcal
+                    </span>
                   </div>
-                }
+                  @if (userPreferences) {
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      class="h-2 rounded-full transition-all"
+                      [class.bg-success]="getDayProgress(day) <= 110"
+                      [class.bg-yellow-500]="
+                        getDayProgress(day) > 110 && getDayProgress(day) <= 130
+                      "
+                      [class.bg-error]="getDayProgress(day) > 130"
+                      [style.width.%]="Math.min(getDayProgress(day), 100)"
+                    ></div>
+                  </div>
+                  <p class="text-slate-gray text-center">
+                    {{ getDayProgress(day).toFixed(0) }}% del objetivo
+                  </p>
+                  }
+                </div>
               </div>
             </div>
-
-            @if (!userPreferences) {
-              <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-                <div class="flex items-start gap-3">
-                  <lucide-icon [img]="InfoIcon" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></lucide-icon>
-                  <div>
-                    <p class="text-sm text-blue-800 mb-2">
-                      <strong>¿Quieres ver tu progreso?</strong> Configura tus objetivos nutricionales en tu perfil.
-                    </p>
-                    <a routerLink="/profile" class="text-blue-600 hover:text-blue-800 font-medium text-sm underline">
-                      Ir a Perfil →
-                    </a>
-                  </div>
-                </div>
-              </div>
-            }
           </div>
+          }
+        </div>
+
+        <!-- Resumen semanal -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+          <div class="flex items-center gap-3 mb-6">
+            <lucide-icon [img]="TrendingUpIcon" class="w-8 h-8 text-cambridge-blue"></lucide-icon>
+            <h3 class="text-2xl font-bold text-dark-purple">Resumen Nutricional de la Semana</h3>
+          </div>
+
+          <div class="grid md:grid-cols-4 gap-6 mb-6">
+            <div
+              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+            >
+              <div class="text-3xl font-bold text-dark-purple mb-1">
+                {{ weeklyTotals.calories }}
+              </div>
+              <div class="text-sm text-slate-gray">Calorías totales</div>
+              @if (userPreferences) {
+              <div class="text-xs text-dark-purple mt-2 font-medium">
+                / {{ (getTargetCalories() * 7).toFixed(0) }} objetivo
+              </div>
+              }
+            </div>
+
+            <div
+              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+            >
+              <div class="text-3xl font-bold text-dark-purple mb-1">
+                {{ weeklyTotals.protein.toFixed(1) }}g
+              </div>
+              <div class="text-sm text-slate-gray">Proteína total</div>
+              @if (userPreferences) {
+              <div class="text-xs text-dark-purple mt-2 font-medium">
+                / {{ (getTargetProtein() * 7).toFixed(0) }}g objetivo
+              </div>
+              }
+            </div>
+
+            <div
+              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+            >
+              <div class="text-3xl font-bold text-dark-purple mb-1">
+                {{ weeklyTotals.carbs.toFixed(1) }}g
+              </div>
+              <div class="text-sm text-slate-gray">Carbohidratos</div>
+              @if (userPreferences) {
+              <div class="text-xs text-dark-purple mt-2 font-medium">
+                / {{ (getTargetCarbs() * 7).toFixed(0) }}g objetivo
+              </div>
+              }
+            </div>
+
+            <div
+              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+            >
+              <div class="text-3xl font-bold text-dark-purple mb-1">
+                {{ weeklyTotals.fat.toFixed(1) }}g
+              </div>
+              <div class="text-sm text-slate-gray">Grasas</div>
+              @if (userPreferences) {
+              <div class="text-xs text-dark-purple mt-2 font-medium">
+                / {{ (getTargetFat() * 7).toFixed(0) }}g objetivo
+              </div>
+              }
+            </div>
+          </div>
+
+          @if (!userPreferences) {
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+            <div class="flex items-start gap-3">
+              <lucide-icon
+                [img]="InfoIcon"
+                class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              ></lucide-icon>
+              <div>
+                <p class="text-sm text-blue-800 mb-2">
+                  <strong>¿Quieres ver tu progreso?</strong> Configura tus objetivos nutricionales
+                  en tu perfil.
+                </p>
+                <a
+                  routerLink="/profile"
+                  class="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                >
+                  Ir a Perfil →
+                </a>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
         }
       </div>
     </div>
 
     <!-- Modal de selección de recetas -->
     @if (showRecipeSelector) {
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-          <div class="sticky top-0 bg-white border-b border-gray-200 p-6 z-10">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-2xl font-bold text-dark-purple">
-                Seleccionar Receta
-              </h3>
-              <button 
-                (click)="closeRecipeSelector()"
-                class="text-slate-gray hover:text-error transition-colors"
-              >
-                <lucide-icon [img]="XIcon" class="w-6 h-6"></lucide-icon>
-              </button>
-            </div>
-            
-            <!-- Filtros -->
-            <div class="flex gap-2">
-              <button 
-                (click)="recipesFilter = 'my'"
-                [class]="recipesFilter === 'my' ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray'"
-                class="px-4 py-2 rounded-lg font-medium transition-all text-sm"
-              >
-                Mis Recetas ({{ myRecipes.length }})
-              </button>
-              <button 
-                (click)="recipesFilter = 'saved'"
-                [class]="recipesFilter === 'saved' ? 'bg-cambridge-blue text-white' : 'bg-gray-100 text-slate-gray'"
-                class="px-4 py-2 rounded-lg font-medium transition-all text-sm"
-              >
-                Guardadas ({{ savedRecipes.length }})
-              </button>
-            </div>
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="sticky top-0 bg-white border-b border-gray-200 p-6 z-10">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-dark-purple">Seleccionar Receta</h3>
+            <button
+              (click)="closeRecipeSelector()"
+              class="text-slate-gray hover:text-error transition-colors"
+            >
+              <lucide-icon [img]="XIcon" class="w-6 h-6"></lucide-icon>
+            </button>
           </div>
 
-          <div class="p-6">
-            @if (getFilteredRecipes().length > 0) {
-              <div class="grid md:grid-cols-2 gap-4">
-                @for (recipe of getFilteredRecipes(); track recipe.id) {
-                  <div 
-                    (click)="selectRecipe(recipe)"
-                    class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-cambridge-blue hover:shadow-lg transition-all"
-                  >
-                    <div class="flex gap-3">
-                      @if (recipe.imagePath) {
-                        <img 
-                          [src]="recipe.imagePath" 
-                          [alt]="recipe.title"
-                          class="w-20 h-20 rounded-lg object-cover"
-                        />
-                      } @else {
-                        <div class="w-20 h-20 rounded-lg bg-celadon flex items-center justify-center text-2xl">
-                          🍽️
-                        </div>
-                      }
-                      
-                      <div class="flex-1">
-                        <h4 class="font-bold text-dark-purple mb-1">{{ recipe.title }}</h4>
-                        <p class="text-sm text-slate-gray line-clamp-2 mb-2">
-                          {{ recipe.description || 'Sin descripción' }}
-                        </p>
-                        <div class="flex items-center gap-3 text-xs text-slate-gray">
-                          @if (getRecipeNutrition(recipe.id)) {
-                            <span>{{ getRecipeNutrition(recipe.id)?.calories }} kcal</span>
-                          }
-                          <span class="flex items-center gap-1">
-                            ⭐ {{ recipe.avgRating.toFixed(1) }}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            } @else {
-              <div class="text-center py-12">
-                <p class="text-slate-gray text-lg mb-4">
-                  @if (recipesFilter === 'my') {
-                    No tienes recetas creadas todavía
-                  } @else {
-                    No tienes recetas guardadas todavía
-                  }
-                </p>
-                <a 
-                  [routerLink]="recipesFilter === 'my' ? '/recipes/new' : '/recipes'"
-                  class="btn-primary inline-flex items-center gap-2"
-                  (click)="closeRecipeSelector()"
-                >
-                  @if (recipesFilter === 'my') {
-                    <lucide-icon [img]="PlusIcon" class="w-5 h-5"></lucide-icon>
-                    Crear Receta
-                  } @else {
-                    Explorar Recetas
-                  }
-                </a>
-              </div>
-            }
+          <!-- Filtros -->
+          <div class="flex gap-2">
+            <button
+              (click)="recipesFilter = 'my'"
+              [class]="
+                recipesFilter === 'my'
+                  ? 'bg-cambridge-blue text-white'
+                  : 'bg-gray-100 text-slate-gray'
+              "
+              class="px-4 py-2 rounded-lg font-medium transition-all text-sm"
+            >
+              Mis Recetas ({{ myRecipes.length }})
+            </button>
+            <button
+              (click)="recipesFilter = 'saved'"
+              [class]="
+                recipesFilter === 'saved'
+                  ? 'bg-cambridge-blue text-white'
+                  : 'bg-gray-100 text-slate-gray'
+              "
+              class="px-4 py-2 rounded-lg font-medium transition-all text-sm"
+            >
+              Guardadas ({{ savedRecipes.length }})
+            </button>
           </div>
         </div>
+
+        <div class="p-6">
+          @if (getFilteredRecipes().length > 0) {
+          <div class="grid md:grid-cols-2 gap-4">
+            @for (recipe of getFilteredRecipes(); track recipe.id) {
+            <div
+              (click)="selectRecipe(recipe)"
+              class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-cambridge-blue hover:shadow-lg transition-all"
+            >
+              <div class="flex gap-3">
+                @if (recipe.imagePath) {
+                <img
+                  [src]="recipe.imagePath"
+                  [alt]="recipe.title"
+                  class="w-20 h-20 rounded-lg object-cover"
+                />
+                } @else {
+                <div
+                  class="w-20 h-20 rounded-lg bg-celadon flex items-center justify-center text-2xl"
+                >
+                  🍽️
+                </div>
+                }
+
+                <div class="flex-1">
+                  <h4 class="font-bold text-dark-purple mb-1">{{ recipe.title }}</h4>
+                  <p class="text-sm text-slate-gray line-clamp-2 mb-2">
+                    {{ recipe.description || 'Sin descripción' }}
+                  </p>
+                  <div class="flex items-center gap-3 text-xs text-slate-gray">
+                    @if (getRecipeNutrition(recipe.id)) {
+                    <span>{{ getRecipeNutrition(recipe.id)?.calories }} kcal</span>
+                    }
+                    <span class="flex items-center gap-1">
+                      ⭐ {{ recipe.avgRating.toFixed(1) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="text-center py-12">
+            <p class="text-slate-gray text-lg mb-4">
+              @if (recipesFilter === 'my') { No tienes recetas creadas todavía } @else { No tienes
+              recetas guardadas todavía }
+            </p>
+            <a
+              [routerLink]="recipesFilter === 'my' ? '/recipes/new' : '/recipes'"
+              class="btn-primary inline-flex items-center gap-2"
+              (click)="closeRecipeSelector()"
+            >
+              @if (recipesFilter === 'my') {
+              <lucide-icon [img]="PlusIcon" class="w-5 h-5"></lucide-icon>
+              Crear Receta } @else { Explorar Recetas }
+            </a>
+          </div>
+          }
+        </div>
       </div>
+    </div>
     }
   `,
-  styles: [`
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  `]
+  styles: [
+    `
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    `,
+  ],
 })
 export class PlannerComponent implements OnInit {
   weekPlan: DayPlan[] = [];
   currentWeekStart: Date = new Date();
   weeklyTotals: MacroTotals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
   userPreferences: UserPreference | null = null;
-  
+
   currentMealPlan: MealPlan | null = null;
   mealTypes: MealType[] = [];
-  
+
   myRecipes: Recipe[] = [];
   savedRecipes: Recipe[] = [];
   recipesNutrition: Map<number, NutritionInfo> = new Map();
-  
+
   isLoading = true;
   isSaving = false;
   isGeneratingShoppingList = false;
@@ -520,7 +569,7 @@ export class PlannerComponent implements OnInit {
   selectedDate: Date | null = null;
   selectedMealType: 'breakfast' | 'lunch' | 'dinner' | null = null;
   recipesFilter: 'my' | 'saved' = 'my';
-  
+
   currentUser: User | null = null;
   Math = Math;
 
@@ -568,9 +617,9 @@ export class PlannerComponent implements OnInit {
         this.mealTypes = [
           { id: 1, name: 'Desayuno' },
           { id: 2, name: 'Comida' },
-          { id: 3, name: 'Cena' }
+          { id: 3, name: 'Cena' },
         ];
-      }
+      },
     });
   }
 
@@ -602,22 +651,24 @@ export class PlannerComponent implements OnInit {
     weekEnd.setDate(this.currentWeekStart.getDate() + 6);
 
     // Obtener o crear meal plan para esta semana
-    this.plannerService.getOrCreateMealPlanForWeek(
-      this.currentUser.id,
-      this.formatDateISO(this.currentWeekStart),
-      this.formatDateISO(weekEnd)
-    ).subscribe({
-      next: (mealPlan) => {
-        this.currentMealPlan = mealPlan;
-        this.generateWeekPlan();
-        this.loadMealPlanItems();
-      },
-      error: (error) => {
-        console.error('Error cargando meal plan:', error);
-        this.generateWeekPlan();
-        this.isLoading = false;
-      }
-    });
+    this.plannerService
+      .getOrCreateMealPlanForWeek(
+        this.currentUser.id,
+        this.formatDateISO(this.currentWeekStart),
+        this.formatDateISO(weekEnd)
+      )
+      .subscribe({
+        next: (mealPlan) => {
+          this.currentMealPlan = mealPlan;
+          this.generateWeekPlan();
+          this.loadMealPlanItems();
+        },
+        error: (error) => {
+          console.error('Error cargando meal plan:', error);
+          this.generateWeekPlan();
+          this.isLoading = false;
+        },
+      });
   }
 
   loadMealPlanItems(): void {
@@ -626,20 +677,22 @@ export class PlannerComponent implements OnInit {
     const weekEnd = new Date(this.currentWeekStart);
     weekEnd.setDate(this.currentWeekStart.getDate() + 6);
 
-    this.plannerService.getItemsByMealPlanAndDateRange(
-      this.currentMealPlan.id,
-      this.formatDateISO(this.currentWeekStart),
-      this.formatDateISO(weekEnd)
-    ).subscribe({
-      next: (items) => {
-        // Cargar los detalles de cada item
-        this.loadItemsDetails(items);
-      },
-      error: (error) => {
-        console.error('Error cargando items:', error);
-        this.isLoading = false;
-      }
-    });
+    this.plannerService
+      .getItemsByMealPlanAndDateRange(
+        this.currentMealPlan.id,
+        this.formatDateISO(this.currentWeekStart),
+        this.formatDateISO(weekEnd)
+      )
+      .subscribe({
+        next: (items) => {
+          // Cargar los detalles de cada item
+          this.loadItemsDetails(items);
+        },
+        error: (error) => {
+          console.error('Error cargando items:', error);
+          this.isLoading = false;
+        },
+      });
   }
 
   loadItemsDetails(items: MealPlanItem[]): void {
@@ -648,27 +701,23 @@ export class PlannerComponent implements OnInit {
       return;
     }
 
-    const recipeObservables = items.map(item => 
-      this.recipeService.getRecipeById(item.recipeId)
-    );
+    const recipeObservables = items.map((item) => this.recipeService.getRecipeById(item.recipeId));
 
     forkJoin(recipeObservables).subscribe({
       next: (recipes) => {
         items.forEach((item, index) => {
           const recipe = recipes[index];
           const itemDate = new Date(item.date);
-          const day = this.weekPlan.find(d => 
-            d.date.toDateString() === itemDate.toDateString()
-          );
+          const day = this.weekPlan.find((d) => d.date.toDateString() === itemDate.toDateString());
 
           if (day) {
             const mealType = this.getMealTypeFromId(item.mealTypeId);
             const nutritionInfo = this.getRecipeNutrition(recipe.id);
-            
+
             const plannedMeal: PlannedMeal = {
               recipe,
               nutritionInfo,
-              itemId: item.id
+              itemId: item.id,
             };
 
             switch (mealType) {
@@ -693,26 +742,33 @@ export class PlannerComponent implements OnInit {
       error: (error) => {
         console.error('Error cargando detalles de recetas:', error);
         this.isLoading = false;
-      }
+      },
     });
   }
 
   getMealTypeFromId(mealTypeId: number): 'breakfast' | 'lunch' | 'dinner' | null {
     // IDs según tu BD: 1=Desayuno, 2=Comida, 3=Cena
     switch (mealTypeId) {
-      case 1: return 'breakfast';
-      case 2: return 'lunch';
-      case 3: return 'dinner';
-      default: return null;
+      case 1:
+        return 'breakfast';
+      case 2:
+        return 'lunch';
+      case 3:
+        return 'dinner';
+      default:
+        return null;
     }
   }
 
   getMealTypeId(mealType: 'breakfast' | 'lunch' | 'dinner'): number {
     // IDs según tu BD: 1=Desayuno, 2=Comida, 3=Cena
     switch (mealType) {
-      case 'breakfast': return 1;
-      case 'lunch': return 2;
-      case 'dinner': return 3;
+      case 'breakfast':
+        return 1;
+      case 'lunch':
+        return 2;
+      case 'dinner':
+        return 3;
     }
   }
 
@@ -723,17 +779,17 @@ export class PlannerComponent implements OnInit {
     const currentMonday = new Date(today);
     currentMonday.setDate(today.getDate() + diff);
     currentMonday.setHours(0, 0, 0, 0);
-    
+
     return this.currentWeekStart.getTime() === currentMonday.getTime();
   }
 
   getWeekRange(): string {
     const endDate = new Date(this.currentWeekStart);
     endDate.setDate(this.currentWeekStart.getDate() + 6);
-    
+
     const startMonth = this.currentWeekStart.toLocaleDateString('es-ES', { month: 'long' });
     const endMonth = endDate.toLocaleDateString('es-ES', { month: 'long' });
-    
+
     if (startMonth === endMonth) {
       return `${this.currentWeekStart.getDate()} - ${endDate.getDate()} de ${startMonth}`;
     } else {
@@ -744,15 +800,16 @@ export class PlannerComponent implements OnInit {
   generateWeekPlan(): void {
     this.weekPlan = [];
     const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    
+
     for (let i = 0; i < 7; i++) {
       const date = new Date(this.currentWeekStart);
       date.setDate(this.currentWeekStart.getDate() + i);
-      
+      date.setHours(12, 0, 0, 0); // Establecer hora del medio día para evitar problemas de zona horaria
+
       this.weekPlan.push({
         date: date,
         dayName: dayNames[i],
-        dailyTotals: { calories: 0, protein: 0, carbs: 0, fat: 0 }
+        dailyTotals: { calories: 0, protein: 0, carbs: 0, fat: 0 },
       });
     }
   }
@@ -766,7 +823,7 @@ export class PlannerComponent implements OnInit {
       },
       error: () => {
         this.userPreferences = null;
-      }
+      },
     });
   }
 
@@ -778,33 +835,33 @@ export class PlannerComponent implements OnInit {
         this.myRecipes = recipes;
         this.loadRecipesNutrition(recipes);
       },
-      error: (error) => console.error('Error cargando mis recetas:', error)
+      error: (error) => console.error('Error cargando mis recetas:', error),
     });
 
     this.favoriteService.getAllFavorites().subscribe({
       next: (favorites) => {
-        const recipeIds = favorites.map(f => f.recipeId);
+        const recipeIds = favorites.map((f) => f.recipeId);
         if (recipeIds.length > 0) {
           this.recipeService.getAllRecipes().subscribe({
             next: (allRecipes) => {
-              this.savedRecipes = allRecipes.filter(r => recipeIds.includes(r.id));
+              this.savedRecipes = allRecipes.filter((r) => recipeIds.includes(r.id));
               this.loadRecipesNutrition(this.savedRecipes);
             },
-            error: (error) => console.error('Error cargando recetas guardadas:', error)
+            error: (error) => console.error('Error cargando recetas guardadas:', error),
           });
         }
       },
-      error: (error) => console.error('Error cargando favoritos:', error)
+      error: (error) => console.error('Error cargando favoritos:', error),
     });
   }
 
   loadRecipesNutrition(recipes: Recipe[]): void {
-    recipes.forEach(recipe => {
+    recipes.forEach((recipe) => {
       this.recipeService.getNutritionInfo(recipe.id).subscribe({
         next: (nutrition) => {
           this.recipesNutrition.set(recipe.id, nutrition);
         },
-        error: () => {}
+        error: () => {},
       });
     });
   }
@@ -815,9 +872,11 @@ export class PlannerComponent implements OnInit {
 
   isToday(date: Date): boolean {
     const today = new Date();
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
   }
 
   formatDate(date: Date): string {
@@ -825,7 +884,10 @@ export class PlannerComponent implements OnInit {
   }
 
   formatDateISO(date: Date): string {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   openRecipeSelector(date: Date, mealType: 'breakfast' | 'lunch' | 'dinner'): void {
@@ -853,23 +915,23 @@ export class PlannerComponent implements OnInit {
       mealPlanId: this.currentMealPlan.id,
       recipeId: recipe.id,
       mealTypeId: this.getMealTypeId(this.selectedMealType),
-      date: this.formatDateISO(this.selectedDate)
+      date: this.formatDateISO(this.selectedDate),
     };
 
     console.log('Creating meal plan item:', itemCreate);
 
     this.plannerService.addMealPlanItem(itemCreate).subscribe({
       next: (savedItem) => {
-        const day = this.weekPlan.find(d => 
-          d.date.toDateString() === this.selectedDate!.toDateString()
+        const day = this.weekPlan.find(
+          (d) => d.date.toDateString() === this.selectedDate!.toDateString()
         );
 
         if (day) {
           const nutritionInfo = this.getRecipeNutrition(recipe.id);
-          const plannedMeal: PlannedMeal = { 
-            recipe, 
+          const plannedMeal: PlannedMeal = {
+            recipe,
             nutritionInfo,
-            itemId: savedItem.id
+            itemId: savedItem.id,
           };
 
           switch (this.selectedMealType) {
@@ -895,49 +957,61 @@ export class PlannerComponent implements OnInit {
         console.error('Error guardando receta:', error);
         alert('Error al guardar la receta. Por favor, inténtalo de nuevo.');
         this.isSaving = false;
-      }
+      },
     });
   }
 
   removeMeal(date: Date, mealType: 'breakfast' | 'lunch' | 'dinner'): void {
     if (!this.currentMealPlan) return;
 
-    const day = this.weekPlan.find(d => 
-      d.date.toDateString() === date.toDateString()
-    );
+    const day = this.weekPlan.find((d) => d.date.toDateString() === date.toDateString());
 
     if (!day) return;
 
     this.isSaving = true;
 
-    this.plannerService.deleteMealPlanItemByDetails(
-      this.currentMealPlan.id,
-      this.formatDateISO(date),
-      this.getMealTypeId(mealType)
-    ).subscribe({
-      next: () => {
-        switch (mealType) {
-          case 'breakfast':
-            day.breakfast = undefined;
-            break;
-          case 'lunch':
-            day.lunch = undefined;
-            break;
-          case 'dinner':
-            day.dinner = undefined;
-            break;
-        }
+    const mealTypeId = this.getMealTypeId(mealType);
+    const dateISO = this.formatDateISO(date);
 
-        this.calculateDayTotals(day);
-        this.calculateWeeklyTotals();
-        this.isSaving = false;
-      },
-      error: (error) => {
-        console.error('Error eliminando receta:', error);
-        alert('Error al eliminar la receta. Por favor, inténtalo de nuevo.');
-        this.isSaving = false;
-      }
+    console.log('Eliminando meal plan item:', {
+      mealPlanId: this.currentMealPlan.id,
+      date: dateISO,
+      mealTypeId: mealTypeId,
+      mealType: mealType,
     });
+
+    this.plannerService
+      .deleteMealPlanItemByDetails(this.currentMealPlan.id, dateISO, mealTypeId)
+      .subscribe({
+        next: () => {
+          console.log('Meal plan item eliminado exitosamente');
+          switch (mealType) {
+            case 'breakfast':
+              day.breakfast = undefined;
+              break;
+            case 'lunch':
+              day.lunch = undefined;
+              break;
+            case 'dinner':
+              day.dinner = undefined;
+              break;
+          }
+
+          this.calculateDayTotals(day);
+          this.calculateWeeklyTotals();
+          this.isSaving = false;
+        },
+        error: (error) => {
+          console.error('Error eliminando receta:', error);
+          console.error('Detalles de la eliminación:', {
+            mealPlanId: this.currentMealPlan!.id,
+            date: dateISO,
+            mealTypeId: mealTypeId,
+          });
+          alert('Error al eliminar la receta. Por favor, inténtalo de nuevo.');
+          this.isSaving = false;
+        },
+      });
   }
 
   calculateDayTotals(day: DayPlan): void {
@@ -947,7 +1021,7 @@ export class PlannerComponent implements OnInit {
     let fat = 0;
 
     const meals = [day.breakfast, day.lunch, day.dinner];
-    meals.forEach(meal => {
+    meals.forEach((meal) => {
       if (meal?.nutritionInfo) {
         calories += Number(meal.nutritionInfo.calories) || 0;
         protein += Number(meal.nutritionInfo.protein) || 0;
@@ -965,7 +1039,7 @@ export class PlannerComponent implements OnInit {
     let carbs = 0;
     let fat = 0;
 
-    this.weekPlan.forEach(day => {
+    this.weekPlan.forEach((day) => {
       calories += day.dailyTotals.calories;
       protein += day.dailyTotals.protein;
       carbs += day.dailyTotals.carbs;
@@ -984,13 +1058,14 @@ export class PlannerComponent implements OnInit {
 
   getTargetCalories(): number {
     if (!this.userPreferences) return 0;
-    
-    if (this.userPreferences.useAutomaticCalculation && 
-        this.userPreferences.gender && 
-        this.userPreferences.age && 
-        this.userPreferences.weight && 
-        this.userPreferences.height) {
-      
+
+    if (
+      this.userPreferences.useAutomaticCalculation &&
+      this.userPreferences.gender &&
+      this.userPreferences.age &&
+      this.userPreferences.weight &&
+      this.userPreferences.height
+    ) {
       const macros = this.calculateAutomaticMacros(
         this.userPreferences.gender,
         this.userPreferences.age,
@@ -1001,19 +1076,20 @@ export class PlannerComponent implements OnInit {
       );
       return macros.calories;
     }
-    
+
     return this.userPreferences.dailyCaloriesGoal || 0;
   }
 
   getTargetProtein(): number {
     if (!this.userPreferences) return 0;
-    
-    if (this.userPreferences.useAutomaticCalculation && 
-        this.userPreferences.gender && 
-        this.userPreferences.age && 
-        this.userPreferences.weight && 
-        this.userPreferences.height) {
-      
+
+    if (
+      this.userPreferences.useAutomaticCalculation &&
+      this.userPreferences.gender &&
+      this.userPreferences.age &&
+      this.userPreferences.weight &&
+      this.userPreferences.height
+    ) {
       const macros = this.calculateAutomaticMacros(
         this.userPreferences.gender,
         this.userPreferences.age,
@@ -1024,19 +1100,20 @@ export class PlannerComponent implements OnInit {
       );
       return macros.protein;
     }
-    
+
     return Number(this.userPreferences.dailyProteinGoal) || 0;
   }
 
   getTargetCarbs(): number {
     if (!this.userPreferences) return 0;
-    
-    if (this.userPreferences.useAutomaticCalculation && 
-        this.userPreferences.gender && 
-        this.userPreferences.age && 
-        this.userPreferences.weight && 
-        this.userPreferences.height) {
-      
+
+    if (
+      this.userPreferences.useAutomaticCalculation &&
+      this.userPreferences.gender &&
+      this.userPreferences.age &&
+      this.userPreferences.weight &&
+      this.userPreferences.height
+    ) {
       const macros = this.calculateAutomaticMacros(
         this.userPreferences.gender,
         this.userPreferences.age,
@@ -1047,19 +1124,20 @@ export class PlannerComponent implements OnInit {
       );
       return macros.carbs;
     }
-    
+
     return Number(this.userPreferences.dailyCarbsGoal) || 0;
   }
 
   getTargetFat(): number {
     if (!this.userPreferences) return 0;
-    
-    if (this.userPreferences.useAutomaticCalculation && 
-        this.userPreferences.gender && 
-        this.userPreferences.age && 
-        this.userPreferences.weight && 
-        this.userPreferences.height) {
-      
+
+    if (
+      this.userPreferences.useAutomaticCalculation &&
+      this.userPreferences.gender &&
+      this.userPreferences.age &&
+      this.userPreferences.weight &&
+      this.userPreferences.height
+    ) {
       const macros = this.calculateAutomaticMacros(
         this.userPreferences.gender,
         this.userPreferences.age,
@@ -1070,7 +1148,7 @@ export class PlannerComponent implements OnInit {
       );
       return macros.fat;
     }
-    
+
     return Number(this.userPreferences.dailyFatGoal) || 0;
   }
 
@@ -1094,7 +1172,7 @@ export class PlannerComponent implements OnInit {
       light: 1.375,
       moderate: 1.55,
       active: 1.725,
-      very_active: 1.9
+      very_active: 1.9,
     };
     const activityFactor = activityFactors[activityLevel] || 1.55;
     let tdee = bmr * activityFactor;
@@ -1102,39 +1180,54 @@ export class PlannerComponent implements OnInit {
     if (goal === 'deficit') {
       tdee *= 0.85;
     } else if (goal === 'surplus') {
-      tdee *= 1.10;
+      tdee *= 1.1;
     }
 
     const protein = weight * 2;
     const fat = (tdee * 0.25) / 9;
-    const remainingCalories = tdee - (protein * 4) - (fat * 9);
+    const remainingCalories = tdee - protein * 4 - fat * 9;
     const carbs = remainingCalories / 4;
 
     return {
       calories: Math.round(tdee),
       protein: Math.round(protein * 10) / 10,
       carbs: Math.round(carbs * 10) / 10,
-      fat: Math.round(fat * 10) / 10
+      fat: Math.round(fat * 10) / 10,
     };
   }
 
   hasAnyMeals(): boolean {
-    return this.weekPlan.some(day => 
-      day.breakfast || day.lunch || day.dinner
-    );
+    return this.weekPlan.some((day) => day.breakfast || day.lunch || day.dinner);
   }
 
+  // En planner.component.ts - mejora la función generateShoppingList
   generateShoppingList(): void {
     if (!this.currentUser || !this.currentMealPlan) return;
 
     this.isGeneratingShoppingList = true;
 
     // Recopilar todas las recetas de la semana
-    const allRecipes: Recipe[] = [];
-    this.weekPlan.forEach(day => {
-      if (day.breakfast) allRecipes.push(day.breakfast.recipe);
-      if (day.lunch) allRecipes.push(day.lunch.recipe);
-      if (day.dinner) allRecipes.push(day.dinner.recipe);
+    const allRecipes: { recipe: Recipe; count: number }[] = [];
+    const recipeCount = new Map<number, number>();
+
+    this.weekPlan.forEach((day) => {
+      const meals = [day.breakfast, day.lunch, day.dinner];
+      meals.forEach((meal) => {
+        if (meal) {
+          const count = recipeCount.get(meal.recipe.id) || 0;
+          recipeCount.set(meal.recipe.id, count + 1);
+
+          // Solo añadir una vez al array
+          if (count === 0) {
+            allRecipes.push({ recipe: meal.recipe, count: 1 });
+          } else {
+            const existing = allRecipes.find((r) => r.recipe.id === meal.recipe.id);
+            if (existing) {
+              existing.count = count + 1;
+            }
+          }
+        }
+      });
     });
 
     if (allRecipes.length === 0) {
@@ -1143,27 +1236,49 @@ export class PlannerComponent implements OnInit {
       return;
     }
 
-    // Consolidar ingredientes
-    const ingredientsMap = new Map<string, { quantity: number; unit: string }>();
+    // Consolidar ingredientes - MEJORADO
+    const ingredientsMap = new Map<
+      string,
+      { quantity: number; unit: string; recipeCount: number }
+    >();
 
-    allRecipes.forEach(recipe => {
+    allRecipes.forEach(({ recipe, count }) => {
       if (recipe.ingredients) {
         try {
-          const ingredients = JSON.parse(recipe.ingredients as any);
+          const ingredients =
+            typeof recipe.ingredients === 'string'
+              ? JSON.parse(recipe.ingredients)
+              : recipe.ingredients;
+
           ingredients.forEach((ing: any) => {
-            const key = `${ing.name}|${ing.unit}`;
+            const key = ing.name.toLowerCase().trim();
+            const quantity = (ing.quantity || 0) * count;
+
             if (ingredientsMap.has(key)) {
               const existing = ingredientsMap.get(key)!;
-              existing.quantity += ing.quantity || 0;
+              // Sumar cantidades si las unidades son compatibles
+              if (existing.unit === ing.unit) {
+                existing.quantity += quantity;
+                existing.recipeCount += count;
+              } else {
+                // Si las unidades son diferentes, crear una nueva entrada
+                const newKey = `${key}_${ing.unit}`;
+                ingredientsMap.set(newKey, {
+                  quantity: quantity,
+                  unit: ing.unit || '',
+                  recipeCount: count,
+                });
+              }
             } else {
               ingredientsMap.set(key, {
-                quantity: ing.quantity || 0,
-                unit: ing.unit || ''
+                quantity: quantity,
+                unit: ing.unit || '',
+                recipeCount: count,
               });
             }
           });
         } catch (e) {
-          console.warn('Error parsing ingredients:', e);
+          console.warn('Error parsing ingredients for recipe:', recipe.title, e);
         }
       }
     });
@@ -1171,27 +1286,34 @@ export class PlannerComponent implements OnInit {
     // Crear array de ShoppingItems
     const items: ShoppingItem[] = [];
     ingredientsMap.forEach((value, key) => {
-      const [name] = key.split('|');
+      // Remover sufijo de unidad si existe
+      const name = key.split('_')[0];
       items.push({
-        name,
-        quantity: value.quantity,
+        name: this.capitalizeFirstLetter(name),
+        quantity: Math.round(value.quantity * 100) / 100, // Redondear a 2 decimales
         unit: value.unit,
-        checked: false
+        checked: false,
       });
     });
+
+    // Ordenar alfabéticamente
+    items.sort((a, b) => a.name.localeCompare(b.name));
 
     // Crear shopping list
     const weekEnd = new Date(this.currentWeekStart);
     weekEnd.setDate(this.currentWeekStart.getDate() + 6);
 
-    this.shoppingListService.createShoppingList({
+    const shoppingListCreate: ShoppingListCreateDTO = {
       userId: this.currentUser.id,
       mealPlanId: this.currentMealPlan.id,
       weekStartDate: this.formatDateISO(this.currentWeekStart),
       weekEndDate: this.formatDateISO(weekEnd),
-      items
-    }).subscribe({
-      next: () => {
+      title: `Lista Semana ${this.getWeekNumber(this.currentWeekStart)}`,
+      items: items,
+    };
+
+    this.shoppingListService.createShoppingList(shoppingListCreate).subscribe({
+      next: (shoppingList) => {
         this.isGeneratingShoppingList = false;
         this.router.navigate(['/shopping-list']);
       },
@@ -1199,7 +1321,16 @@ export class PlannerComponent implements OnInit {
         console.error('Error generando lista de compra:', error);
         alert('Error al generar la lista de compra');
         this.isGeneratingShoppingList = false;
-      }
+      },
     });
   }
+private capitalizeFirstLetter(string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+private getWeekNumber(date: Date): number {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
 }

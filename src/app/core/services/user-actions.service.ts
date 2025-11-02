@@ -119,37 +119,26 @@ export class ShoppingListService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Obtener todas las listas de compra
-   */
   getAllShoppingLists(): Observable<ShoppingList[]> {
     return this.http.get<ShoppingList[]>(this.apiUrl);
   }
 
-  /**
-   * Obtener lista específica
-   */
+  getShoppingListsByUser(userId: number): Observable<ShoppingList[]> {
+    return this.http.get<ShoppingList[]>(`${this.apiUrl}/user/${userId}`);
+  }
+
   getShoppingListById(id: number): Observable<ShoppingList> {
     return this.http.get<ShoppingList>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Crear nueva lista de compra
-   */
   createShoppingList(list: ShoppingListCreateDTO): Observable<ShoppingList> {
     return this.http.post<ShoppingList>(this.apiUrl, list);
   }
 
-  /**
-   * Actualizar lista (marcar items comprados, etc.)
-   */
-  updateShoppingList(id: number, list: Partial<ShoppingList>): Observable<ShoppingList> {
+  updateShoppingList(id: number, list: ShoppingList): Observable<ShoppingList> {
     return this.http.put<ShoppingList>(`${this.apiUrl}/${id}`, list);
   }
 
-  /**
-   * Eliminar lista
-   */
   deleteShoppingList(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

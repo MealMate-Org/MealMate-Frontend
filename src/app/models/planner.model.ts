@@ -33,31 +33,30 @@ export interface MealType {
   name: string;
 }
 
+export interface ShoppingItem {
+  name: string;
+  quantity: number;
+  unit: string;
+  checked: boolean;
+}
+
 export interface ShoppingList {
   id: number;
   userId: number;
   mealPlanId?: number;
-  groupId?: number;
   weekStartDate?: string;
   weekEndDate?: string;
+  title?: string;
+  items: ShoppingItem[];
   createdAt?: string;
   updatedAt?: string;
-  deletedAt?: string;
-  items: ShoppingItem[];
 }
 
 export interface ShoppingListCreateDTO {
   userId: number;
   mealPlanId?: number;
-  groupId?: number;
   weekStartDate?: string;
   weekEndDate?: string;
+  title?: string;
   items: ShoppingItem[];
-}
-
-export interface ShoppingItem {
-  name: string;
-  quantity: number;
-  unit: string;
-  checked?: boolean;
 }

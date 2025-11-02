@@ -1,3 +1,4 @@
+// shopping-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -5,7 +6,7 @@ import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { ShoppingListService } from '../../../core/services/user-actions.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ShoppingList, ShoppingItem } from '../../../models/planner.model';
+import { ShoppingList, ShoppingItem, ShoppingListCreateDTO } from '../../../models/planner.model';
 import { 
   LucideAngularModule,
   Share2,
@@ -17,8 +18,16 @@ import {
   Lightbulb,
   Download,
   Calendar,
-  Package
+  Package,
+  X
 } from 'lucide-angular';
+
+// Agrega esta interfaz para el PDF
+interface PDFOptions {
+  orientation: 'p' | 'l';
+  unit: 'mm';
+  format: 'a4';
+}
 
 @Component({
   selector: 'app-shopping-list',
@@ -140,8 +149,8 @@ import {
                           <div class="flex items-center gap-2 text-sm">
                             <input 
                               type="checkbox"
-                              [(ngModel)]="item.checked"
-                              (change)="onItemCheck(list)"
+                              [checked]="item.checked"
+                              (change)="toggleItem(list, item)"
                               class="w-4 h-4 text-cambridge-blue rounded"
                             >
                             <span 
@@ -174,18 +183,18 @@ import {
                         Ver Completa
                       </button>
                       <button 
-                        (click)="exportList(list)"
+                        (click)="exportListAsText(list)"
                         class="btn-secondary p-2"
-                        title="Exportar"
+                        title="Exportar texto"
                       >
                         <lucide-icon [img]="DownloadIcon" class="w-4 h-4"></lucide-icon>
                       </button>
                       <button 
-                        (click)="shareList(list)"
+                        (click)="exportListAsPDF(list)"
                         class="btn-secondary p-2"
-                        title="Compartir"
+                        title="Exportar PDF"
                       >
-                        <lucide-icon [img]="ShareIcon" class="w-4 h-4"></lucide-icon>
+                        <lucide-icon [img]="FileTextIcon" class="w-4 h-4"></lucide-icon>
                       </button>
                     </div>
                   </div>
@@ -296,8 +305,8 @@ import {
                 >
                   <input 
                     type="checkbox"
-                    [(ngModel)]="item.checked"
-                    (change)="onItemCheck(selectedList)"
+                    [checked]="item.checked"
+                    (change)="toggleItem(selectedList, item)"
                     class="w-5 h-5 text-cambridge-blue bg-white border-slate-gray rounded focus:ring-cambridge-blue focus:ring-2 cursor-pointer"
                   >
                   <div class="flex-1">
@@ -374,7 +383,7 @@ import {
             </div>
 
             <!-- Acciones -->
-            <div class="mt-8 pt-6 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="mt-8 pt-6 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
               <button 
                 (click)="clearCheckedItems(selectedList)"
                 class="btn-secondary inline-flex items-center justify-center gap-2 py-3 text-base"
@@ -384,11 +393,18 @@ import {
                 Limpiar Marcados
               </button>
               <button 
-                (click)="exportList(selectedList)"
+                (click)="exportListAsText(selectedList)"
                 class="btn-secondary inline-flex items-center justify-center gap-2 py-3 text-base"
               >
                 <lucide-icon [img]="DownloadIcon" class="w-5 h-5"></lucide-icon>
-                Exportar
+                Exportar Texto
+              </button>
+              <button 
+                (click)="exportListAsPDF(selectedList)"
+                class="btn-secondary inline-flex items-center justify-center gap-2 py-3 text-base"
+              >
+                <lucide-icon [img]="FileTextIcon" class="w-5 h-5"></lucide-icon>
+                Exportar PDF
               </button>
               <button 
                 (click)="saveList()"
@@ -436,7 +452,8 @@ export class ShoppingListComponent implements OnInit {
   readonly DownloadIcon = Download;
   readonly CalendarIcon = Calendar;
   readonly PackageIcon = Package;
-  readonly XIcon = Plus; // Usando Plus como X temporalmente
+  readonly XIcon = X;
+  readonly FileTextIcon = Save; // Puedes cambiar este icono por uno de PDF
 
   constructor(
     private shoppingListService: ShoppingListService,
@@ -456,13 +473,10 @@ export class ShoppingListComponent implements OnInit {
       return;
     }
 
-    this.shoppingListService.getAllShoppingLists().subscribe({
+    this.shoppingListService.getShoppingListsByUser(currentUser.id).subscribe({
       next: (lists) => {
-        // Filtrar solo las listas del usuario actual
         this.allShoppingLists = lists
-          .filter(l => l.userId === currentUser.id)
           .sort((a, b) => {
-            // Ordenar por fecha de creación, más recientes primero
             return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime();
           });
         this.isLoading = false;
@@ -498,6 +512,9 @@ export class ShoppingListComponent implements OnInit {
   }
 
   getListTitle(list: ShoppingList): string {
+    if (list.title) {
+      return list.title;
+    }
     if (list.weekStartDate && list.weekEndDate) {
       return `Semana ${this.getWeekNumber(list.weekStartDate)}`;
     }
@@ -543,8 +560,8 @@ export class ShoppingListComponent implements OnInit {
     return list.items.filter(item => item.checked).length;
   }
 
-  onItemCheck(list: ShoppingList): void {
-    // Auto-guardar cuando se marca/desmarca un item
+  toggleItem(list: ShoppingList, item: ShoppingItem): void {
+    item.checked = !item.checked;
     this.autoSaveList(list);
   }
 
@@ -581,8 +598,9 @@ export class ShoppingListComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) return;
 
-    const newList = {
+    const newList: ShoppingListCreateDTO = {
       userId: currentUser.id,
+      title: `Lista ${new Date().toLocaleDateString()}`,
       items: []
     };
 
@@ -678,7 +696,7 @@ export class ShoppingListComponent implements OnInit {
     });
   }
 
-  exportList(list: ShoppingList): void {
+  exportListAsText(list: ShoppingList): void {
     const listText = `📋 ${this.getListTitle(list)} - MealMate\n\n` +
       (list.weekStartDate && list.weekEndDate 
         ? `📅 Semana: ${this.formatWeekRange(list.weekStartDate, list.weekEndDate)}\n\n`
@@ -695,6 +713,58 @@ export class ShoppingListComponent implements OnInit {
     a.download = `lista-compra-${list.id}.txt`;
     a.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  exportListAsPDF(list: ShoppingList): void {
+    // Implementación básica de PDF - puedes usar una librería como jspdf
+    this.generatePDF(list);
+  }
+
+  private generatePDF(list: ShoppingList): void {
+    const pdfContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${this.getListTitle(list)}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .item { margin: 5px 0; }
+          .checked { text-decoration: line-through; color: #888; }
+          .section { margin-bottom: 15px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>${this.getListTitle(list)}</h1>
+          ${list.weekStartDate && list.weekEndDate ? 
+            `<p>Semana: ${this.formatWeekRange(list.weekStartDate, list.weekEndDate)}</p>` : ''}
+          <p>Generado: ${new Date().toLocaleDateString()}</p>
+        </div>
+        
+        <div class="section">
+          <h2>Ingredientes (${list.items.length})</h2>
+          ${list.items.map(item => `
+            <div class="item ${item.checked ? 'checked' : ''}">
+              ${item.checked ? '✅' : '☐'} ${item.name} - ${item.quantity} ${item.unit}
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="section">
+          <p><strong>Progreso:</strong> ${this.getCheckedCount(list)}/${list.items.length} items</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Abrir ventana para imprimir/guardar como PDF
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(pdfContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
   }
 
   shareList(list: ShoppingList): void {

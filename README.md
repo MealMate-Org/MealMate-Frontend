@@ -16,6 +16,9 @@
 </div>
 
 ---
+ **Repositorio del Backend**: [mealmate-backend](https://github.com/miguelbac/mealmate-backend)
+
+---
 
 ## 📋 Tabla de Contenidos
 
@@ -70,7 +73,6 @@
 
 ```typescript
 ✅ Vista de calendario de 7 días
-✅ Drag & drop para asignar recetas (próximamente)
 ✅ 3 comidas diarias configurables
 ✅ Resumen nutricional semanal automático
 ✅ Progreso visual del objetivo calórico diario
@@ -517,7 +519,7 @@ webpack-bundle-analyzer dist/stats.json
 
 ## 🚢 Despliegue
 
-### Opción 1: Vercel (Recomendado)
+### Opción 1: Vercel
 
 ```bash
 # Instalar Vercel CLI
@@ -680,9 +682,6 @@ POST   /api/v1/ratings
 GET    /api/v1/ratings/{recipeId}/{userId}
 DELETE /api/v1/ratings/{recipeId}/{userId}
 ```
-
-**Repositorio del Backend**: [mealmate-backend](https://github.com/tu-usuario/mealmate-backend)
-
 ---
 
 ## 🎨 Personalización de Estilos
@@ -930,25 +929,7 @@ SOFTWARE.
 
 ## 👥 Autores
 
-- **Tu Nombre** - *Desarrollo inicial* - [@tu-usuario](https://github.com/tu-usuario)
-
----
-
-## 🙏 Agradecimientos
-
-- [Angular Team](https://angular.io/) por el increíble framework
-- [Tailwind Labs](https://tailwindcss.com/) por Tailwind CSS
-- [Lucide Icons](https://lucide.dev/) por los iconos
-- [RxJS](https://rxjs.dev/) por la programación reactiva
-- Comunidad de desarrolladores por las contribuciones
-
----
-
-## 📞 Contacto
-
-**Email**: tu-email@ejemplo.com  
-**Twitter**: [@tu_usuario](https://twitter.com/tu_usuario)  
-**LinkedIn**: [Tu Nombre](https://linkedin.com/in/tu-perfil)
+- **Miguel Ballesteros** - *Desarrollo inicial* - [@miguelbac](https://github.com/miguelbac)
 
 ---
 

@@ -193,7 +193,6 @@ export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   isLoading = true;
   
-  // Datos dinámicos
   myRecipesCount = 0;
   publicRecipesCount = 0;
   savedRecipesCount = 0;
@@ -201,7 +200,6 @@ export class DashboardComponent implements OnInit {
   totalRatingsGiven = 0;
   avgRecipeRating = 0;
 
-  // Iconos de Lucide
   readonly CalendarIcon = CalendarDays;
   readonly BookIcon = BookOpen;
   readonly ShoppingCartIcon = ShoppingCart;
@@ -229,13 +227,11 @@ export class DashboardComponent implements OnInit {
 
     this.isLoading = true;
 
-    // Cargar mis recetas
     this.recipeService.getRecipesByAuthor(this.currentUser.id).subscribe({
       next: (recipes) => {
         this.myRecipesCount = recipes.length;
         this.publicRecipesCount = recipes.filter(r => r.isPublic).length;
         
-        // Calcular valoración promedio
         const totalRatings = recipes.reduce((sum, r) => sum + (r.avgRating * r.ratingCount), 0);
         const totalRatingCount = recipes.reduce((sum, r) => sum + r.ratingCount, 0);
         this.avgRecipeRating = totalRatingCount > 0 ? totalRatings / totalRatingCount : 0;
@@ -248,7 +244,6 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // Cargar recetas guardadas
     this.favoriteService.getAllFavorites().subscribe({
       next: (favorites) => {
         this.savedRecipesCount = favorites.length;
@@ -260,7 +255,6 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // Cargar lista de compra
     this.shoppingListService.getAllShoppingLists().subscribe({
       next: (lists) => {
         const userLists = lists.filter(l => l.userId === this.currentUser!.id);
@@ -276,8 +270,6 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // Por ahora, valoraciones dadas no están implementadas en el backend
-    // Se puede añadir más adelante
     this.totalRatingsGiven = 0;
   }
 
@@ -288,7 +280,6 @@ export class DashboardComponent implements OnInit {
   };
 
   private checkLoadingComplete(): void {
-    // Simulamos que hemos completado una carga
     this.loadingChecks.recipes = true;
     this.loadingChecks.favorites = true;
     this.loadingChecks.shoppingList = true;

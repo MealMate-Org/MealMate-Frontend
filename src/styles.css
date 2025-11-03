@@ -28,7 +28,6 @@
 }
 
 @layer components {
-  /* Botones principales */
   .btn-primary {
     @apply bg-cambridge-blue text-white border-none hover:bg-zomp hover:shadow-lg
            transition-all duration-200 text-base font-semibold rounded-lg px-6 py-3 cursor-pointer
@@ -53,13 +52,11 @@
            inline-flex items-center justify-center;
   }
   
-  /* Cards mejoradas */
   .card {
     @apply bg-white shadow-lg rounded-2xl p-6 border border-gray-100
            transition-shadow duration-200 hover:shadow-xl;
   }
   
-  /* Inputs mejorados */
   .input {
     @apply border-2 border-gray-300 rounded-lg px-4 py-3
            focus:border-cambridge-blue focus:ring-2 focus:ring-cambridge-blue focus:ring-opacity-20
@@ -71,7 +68,6 @@
     @apply border-gray-400;
   }
   
-  /* Badges mejoradas */
   .badge {
     @apply bg-zomp text-white rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center;
   }
@@ -84,7 +80,6 @@
     @apply bg-error text-white rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center;
   }
   
-  /* Iconos */
   .icon {
     @apply text-slate-gray w-5 h-5;
   }
@@ -93,12 +88,10 @@
     @apply hover:text-cambridge-blue transition-colors duration-200 cursor-pointer;
   }
 
-  /* Links mejorados */
   a {
     @apply transition-colors duration-200;
   }
 
-  /* Utilidades para líneas truncadas */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -114,7 +107,6 @@
   }
 }
 
-/* Animaciones personalizadas */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -130,7 +122,6 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Scrollbar personalizado */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -149,13 +140,11 @@
   background: #44A08D;
 }
 
-/* Mejoras de accesibilidad */
 :focus-visible {
   outline: 2px solid #4ECDC4;
   outline-offset: 2px;
 }
 
-/* Transiciones suaves globales */
 * {
   @apply transition-colors duration-150;
 }

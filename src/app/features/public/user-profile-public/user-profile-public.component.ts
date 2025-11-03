@@ -214,7 +214,6 @@ export class UserProfilePublicComponent implements OnInit {
   avgRating = 0;
   username: string = '';
 
-  // Iconos
   readonly StarIcon = Star;
   readonly ChefHatIcon = ChefHat;
   readonly AlertIcon = AlertTriangle;
@@ -228,7 +227,6 @@ export class UserProfilePublicComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      // Obtener username de la URL (sin el @)
       this.username = params['username'];
       if (this.username) {
         this.loadUserProfile();
@@ -239,17 +237,14 @@ export class UserProfilePublicComponent implements OnInit {
   loadUserProfile(): void {
     this.isLoading = true;
     
-    // Cargar todos los usuarios y buscar por username
     this.userService.getAllUsers().subscribe({
       next: (users) => {
         this.user = users.find(u => u.username.toLowerCase() === this.username.toLowerCase()) || null;
         
         if (this.user) {
-          // Verificar si es el perfil del usuario actual
           const currentUser = this.authService.getCurrentUser();
           this.isOwnProfile = currentUser?.id === this.user.id;
           
-          // Cargar recetas del usuario
           this.loadUserRecipes(this.user.id);
         } else {
           this.isLoading = false;
@@ -265,7 +260,6 @@ export class UserProfilePublicComponent implements OnInit {
   loadUserRecipes(userId: number): void {
     this.recipeService.getAllRecipes().subscribe({
       next: (recipes) => {
-        // Filtrar recetas del usuario (solo públicas si no es el propio perfil)
         this.userRecipes = recipes.filter(r => {
           if (this.isOwnProfile) {
             return r.authorId === userId;
@@ -274,7 +268,6 @@ export class UserProfilePublicComponent implements OnInit {
           }
         });
 
-        // Calcular estadísticas
         this.totalRatings = this.userRecipes.reduce((sum, r) => sum + r.ratingCount, 0);
         if (this.userRecipes.length > 0) {
           const totalRating = this.userRecipes.reduce((sum, r) => sum + (r.avgRating * r.ratingCount), 0);
@@ -301,10 +294,8 @@ export class UserProfilePublicComponent implements OnInit {
   }
 
   formatDate(dateInput: string | Date): string {
-    // Asegurarnos de que tenemos un objeto Date válido
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
     
-    // Verificar si la fecha es válida
     if (isNaN(date.getTime())) {
       return 'Fecha no disponible';
     }

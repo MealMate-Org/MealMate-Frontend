@@ -314,7 +314,6 @@ export class RecipesListComponent implements OnInit {
   excludedAllergenIds: number[] = [];
   isLoading = false;
 
-  // Iconos
   readonly SearchIcon = Search;
   readonly StarIcon = Star;
   readonly ChefHatIcon = ChefHat;
@@ -380,7 +379,6 @@ export class RecipesListComponent implements OnInit {
   applyFilters(): void {
     let filtered = [...this.recipes];
 
-    // Filtro de búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -391,12 +389,10 @@ export class RecipesListComponent implements OnInit {
       );
     }
 
-    // Filtro de tipo de comida
     if (this.mealTypeFilter !== null) {
       filtered = filtered.filter((recipe) => recipe.mealTypeId === this.mealTypeFilter);
     }
 
-    // Alérgenos excluidos
     if (this.excludedAllergenIds.length > 0) {
       filtered = filtered.filter((recipe) => {
         const recipeAllergenIds = recipe.allergens.map((a) => a.id);
@@ -404,7 +400,6 @@ export class RecipesListComponent implements OnInit {
       });
     }
 
-    // Ordenación
     filtered = this.sortRecipes(filtered);
 
     this.filteredRecipes = filtered;

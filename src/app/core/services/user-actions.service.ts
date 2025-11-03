@@ -1,15 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators'; // ← AÑADE ESTA IMPORTACIÓN
+import { catchError } from 'rxjs/operators';
 import { Rating, Favorite } from '../../models/social.model';
 import { ShoppingList, ShoppingListCreateDTO } from '../../models/planner.model';
-
-/**
- * ============================================
- * SERVICIO DE FAVORITOS
- * ============================================
- */
 
 @Injectable({
   providedIn: 'root'
@@ -19,47 +13,29 @@ export class FavoriteService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Obtener todos los favoritos del usuario
-   */
   getAllFavorites(): Observable<Favorite[]> {
     return this.http.get<Favorite[]>(this.apiUrl);
   }
 
-  /**
-   * Obtener favorito específico (verificar si existe)
-   */
   getFavoriteById(userId: number, recipeId: number): Observable<Favorite | null> {
     return this.http.get<Favorite>(`${this.apiUrl}/${userId}/${recipeId}`).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 404) {
-          return of(null); // Devuelve null en lugar de error
+          return of(null);
         }
-        throw error; // Relanza otros errores
+        throw error;
       })
     );
   }
 
-  /**
-   * Añadir receta a favoritos
-   */
   addFavorite(favorite: Favorite): Observable<Favorite> {
     return this.http.post<Favorite>(this.apiUrl, favorite);
   }
 
-  /**
-   * Quitar de favoritos
-   */
   removeFavorite(userId: number, recipeId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${userId}/${recipeId}`);
   }
 }
-
-/**
- * ============================================
- * SERVICIO DE RATINGS (Valoraciones)
- * ============================================
- */
 
 @Injectable({
   providedIn: 'root'
@@ -69,47 +45,29 @@ export class RatingService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Obtener todas las valoraciones
-   */
   getAllRatings(): Observable<Rating[]> {
     return this.http.get<Rating[]>(this.apiUrl);
   }
 
-  /**
-   * Crear o actualizar valoración
-   */
   rateRecipe(rating: Rating): Observable<Rating> {
     return this.http.post<Rating>(this.apiUrl, rating);
   }
 
-  /**
-   * Obtener valoración específica
-   */
   getRating(recipeId: number, userId: number): Observable<Rating | null> {
     return this.http.get<Rating>(`${this.apiUrl}/${recipeId}/${userId}`).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 404) {
-          return of(null); // Devuelve null en lugar de error
+          return of(null);
         }
         throw error;
       })
     );
   }
 
-  /**
-   * Eliminar valoración
-   */
   deleteRating(recipeId: number, userId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${recipeId}/${userId}`);
   }
 }
-
-/**
- * ============================================
- * SERVICIO DE LISTA DE COMPRA
- * ============================================
- */
 
 @Injectable({
   providedIn: 'root'

@@ -86,7 +86,6 @@ import {
   `]
 })
 export class GroupsComponent {
-  // Iconos
   readonly UsersIcon = Users;
   readonly CalendarIcon = Calendar;
   readonly ClockIcon = Clock;

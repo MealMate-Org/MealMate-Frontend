@@ -8,7 +8,6 @@ import { Allergen } from '../../models/recipe.model';
   providedIn: 'root'
 })
 export class UserService {
-  // ⚠️ CAMBIAR ESTA URL SI TU BACKEND ESTÁ EN OTRO PUERTO/DOMINIO
   private readonly BASE_URL = 'http://localhost:8080/api/v1';
   
   private apiUrl = `${this.BASE_URL}/users`;
@@ -38,7 +37,6 @@ export class UserService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // Preferencias
   getUserPreferences(userId: number): Observable<UserPreference> {
     return this.http.get<UserPreference>(`${this.preferencesUrl}/${userId}`);
   }
@@ -51,12 +49,10 @@ export class UserService {
     return this.http.delete<void>(`${this.preferencesUrl}/${userId}`);
   }
 
-  // Dietas
   getAllDiets(): Observable<Diet[]> {
     return this.http.get<Diet[]>(this.dietsUrl);
   }
 
-  // Alérgenos de usuario
   getUserAllergens(userId: number): Observable<Allergen[]> {
     return this.http.get<Allergen[]>(`${this.userAllergensUrl}/${userId}`);
   }
@@ -68,13 +64,8 @@ export class UserService {
   deleteUserAllergens(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.userAllergensUrl}/${userId}`);
   }
-
-  // ✅ MÉTODO MEJORADO: Reemplazar completamente los alérgenos del usuario
-  // Si el endpoint PUT no existe, usamos esta implementación que primero elimina y luego crea
   replaceUserAllergens(userId: number, allergenIds: number[]): Observable<void> {
-    // Primero eliminamos todos los alérgenos existentes
     return this.deleteUserAllergens(userId).pipe(
-      // Luego creamos los nuevos alérgenos
       switchMap(() => this.saveUserAllergens(userId, allergenIds))
     );
   }

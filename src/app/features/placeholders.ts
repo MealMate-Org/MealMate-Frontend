@@ -1,19 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../shared/components/navbar/navbar.component';
-
-/**
- * ============================================
- * COMPONENTES PLACEHOLDER
- * ============================================
- * 
- * Estos son componentes básicos que puedes expandir después.
- * Por ahora solo muestran la estructura básica.
- */
-
-// ============================================
-// DETALLE DE RECETA
-// ============================================
 @Component({
   selector: 'app-recipe-detail',
   standalone: true,
@@ -30,10 +17,6 @@ import { NavbarComponent } from '../shared/components/navbar/navbar.component';
   `
 })
 export class RecipeDetailComponent {}
-
-// ============================================
-// PERFIL PÚBLICO DE USUARIO
-// ============================================
 @Component({
   selector: 'app-user-profile-public',
   standalone: true,
@@ -50,9 +33,6 @@ export class RecipeDetailComponent {}
 })
 export class UserProfilePublicComponent {}
 
-// ============================================
-// MIS RECETAS
-// ============================================
 @Component({
   selector: 'app-my-recipes',
   standalone: true,
@@ -72,9 +52,6 @@ export class UserProfilePublicComponent {}
 })
 export class MyRecipesComponent {}
 
-// ============================================
-// RECETAS GUARDADAS
-// ============================================
 @Component({
   selector: 'app-saved-recipes',
   standalone: true,
@@ -91,9 +68,6 @@ export class MyRecipesComponent {}
 })
 export class SavedRecipesComponent {}
 
-// ============================================
-// RECETAS DE AMIGOS
-// ============================================
 @Component({
   selector: 'app-friends-recipes',
   standalone: true,
@@ -110,9 +84,6 @@ export class SavedRecipesComponent {}
 })
 export class FriendsRecipesComponent {}
 
-// ============================================
-// PERFIL PERSONAL
-// ============================================
 @Component({
   selector: 'app-profile',
   standalone: true,

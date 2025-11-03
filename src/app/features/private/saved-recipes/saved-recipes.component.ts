@@ -397,7 +397,6 @@ export class SavedRecipesComponent implements OnInit {
   applyFilters(): void {
     let filtered = [...this.savedRecipes];
 
-    // Búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -407,12 +406,10 @@ export class SavedRecipesComponent implements OnInit {
       );
     }
 
-    // Tipo de comida
     if (this.mealTypeFilter !== null) {
       filtered = filtered.filter((recipe) => recipe.mealTypeId === this.mealTypeFilter);
     }
 
-    // Alérgenos excluidos
     if (this.excludedAllergenIds.length > 0) {
       filtered = filtered.filter((recipe) => {
         const recipeAllergenIds = recipe.allergens.map(a => a.id);
@@ -420,7 +417,6 @@ export class SavedRecipesComponent implements OnInit {
       });
     }
 
-    // Ordenación
     filtered = this.sortRecipes(filtered);
 
     this.filteredRecipes = filtered;
@@ -492,8 +488,6 @@ export class SavedRecipesComponent implements OnInit {
   }
 
   getAuthorName(authorId: number): string {
-    // Esta función necesitarías implementarla según tu lógica de usuarios
-    // Por ahora devolvemos un texto genérico
     return `Usuario ${authorId}`;
   }
 

@@ -9,12 +9,6 @@ import {
   MealType,
 } from '../../models/planner.model';
 
-/**
- * ============================================
- * SERVICIO DE PLANIFICADOR CON PERSISTENCIA
- * ============================================
- */
-
 @Injectable({
   providedIn: 'root',
 })
@@ -22,10 +16,6 @@ export class PlannerService {
   private apiUrl = 'http://localhost:8080/api/v1';
 
   constructor(private http: HttpClient) {}
-
-  // ============================================
-  // MEAL PLANS (Planes semanales)
-  // ============================================
 
   getAllMealPlans(): Observable<MealPlan[]> {
     return this.http.get<MealPlan[]>(`${this.apiUrl}/meal-plans`);
@@ -39,9 +29,6 @@ export class PlannerService {
     return this.http.get<MealPlan>(`${this.apiUrl}/meal-plans/${id}`);
   }
 
-  /**
-   * Obtener o crear plan para una semana específica
-   */
   getOrCreateMealPlanForWeek(
     userId: number,
     weekStart: string,
@@ -52,9 +39,6 @@ export class PlannerService {
     return this.http.get<MealPlan>(`${this.apiUrl}/meal-plans/user/${userId}/week`, { params });
   }
 
-  /**
-   * Obtener plan activo para una fecha
-   */
   getActiveMealPlanForDate(userId: number, date: string): Observable<MealPlan> {
     const params = new HttpParams().set('date', date);
     return this.http.get<MealPlan>(`${this.apiUrl}/meal-plans/user/${userId}/active`, { params });
@@ -72,10 +56,6 @@ export class PlannerService {
     return this.http.delete<void>(`${this.apiUrl}/meal-plans/${id}`);
   }
 
-  // ============================================
-  // MEAL PLAN ITEMS (Recetas asignadas)
-  // ============================================
-
   getAllMealPlanItems(): Observable<MealPlanItem[]> {
     return this.http.get<MealPlanItem[]>(`${this.apiUrl}/meal-plan-items`);
   }
@@ -84,9 +64,6 @@ export class PlannerService {
     return this.http.get<MealPlanItem[]>(`${this.apiUrl}/meal-plan-items/meal-plan/${mealPlanId}`);
   }
 
-  /**
-   * Obtener items de un plan en un rango de fechas
-   */
   getItemsByMealPlanAndDateRange(
     mealPlanId: number,
     startDate: string,
@@ -100,9 +77,6 @@ export class PlannerService {
     );
   }
 
-  /**
-   * Obtener items de un usuario en un rango de fechas
-   */
   getItemsByUserAndDateRange(
     userId: number,
     startDate: string,
@@ -116,17 +90,11 @@ export class PlannerService {
     );
   }
 
-  /**
-   * Añadir receta al plan
-   */
   addMealPlanItem(item: MealPlanItemCreateDTO): Observable<MealPlanItem> {
     return this.http.post<MealPlanItem>(`${this.apiUrl}/meal-plan-items`, item);
   }
 
-  /**
-   * Añadir múltiples items (batch)
-   */
-  addMealPlanItemsBatch(items: MealPlanItemCreateDTO[]): Observable<MealPlanItem[]> {
+alPlanItemsBatch(items: MealPlanItemCreateDTO[]): Observable<MealPlanItem[]> {
     return this.http.post<MealPlanItem[]>(`${this.apiUrl}/meal-plan-items/batch`, items);
   }
 
@@ -138,9 +106,7 @@ export class PlannerService {
     return this.http.delete<void>(`${this.apiUrl}/meal-plan-items/${id}`);
   }
 
-  /**
-   * Eliminar item por detalles específicos
-   */
+
   deleteMealPlanItemByDetails(
     mealPlanId: number,
     date: string,
@@ -156,10 +122,6 @@ export class PlannerService {
       `${this.apiUrl}/meal-plan-items/meal-plan/${mealPlanId}/date/${date}/meal-type/${mealTypeId}`
     );
   }
-
-  // ============================================
-  // MEAL TYPES (Desayuno, Comida, Cena, etc.)
-  // ============================================
 
   getAllMealTypes(): Observable<MealType[]> {
     return this.http.get<MealType[]>(`${this.apiUrl}/meal-types`);

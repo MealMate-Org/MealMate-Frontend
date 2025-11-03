@@ -11,13 +11,11 @@ export interface User {
 
 export interface UserPreference {
   userId: number;
-  // Objetivos manuales
   dailyCaloriesGoal?: number;
   dailyCarbsGoal?: number;
   dailyProteinGoal?: number;
   dailyFatGoal?: number;
   dietId?: number;
-  // Campos para cálculo automático
   useAutomaticCalculation?: boolean;
   gender?: 'male' | 'female';
   age?: number;

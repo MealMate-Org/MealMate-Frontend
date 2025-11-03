@@ -421,7 +421,6 @@ export class MyRecipesComponent implements OnInit {
   applyFilters(): void {
     let filtered = [...this.myRecipes];
 
-    // Búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -431,18 +430,15 @@ export class MyRecipesComponent implements OnInit {
       );
     }
 
-    // Visibilidad
     if (this.visibilityFilter !== 'all') {
       const isPublic = this.visibilityFilter === 'public';
       filtered = filtered.filter((recipe) => recipe.isPublic === isPublic);
     }
 
-    // Tipo de comida
     if (this.mealTypeFilter !== null) {
       filtered = filtered.filter((recipe) => recipe.mealTypeId === this.mealTypeFilter);
     }
 
-    // Alérgenos excluidos
     if (this.excludedAllergenIds.length > 0) {
       filtered = filtered.filter((recipe) => {
         const recipeAllergenIds = recipe.allergens.map(a => a.id);
@@ -450,7 +446,6 @@ export class MyRecipesComponent implements OnInit {
       });
     }
 
-    // Ordenación
     filtered = this.sortRecipes(filtered);
 
     this.filteredRecipes = filtered;

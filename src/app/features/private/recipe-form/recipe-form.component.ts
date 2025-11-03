@@ -346,7 +346,6 @@ export class RecipeFormComponent implements OnInit {
   allergens: Allergen[] = [];
   selectedAllergenIds: number[] = [];
 
-  // Iconos
   readonly SaveIcon = Save;
   readonly XIcon = X;
   readonly PlusIcon = Plus;
@@ -483,7 +482,6 @@ export class RecipeFormComponent implements OnInit {
               });
             },
             error: () => {
-              // No hay info nutricional
             }
           });
         }
@@ -514,13 +512,11 @@ export class RecipeFormComponent implements OnInit {
       return;
     }
 
-    // Si no hay imagen, usar imagen predeterminada
     let imageUrl = this.recipeForm.value.imagePath;
     if (!imageUrl || imageUrl.trim() === '') {
       imageUrl = '/defaultRecipeImage.png';
     }
 
-    // ✅ CONSTRUIR DATOS CON ALÉRGENOS CORRECTAMENTE
     const recipeData: any = {
       title: this.recipeForm.value.title,
       description: this.recipeForm.value.description,
@@ -530,9 +526,6 @@ export class RecipeFormComponent implements OnInit {
       mealTypeId: this.recipeForm.value.mealTypeId,
       ingredients: this.ingredients.value
     };
-
-    // ✅ PARA CREAR: usar allergenIds (array de IDs)
-    // ✅ PARA ACTUALIZAR: usar allergens (array de objetos {id, name})
     if (this.isEditMode) {
       recipeData.allergens = this.selectedAllergenIds.map(id => {
         const allergen = this.allergens.find(a => a.id === id);

@@ -1,7 +1,7 @@
 export interface MealPlan {
   id: number;
   userId: number;
-  startDate: string; // ISO date format
+  startDate: string;
   endDate: string;
   createdAt?: string;
   isActive?: boolean;
@@ -18,7 +18,7 @@ export interface MealPlanItem {
   mealPlanId: number;
   recipeId: number;
   mealTypeId: number;
-  date: string; // ISO date format
+  date: string;
 }
 
 export interface MealPlanItemCreateDTO {

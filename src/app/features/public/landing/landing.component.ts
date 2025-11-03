@@ -175,7 +175,6 @@ export class LandingComponent implements OnInit {
   isLoggedIn = false;
   currentUser: any = null;
 
-  // Iconos de Lucide
   readonly CalendarIcon = CalendarDays;
   readonly ShoppingCartIcon = ShoppingCart;
   readonly UsersIcon = Users;
@@ -187,10 +186,8 @@ export class LandingComponent implements OnInit {
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    // Verificar el estado de autenticación al inicializar el componente
     this.checkAuthStatus();
     
-    // Suscribirse a cambios en el estado de autenticación
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.isLoggedIn = !!user;

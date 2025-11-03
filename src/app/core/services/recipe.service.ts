@@ -15,7 +15,6 @@ export class RecipeService {
     return this.http.get<Recipe[]>(`${this.apiUrl}/recipes`);
   }
 
-  // ✅ NUEVO MÉTODO
   getRecipesByAuthor(authorId: number): Observable<Recipe[]> {
     const params = new HttpParams().set('authorId', authorId.toString());
     return this.http.get<Recipe[]>(`${this.apiUrl}/recipes`, { params });

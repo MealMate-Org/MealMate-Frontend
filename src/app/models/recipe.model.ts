@@ -1,7 +1,3 @@
-// ============================================
-// MODELOS DE RECETAS
-// ============================================
-
 export interface Recipe {
   id: number;
   title: string;

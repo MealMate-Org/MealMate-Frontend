@@ -1,7 +1,3 @@
-// ============================================
-// MODELOS SOCIALES
-// ============================================
-
 import { User } from './user.model';
 
 export interface Group {
@@ -31,11 +27,6 @@ export interface Follow {
   followingId: number;
   createdAt: Date;
 }
-
-// ============================================
-// MODELOS DE RATINGS Y FAVORITOS
-// ============================================
-
 export interface Rating {
   recipeId: number;
   userId: number;
@@ -47,10 +38,6 @@ export interface Favorite {
   recipeId: number;
   createdAt: Date;
 }
-
-// ============================================
-// MODELOS DE AUTENTICACIÓN
-// ============================================
 
 export interface LoginRequest {
   email: string;

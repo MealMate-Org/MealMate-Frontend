@@ -171,7 +171,7 @@ export class RegisterComponent {
       username: this.registerForm.value.username,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
-      avatar: '/defaultProfilePicture.png', // ✅ Imagen predeterminada
+      avatar: '/defaultProfilePicture.png',
       roleId: 2
     };
 

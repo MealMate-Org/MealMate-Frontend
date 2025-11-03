@@ -360,13 +360,10 @@ export class RecipeDetailComponent implements OnInit {
         this.recipe = recipe;
         this.isOwner = this.currentUser?.id === recipe.authorId;
         
-        // Cargar autor
         this.loadAuthor(recipe.authorId);
         
-        // Cargar información nutricional
         this.loadNutritionInfo(id);
         
-        // Verificar si es favorito
         if (this.currentUser) {
           this.checkIfFavorite(id);
           this.loadUserRating(id);
@@ -396,7 +393,6 @@ export class RecipeDetailComponent implements OnInit {
         this.nutritionInfo = info;
       },
       error: () => {
-        // No hay información nutricional
       }
     });
   }
@@ -406,7 +402,7 @@ checkIfFavorite(recipeId: number): void {
 
   this.favoriteService.getFavoriteById(this.currentUser.id, recipeId).subscribe({
     next: (favorite) => {
-      this.isFavorite = favorite !== null; // Si es null, no es favorito
+      this.isFavorite = favorite !== null;
     },
     error: (error) => {
       console.error('Error real verificando favorito:', error);
@@ -420,7 +416,7 @@ loadUserRating(recipeId: number): void {
 
   this.ratingService.getRating(recipeId, this.currentUser.id).subscribe({
     next: (rating) => {
-      this.userRating = rating ? rating.score : null; // Si es null, no hay rating
+      this.userRating = rating ? rating.score : null;
     },
     error: (error) => {
       console.error('Error real cargando valoración:', error);
@@ -467,7 +463,6 @@ loadUserRating(recipeId: number): void {
     this.ratingService.rateRecipe(rating).subscribe({
       next: () => {
         this.userRating = score;
-        // Recargar receta para actualizar avgRating
         this.loadRecipe(this.recipe!.id);
       },
       error: (error) => console.error('Error valorando receta:', error)

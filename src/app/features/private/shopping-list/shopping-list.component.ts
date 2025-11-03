@@ -1,4 +1,3 @@
-// shopping-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +22,6 @@ import {
   X
 } from 'lucide-angular';
 
-// Agrega esta interfaz para el PDF
 interface PDFOptions {
   orientation: 'p' | 'l';
   unit: 'mm';
@@ -443,7 +441,6 @@ export class ShoppingListComponent implements OnInit {
   newItemQuantity: number | null = null;
   newItemUnit = 'g';
 
-  // Iconos
   readonly ShareIcon = Share2;
   readonly PlusIcon = Plus;
   readonly TrashIcon = Trash2;
@@ -455,7 +452,7 @@ export class ShoppingListComponent implements OnInit {
   readonly CalendarIcon = Calendar;
   readonly PackageIcon = Package;
   readonly XIcon = X;
-  readonly FileTextIcon = Save; // Puedes cambiar este icono por uno de PDF
+  readonly FileTextIcon = Save;
 
   constructor(
     private shoppingListService: ShoppingListService,
@@ -570,7 +567,6 @@ export class ShoppingListComponent implements OnInit {
   autoSaveList(list: ShoppingList): void {
     this.shoppingListService.updateShoppingList(list.id, list).subscribe({
       next: (updatedList) => {
-        // Actualizar en el array
         const index = this.allShoppingLists.findIndex(l => l.id === list.id);
         if (index !== -1) {
           this.allShoppingLists[index] = updatedList;
@@ -632,12 +628,10 @@ export class ShoppingListComponent implements OnInit {
 
     this.selectedList.items.push(newItem);
     
-    // Limpiar campos
     this.newItemName = '';
     this.newItemQuantity = null;
     this.newItemUnit = 'g';
 
-    // Auto-guardar
     this.saveList();
   }
 
@@ -664,7 +658,6 @@ export class ShoppingListComponent implements OnInit {
 
     this.shoppingListService.updateShoppingList(this.selectedList.id, this.selectedList).subscribe({
       next: (updatedList) => {
-        // Actualizar en el array
         const index = this.allShoppingLists.findIndex(l => l.id === this.selectedList!.id);
         if (index !== -1) {
           this.allShoppingLists[index] = updatedList;
@@ -707,7 +700,6 @@ export class ShoppingListComponent implements OnInit {
         .map(item => `${item.checked ? '✅' : '☐'} ${item.name} - ${item.quantity} ${item.unit}`)
         .join('\n');
 
-    // Crear blob y descargar
     const blob = new Blob([listText], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -718,7 +710,6 @@ export class ShoppingListComponent implements OnInit {
   }
 
   exportListAsPDF(list: ShoppingList): void {
-    // Implementación básica de PDF - puedes usar una librería como jspdf
     this.generatePDF(list);
   }
 
@@ -760,7 +751,6 @@ export class ShoppingListComponent implements OnInit {
       </html>
     `;
 
-    // Abrir ventana para imprimir/guardar como PDF
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(pdfContent);

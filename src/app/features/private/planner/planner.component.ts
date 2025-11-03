@@ -560,7 +560,6 @@ interface MacroTotals {
         overflow: hidden;
       }
       
-      /* Estilos para breakpoints personalizados */
       @media (max-width: 475px) {
         .xs\\:inline {
           display: inline !important;
@@ -593,7 +592,6 @@ export class PlannerComponent implements OnInit {
   currentUser: User | null = null;
   Math = Math;
 
-  // Iconos
   readonly CalendarIcon = Calendar;
   readonly ChevronLeftIcon = ChevronLeft;
   readonly ChevronRightIcon = ChevronRight;
@@ -604,7 +602,7 @@ export class PlannerComponent implements OnInit {
   readonly ShoppingCartIcon = ShoppingCart;
   readonly InfoIcon = Info;
   readonly Loader2Icon = Loader2;
-  readonly ChefHatIcon = ChefHat; // ← Agrega esto
+  readonly ChefHatIcon = ChefHat;
 
   constructor(
     private plannerService: PlannerService,
@@ -647,7 +645,6 @@ export class PlannerComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando tipos de comida:', error);
-        // Usar valores por defecto según tu BD
         this.mealTypes = [
           { id: 1, name: 'Desayuno' },
           { id: 2, name: 'Comida' },
@@ -684,7 +681,6 @@ export class PlannerComponent implements OnInit {
     const weekEnd = new Date(this.currentWeekStart);
     weekEnd.setDate(this.currentWeekStart.getDate() + 6);
 
-    // Obtener o crear meal plan para esta semana
     this.plannerService
       .getOrCreateMealPlanForWeek(
         this.currentUser.id,
@@ -719,7 +715,6 @@ export class PlannerComponent implements OnInit {
       )
       .subscribe({
         next: (items) => {
-          // Cargar los detalles de cada item
           this.loadItemsDetails(items);
         },
         error: (error) => {
@@ -781,7 +776,6 @@ export class PlannerComponent implements OnInit {
   }
 
   getMealTypeFromId(mealTypeId: number): 'breakfast' | 'lunch' | 'dinner' | null {
-    // IDs según tu BD: 1=Desayuno, 2=Comida, 3=Cena
     switch (mealTypeId) {
       case 1:
         return 'breakfast';
@@ -795,7 +789,6 @@ export class PlannerComponent implements OnInit {
   }
 
   getMealTypeId(mealType: 'breakfast' | 'lunch' | 'dinner'): number {
-    // IDs según tu BD: 1=Desayuno, 2=Comida, 3=Cena
     switch (mealType) {
       case 'breakfast':
         return 1;
@@ -838,7 +831,7 @@ export class PlannerComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       const date = new Date(this.currentWeekStart);
       date.setDate(this.currentWeekStart.getDate() + i);
-      date.setHours(12, 0, 0, 0); // Establecer hora del medio día para evitar problemas de zona horaria
+      date.setHours(12, 0, 0, 0);
 
       this.weekPlan.push({
         date: date,
@@ -1234,13 +1227,11 @@ export class PlannerComponent implements OnInit {
     return this.weekPlan.some((day) => day.breakfast || day.lunch || day.dinner);
   }
 
-  // En planner.component.ts - mejora la función generateShoppingList
   generateShoppingList(): void {
     if (!this.currentUser || !this.currentMealPlan) return;
 
     this.isGeneratingShoppingList = true;
 
-    // Recopilar todas las recetas de la semana
     const allRecipes: { recipe: Recipe; count: number }[] = [];
     const recipeCount = new Map<number, number>();
 
@@ -1251,7 +1242,6 @@ export class PlannerComponent implements OnInit {
           const count = recipeCount.get(meal.recipe.id) || 0;
           recipeCount.set(meal.recipe.id, count + 1);
 
-          // Solo añadir una vez al array
           if (count === 0) {
             allRecipes.push({ recipe: meal.recipe, count: 1 });
           } else {
@@ -1270,7 +1260,6 @@ export class PlannerComponent implements OnInit {
       return;
     }
 
-    // Consolidar ingredientes - MEJORADO
     const ingredientsMap = new Map<
       string,
       { quantity: number; unit: string; recipeCount: number }
@@ -1290,12 +1279,10 @@ export class PlannerComponent implements OnInit {
 
             if (ingredientsMap.has(key)) {
               const existing = ingredientsMap.get(key)!;
-              // Sumar cantidades si las unidades son compatibles
               if (existing.unit === ing.unit) {
                 existing.quantity += quantity;
                 existing.recipeCount += count;
               } else {
-                // Si las unidades son diferentes, crear una nueva entrada
                 const newKey = `${key}_${ing.unit}`;
                 ingredientsMap.set(newKey, {
                   quantity: quantity,
@@ -1317,23 +1304,19 @@ export class PlannerComponent implements OnInit {
       }
     });
 
-    // Crear array de ShoppingItems
     const items: ShoppingItem[] = [];
     ingredientsMap.forEach((value, key) => {
-      // Remover sufijo de unidad si existe
       const name = key.split('_')[0];
       items.push({
         name: this.capitalizeFirstLetter(name),
-        quantity: Math.round(value.quantity * 100) / 100, // Redondear a 2 decimales
+        quantity: Math.round(value.quantity * 100) / 100,
         unit: value.unit,
         checked: false,
       });
     });
 
-    // Ordenar alfabéticamente
     items.sort((a, b) => a.name.localeCompare(b.name));
 
-    // Crear shopping list
     const weekEnd = new Date(this.currentWeekStart);
     weekEnd.setDate(this.currentWeekStart.getDate() + 6);
 

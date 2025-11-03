@@ -43,7 +43,6 @@ export class AuthService {
     private http: HttpClient,
     private router: Router
   ) {
-    // Cargar usuario del localStorage si existe
     const token = this.getToken();
     if (token) {
       const user = this.getUserFromStorage();
@@ -53,9 +52,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Login - devuelve token y usuario
-   */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
@@ -65,11 +61,7 @@ export class AuthService {
     );
   }
 
-  /**
-   * Register - ahora usa /api/v1/auth/register y devuelve token
-   */
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    // Asegurar que roleId esté presente (por defecto 2 = USER)
     const registerData = {
       ...userData,
       roleId: userData.roleId || 2
@@ -83,40 +75,25 @@ export class AuthService {
     );
   }
 
-  /**
-   * Guardar sesión (token y usuario)
-   */
   private setSession(authResponse: AuthResponse): void {
     localStorage.setItem('token', authResponse.token);
     localStorage.setItem('user', JSON.stringify(authResponse.user));
     this.currentUserSubject.next(authResponse.user);
   }
 
-  /**
-   * Obtener token
-   */
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  /**
-   * Obtener usuario del storage
-   */
   private getUserFromStorage(): User | null {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   }
 
-  /**
-   * Verificar si está autenticado
-   */
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
 
-  /**
-   * Logout
-   */
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -124,9 +101,6 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Obtener usuario actual
-   */
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }

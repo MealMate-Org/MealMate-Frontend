@@ -1,15 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../shared/components/navbar/navbar.component';
-/**
- * ============================================
- * COMPONENTES ADICIONALES
- * ============================================
- */
 
-// ============================================
-// PLANIFICADOR SEMANAL
-// ============================================
 @Component({
   selector: 'app-planner',
   standalone: true,
@@ -22,27 +14,23 @@ import { NavbarComponent } from '../shared/components/navbar/navbar.component';
         <button class="btn-primary">Generar Lista de Compra</button>
       </div>
       
-      <!-- Calendario semanal -->
       <div class="card">
         <div class="grid grid-cols-7 gap-4">
           @for (day of weekDays; track day) {
             <div class="border border-celadon rounded-card p-3">
               <h4 class="text-center mb-3">{{ day }}</h4>
-              <!-- Desayuno -->
               <div class="mb-3">
                 <p class="text-xs text-slate-gray mb-1">Desayuno</p>
                 <div class="h-20 bg-celadon rounded border-2 border-dashed border-cambridge-blue flex items-center justify-center text-xs text-slate-gray">
                   Arrastra receta aquí
                 </div>
               </div>
-              <!-- Comida -->
               <div class="mb-3">
                 <p class="text-xs text-slate-gray mb-1">Comida</p>
                 <div class="h-20 bg-celadon rounded border-2 border-dashed border-cambridge-blue flex items-center justify-center text-xs text-slate-gray">
                   Arrastra receta aquí
                 </div>
               </div>
-              <!-- Cena -->
               <div>
                 <p class="text-xs text-slate-gray mb-1">Cena</p>
                 <div class="h-20 bg-celadon rounded border-2 border-dashed border-cambridge-blue flex items-center justify-center text-xs text-slate-gray">
@@ -54,7 +42,6 @@ import { NavbarComponent } from '../shared/components/navbar/navbar.component';
         </div>
       </div>
 
-      <!-- Resumen nutricional -->
       <div class="card mt-6">
         <h3 class="mb-4">Resumen Nutricional de la Semana</h3>
         <div class="grid md:grid-cols-4 gap-4">
@@ -82,10 +69,6 @@ import { NavbarComponent } from '../shared/components/navbar/navbar.component';
 export class PlannerComponent {
   weekDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 }
-
-// ============================================
-// LISTA DE COMPRA
-// ============================================
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
@@ -104,7 +87,6 @@ export class PlannerComponent {
       <div class="card">
         <h3 class="mb-4">Ingredientes necesarios</h3>
         
-        <!-- Ejemplo de items -->
         <div class="space-y-3">
           @for (item of sampleItems; track item.name) {
             <div class="flex items-center gap-3 p-3 bg-celadon rounded-card">
@@ -118,7 +100,6 @@ export class PlannerComponent {
           }
         </div>
 
-        <!-- Agregar item manual -->
         <div class="mt-4 pt-4 border-t border-slate-gray">
           <button class="btn-secondary w-full">+ Añadir Item Manual</button>
         </div>
@@ -134,10 +115,6 @@ export class ShoppingListComponent {
     { name: 'Lechuga', quantity: 1, unit: 'unidades' }
   ];
 }
-
-// ============================================
-// GRUPOS
-// ============================================
 @Component({
   selector: 'app-groups',
   standalone: true,
@@ -151,7 +128,6 @@ export class ShoppingListComponent {
       </div>
 
       <div class="grid md:grid-cols-2 gap-6">
-        <!-- Ejemplo de grupo -->
         <div class="card">
           <div class="flex justify-between items-start mb-4">
             <div>
@@ -169,7 +145,6 @@ export class ShoppingListComponent {
           </div>
         </div>
 
-        <!-- Crear nuevo grupo -->
         <div class="card border-2 border-dashed border-cambridge-blue flex flex-col items-center justify-center text-center p-8 cursor-pointer hover:bg-celadon transition">
           <div class="text-4xl mb-3">➕</div>
           <h4 class="mb-2">Crear Nuevo Grupo</h4>
@@ -181,9 +156,6 @@ export class ShoppingListComponent {
 })
 export class GroupsComponent {}
 
-// ============================================
-// FORMULARIO DE RECETA
-// ============================================
 @Component({
   selector: 'app-recipe-form',
   standalone: true,
@@ -194,7 +166,6 @@ export class GroupsComponent {}
       <h1 class="mb-6">Nueva Receta</h1>
 
       <form class="space-y-6">
-        <!-- Información básica -->
         <div class="card">
           <h3 class="mb-4">Información Básica</h3>
           <div class="space-y-4">
@@ -227,19 +198,16 @@ export class GroupsComponent {}
           </div>
         </div>
 
-        <!-- Ingredientes -->
         <div class="card">
           <h3 class="mb-4">Ingredientes</h3>
           <button type="button" class="btn-secondary w-full">+ Añadir Ingrediente</button>
         </div>
 
-        <!-- Instrucciones -->
         <div class="card">
           <h3 class="mb-4">Instrucciones</h3>
           <textarea class="input w-full" rows="6" placeholder="Paso a paso..."></textarea>
         </div>
 
-        <!-- Información nutricional -->
         <div class="card">
           <h3 class="mb-4">Información Nutricional (Opcional)</h3>
           <div class="grid md:grid-cols-4 gap-4">
@@ -262,7 +230,6 @@ export class GroupsComponent {}
           </div>
         </div>
 
-        <!-- Botones -->
         <div class="flex justify-end gap-3">
           <button type="button" class="btn-secondary">Cancelar</button>
           <button type="submit" class="btn-primary">Guardar Receta</button>

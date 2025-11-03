@@ -261,7 +261,6 @@ export class NavbarComponent implements OnInit {
   currentUser: User | null = null;
   isMobileMenuOpen = false;
   
-  // Iconos de Lucide
   readonly ChefHatIcon = ChefHat;
   readonly DashboardIcon = LayoutDashboard;
   readonly CalendarIcon = CalendarDays;
@@ -280,7 +279,6 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  // Cerrar menú móvil al cambiar el tamaño de la ventana a desktop
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     if (event.target.innerWidth > 768) {

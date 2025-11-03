@@ -444,7 +444,7 @@ export class ProfileComponent implements OnInit {
   diets: Diet[] = [];
   allergens: Allergen[] = [];
   userAllergenIds: number[] = [];
-  originalUserAllergenIds: number[] = []; // Para trackear cambios
+  originalUserAllergenIds: number[] = [];
   
   isSavingUser = false;
   isSavingPreferences = false;
@@ -462,7 +462,6 @@ export class ProfileComponent implements OnInit {
     fat: 0
   };
 
-  // Iconos
   readonly UploadIcon = Upload;
   readonly SaveIcon = Save;
   readonly AlertIcon = AlertTriangle;
@@ -488,14 +487,12 @@ export class ProfileComponent implements OnInit {
 
     this.preferencesForm = this.fb.group({
       useAutomaticCalculation: [false],
-      // Campos automáticos
       gender: [''],
       age: [null, [Validators.min(15), Validators.max(100)]],
       weight: [null, [Validators.min(30), Validators.max(300)]],
       height: [null, [Validators.min(100), Validators.max(250)]],
       activityLevel: [''],
       goal: [''],
-      // Campos manuales
       dailyCaloriesGoal: [null, [Validators.min(0), Validators.max(999999)]],
       dailyCarbsGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
       dailyProteinGoal: [null, [Validators.min(0), Validators.max(9999.99)]],
@@ -503,7 +500,6 @@ export class ProfileComponent implements OnInit {
       dietId: [null]
     });
 
-    // Suscribirse a cambios en el formulario de preferencias para vista previa
     this.preferencesForm.valueChanges.subscribe(() => {
       if (this.preferencesForm.get('useAutomaticCalculation')?.value) {
         this.updateAutomaticPreview();
@@ -568,7 +564,7 @@ export class ProfileComponent implements OnInit {
     this.userService.getUserAllergens(this.currentUser.id).subscribe({
       next: (allergens) => {
         this.userAllergenIds = allergens.map(a => a.id);
-        this.originalUserAllergenIds = [...this.userAllergenIds]; // Guardar copia original
+        this.originalUserAllergenIds = [...this.userAllergenIds];
       },
       error: (error) => {
         console.error('Error cargando alérgenos del usuario:', error);
@@ -601,7 +597,6 @@ export class ProfileComponent implements OnInit {
         }
       },
       error: () => {
-        // No hay preferencias guardadas
       }
     });
   }
@@ -635,7 +630,6 @@ export class ProfileComponent implements OnInit {
     activityLevel: string,
     goal: string
   ): { calories: number; protein: number; carbs: number; fat: number } {
-    // Fórmula Harris-Benedict revisada
     let bmr = 0;
     if (gender === 'male') {
       bmr = 10 * weight + 6.25 * height - 5 * age + 5;
@@ -643,7 +637,6 @@ export class ProfileComponent implements OnInit {
       bmr = 10 * weight + 6.25 * height - 5 * age - 161;
     }
 
-    // Factor de actividad
     const activityFactors: { [key: string]: number } = {
       sedentary: 1.2,
       light: 1.375,
@@ -654,16 +647,14 @@ export class ProfileComponent implements OnInit {
     const activityFactor = activityFactors[activityLevel] || 1.55;
     let tdee = bmr * activityFactor;
 
-    // Ajustar según objetivo
     if (goal === 'deficit') {
-      tdee *= 0.85; // -15%
+      tdee *= 0.85;
     } else if (goal === 'surplus') {
-      tdee *= 1.10; // +10%
+      tdee *= 1.10;
     }
 
-    // Calcular macros
-    const protein = weight * 2; // 2g por kg
-    const fat = (tdee * 0.25) / 9; // 25% de calorías
+    const protein = weight * 2;
+    const fat = (tdee * 0.25) / 9;
     const remainingCalories = tdee - (protein * 4) - (fat * 9);
     const carbs = remainingCalories / 4;
 
@@ -697,12 +688,10 @@ export class ProfileComponent implements OnInit {
         this.successMessage = 'Información personal actualizada correctamente';
         this.isSavingUser = false;
         
-        // Actualizar usuario en localStorage
         const user = { ...this.currentUser, ...updatedUser };
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUser = user;
         
-        // ✅ REFRESCAR LA PÁGINA Y VOLVER AL TOP
         window.scrollTo(0, 0);
         window.location.reload();
       },
@@ -727,7 +716,6 @@ export class ProfileComponent implements OnInit {
     const form = this.preferencesForm.value;
     const useAuto = form.useAutomaticCalculation;
 
-    // Validar campos según el modo
     if (useAuto) {
       if (!form.gender || !form.age || !form.weight || !form.height || !form.activityLevel || !form.goal) {
         this.errorMessage = 'Por favor completa todos los campos requeridos para el cálculo automático';
@@ -757,7 +745,6 @@ export class ProfileComponent implements OnInit {
         this.successMessage = 'Preferencias nutricionales actualizadas correctamente';
         this.isSavingPreferences = false;
         
-        // ✅ REFRESCAR LA PÁGINA Y VOLVER AL TOP
         window.scrollTo(0, 0);
         window.location.reload();
       },
@@ -787,7 +774,6 @@ export class ProfileComponent implements OnInit {
       return true;
     }
     
-    // Verificar si los arrays tienen los mismos elementos (sin importar el orden)
     const sortedCurrent = [...this.userAllergenIds].sort();
     const sortedOriginal = [...this.originalUserAllergenIds].sort();
     
@@ -797,7 +783,6 @@ export class ProfileComponent implements OnInit {
   saveAllergens(): void {
     if (!this.currentUser) return;
 
-    // Si no hay cambios, no hacer nada
     if (!this.hasAllergensChanged()) {
       this.successMessage = 'No hay cambios en las alergias para guardar';
       setTimeout(() => this.successMessage = '', 3000);
@@ -808,14 +793,12 @@ export class ProfileComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // Usar replaceUserAllergens en lugar de saveUserAllergens para evitar duplicados
     this.userService.replaceUserAllergens(this.currentUser.id, this.userAllergenIds).subscribe({
       next: () => {
         this.successMessage = 'Alergias actualizadas correctamente';
         this.isSavingAllergens = false;
-        this.originalUserAllergenIds = [...this.userAllergenIds]; // Actualizar original
+        this.originalUserAllergenIds = [...this.userAllergenIds];
         
-        // ✅ REFRESCAR LA PÁGINA Y VOLVER AL TOP
         window.scrollTo(0, 0);
         window.location.reload();
       },
@@ -824,7 +807,6 @@ export class ProfileComponent implements OnInit {
         console.error('Error:', error);
         this.isSavingAllergens = false;
         
-        // Si falla, revertir a los originales
         this.userAllergenIds = [...this.originalUserAllergenIds];
       }
     });
@@ -832,10 +814,8 @@ export class ProfileComponent implements OnInit {
 
   goBackToProfile(): void {
     if (this.currentUser) {
-      // Navegar al perfil del usuario: /user/{username}
       this.router.navigate(['/user', this.currentUser.username]);
     } else {
-      // Si no hay usuario, ir hacia atrás en el historial
       window.history.back();
     }
   }

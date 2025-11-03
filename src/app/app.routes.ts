@@ -23,10 +23,6 @@ export const routes: Routes = [
   title: 'Registrarse - MealMate'
 },
 
-// ============================================
-// RUTAS DE RECIPES - ORDEN CRÍTICO
-// ============================================
-// PRIMERO: Rutas específicas (sin parámetros)
 {
   path: 'recipes/my',
   loadComponent: () => import('./features/private/my-recipes/my-recipes.component')
@@ -59,7 +55,6 @@ export const routes: Routes = [
   title: 'Recetas de Amigos - MealMate'
 },
 
-// LUEGO: Rutas con parámetros dinámicos
 {
   path: 'recipes/edit/:id',
   loadComponent: () => import('./features/private/recipe-form/recipe-form.component')
@@ -68,7 +63,6 @@ export const routes: Routes = [
   title: 'Editar Receta - MealMate'
 },
 
-// FINALMENTE: La ruta más genérica (lista pública)
 {
   path: 'recipes',
   loadComponent: () => import('./features/public/recipes-list/recipes-list.component')
@@ -76,14 +70,12 @@ export const routes: Routes = [
   title: 'Recetas Públicas - MealMate'
 },
 
-// Y AL FINAL: Detalle de receta (con :id)
 {
   path: 'recipes/:id',
   loadComponent: () => import('./features/public/recipe-detail/recipe-detail.component')
     .then(m => m.RecipeDetailComponent),
   title: 'Detalle de Receta - MealMate'
 },
-// ============================================
 
 {
   path: 'user/:username',

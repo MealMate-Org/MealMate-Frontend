@@ -868,36 +868,6 @@ Abre un Pull Request en GitHub con una descripción detallada de los cambios.
 
 ---
 
-## 📝 Roadmap
-
-### ✅ Completado
-
-- [x] Autenticación JWT
-- [x] CRUD de recetas
-- [x] Planificador semanal
-- [x] Lista de compra
-- [x] Sistema de favoritos y ratings
-- [x] Perfiles de usuario
-- [x] Control nutricional
-- [x] Alertas de alergias
-
-### 🚧 En Desarrollo
-
-- [ ] Sistema de grupos familiares
-- [ ] Chat en tiempo real
-- [ ] Notificaciones push
-- [ ] Modo offline / PWA
-
-### 🔮 Futuro
-
-- [ ] Integración con supermercados
-- [ ] Reconocimiento de imágenes (IA)
-- [ ] Recomendaciones personalizadas
-- [ ] App móvil nativa
-- [ ] Widget para asistentes de voz
-
----
-
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.

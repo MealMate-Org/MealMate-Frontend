@@ -16,7 +16,8 @@
 </div>
 
 ---
- **Repositorio del Backend**: [mealmate-backend](https://github.com/miguelbac/mealmate-backend)
+
+ **Repositorio del Backend**: [Mealmate-Backend](https://github.com/miguelbac/mealmate-backend)
 
 ---
 

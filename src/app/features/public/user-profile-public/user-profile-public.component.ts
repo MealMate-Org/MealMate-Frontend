@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { UserService } from '../../../core/services/user.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -11,7 +12,7 @@ import { Recipe } from '../../../models/recipe.model';
 @Component({
   selector: 'app-user-profile-public',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent],
+  imports: [CommonModule, RouterLink,FooterComponent, NavbarComponent],
   template: `
     <app-navbar />
     
@@ -132,6 +133,8 @@ import { Recipe } from '../../../models/recipe.model';
         }
       </div>
     </div>
+    <app-footer />
+
   `,
   styles: [`
     .line-clamp-2 {

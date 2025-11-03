@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { PlannerService } from '../../../core/services/planner.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { FavoriteService, ShoppingListService } from '../../../core/services/user-actions.service';
@@ -45,7 +46,7 @@ interface DayPlan {
 interface PlannedMeal {
   recipe: Recipe;
   nutritionInfo?: NutritionInfo;
-  itemId?: number; // ID del meal plan item en la BD
+  itemId?: number;
 }
 
 interface MacroTotals {
@@ -58,7 +59,7 @@ interface MacroTotals {
 @Component({
   selector: 'app-planner',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
@@ -432,6 +433,8 @@ interface MacroTotals {
         }
       </div>
     </div>
+        <app-footer />
+
 
     <!-- Modal de selección de recetas -->
     @if (showRecipeSelector) {

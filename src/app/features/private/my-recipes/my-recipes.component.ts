@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Recipe, Allergen } from '../../../models/recipe.model';
@@ -24,7 +25,7 @@ import {
 @Component({
   selector: 'app-my-recipes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
@@ -288,6 +289,7 @@ import {
         }
       </div>
     </div>
+    <app-footer />
 
     @if (recipeToDelete) {
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

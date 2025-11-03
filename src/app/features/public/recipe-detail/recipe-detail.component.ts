@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -26,7 +27,7 @@ import {
 @Component({
   selector: 'app-recipe-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     
@@ -288,6 +289,8 @@ import {
         }
       </div>
     </div>
+    <app-footer />
+
 
     <!-- Modal de confirmación de eliminación -->
     @if (showDeleteModal) {
@@ -307,6 +310,7 @@ import {
           </div>
         </div>
       </div>
+
     }
   `,
   styles: []

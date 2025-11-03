@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Allergen } from '../../../models/recipe.model';
@@ -20,7 +21,7 @@ import {
 @Component({
   selector: 'app-recipe-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-12">
@@ -330,6 +331,8 @@ import {
         </form>
       </div>
     </div>
+    <app-footer />
+
   `,
   styles: []
 })

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { FavoriteService } from '../../../core/services/user-actions.service';
@@ -21,7 +22,7 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     
@@ -183,6 +184,8 @@ import {
         }
       </div>
     </div>
+    <app-footer />
+
   `,
   styles: []
 })

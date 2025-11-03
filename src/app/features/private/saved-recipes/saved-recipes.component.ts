@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { FavoriteService } from '../../../core/services/user-actions.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -22,7 +23,7 @@ import {
 @Component({
   selector: 'app-saved-recipes',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
@@ -262,6 +263,7 @@ import {
         }
       </div>
     </div>
+    <app-footer />
 
     @if (recipeToRemove) {
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

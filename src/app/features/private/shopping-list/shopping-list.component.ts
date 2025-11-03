@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { ShoppingListService } from '../../../core/services/user-actions.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ShoppingList, ShoppingItem, ShoppingListCreateDTO } from '../../../models/planner.model';
@@ -32,7 +33,7 @@ interface PDFOptions {
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
@@ -253,6 +254,7 @@ interface PDFOptions {
         }
       </div>
     </div>
+    <app-footer />
 
     <!-- Modal de vista detallada -->
     @if (selectedList) {

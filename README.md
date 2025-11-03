@@ -17,7 +17,7 @@
 
 ---
 
- **Repositorio del Backend**: [Mealmate-Backend](https://github.com/miguelbac/mealmate-backend)
+ **Repositorio del Backend**: [Mealmate-Backend](https://github.com/MealMate-Org/MealMate-Backend)
 
 ---
 

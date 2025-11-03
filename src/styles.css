@@ -163,3 +163,10 @@
 button, a, input, textarea, select {
   @apply transition-all duration-200;
 }
+@layer utilities {
+  @media (max-width: 475px) {
+    .xs\:inline {
+      display: inline !important;
+    }
+  }
+}

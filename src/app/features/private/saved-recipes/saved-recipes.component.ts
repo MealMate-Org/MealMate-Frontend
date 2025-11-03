@@ -28,7 +28,7 @@ import {
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
       <div class="max-w-6xl mx-auto px-6 sm:px-8">
-        <div class="mb-8">
+        <div class="mb-8 text-center">
           <h1 class="mb-2 text-4xl">Recetas Guardadas</h1>
           <p class="text-slate-gray text-lg">Tus recetas favoritas en un solo lugar</p>
         </div>
@@ -161,80 +161,84 @@ import {
           <div class="mb-5 text-slate-gray text-base">
             Mostrando {{ filteredRecipes.length }} de {{ savedRecipes.length }} recetas guardadas
           </div>
-          
+
           <div class="grid md:grid-cols-3 gap-6">
             @for (recipe of filteredRecipes; track recipe.id) {
-              <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-                <div class="relative h-48 overflow-hidden bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
-                  <img 
-                    [src]="recipe.imagePath || '/MMLogo.png'" 
-                    [alt]="recipe.title"
-                    [class]="recipe.imagePath ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'"
-                  />
+              <a
+                [routerLink]="['/recipes', recipe.id]"
+                class="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group border border-gray-100"
+              >
+                <!-- Imagen -->
+                <div class="relative overflow-hidden h-48">
+                  @if (recipe.imagePath) {
+                    <img
+                      [src]="recipe.imagePath"
+                      [alt]="recipe.title"
+                      class="w-full h-full object-cover"
+                    />
+                  } @else {
+                    <div class="w-full h-full bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+                      <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-white opacity-50"></lucide-icon>
+                    </div>
+                  }
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                  
+                  <!-- Botón de quitar favoritos -->
+                  <div class="absolute top-3 right-3">
+                    <button 
+                      (click)="removeFromFavorites(recipe); $event.preventDefault(); $event.stopPropagation()"
+                      class="bg-white/90 hover:bg-white text-error p-2 rounded-lg shadow-lg transition-all duration-200 hover:scale-105"
+                      title="Quitar de favoritos"
+                    >
+                      <lucide-icon [img]="HeartIcon" class="w-4 h-4 fill-current"></lucide-icon>
+                    </button>
+                  </div>
                 </div>
 
                 <div class="p-5">
-                  <div class="flex justify-between items-start mb-2">
-                    <h3 class="flex-1 text-lg">{{ recipe.title }}</h3>
-                    <button 
-                      (click)="removeFromFavorites(recipe)"
-                      class="text-error hover:text-red-700 transition-colors p-1 hover:bg-red-50 rounded-lg"
-                      title="Quitar de favoritos"
-                    >
-                      <lucide-icon [img]="HeartIcon" class="w-5 h-5 fill-current"></lucide-icon>
-                    </button>
-                  </div>
-
+                  <h3 class="mb-2 text-lg group-hover:text-cambridge-blue transition-colors">
+                    {{ recipe.title }}
+                  </h3>
                   <p class="text-slate-gray mb-3 line-clamp-2 text-sm">
-                    {{ recipe.description || 'Sin descripción' }}
+                    {{ recipe.description || 'Sin descripción disponible' }}
                   </p>
 
                   <div class="flex justify-between items-center mb-3">
+                    <span class="text-slate-gray text-xs">
+                      Por {{ getAuthorName(recipe.authorId) }}
+                    </span>
                     <div class="flex items-center gap-1">
                       <lucide-icon [img]="StarIcon" class="w-4 h-4 text-yellow-500 fill-current"></lucide-icon>
                       <span class="font-semibold text-base">{{ recipe.avgRating.toFixed(1) }}</span>
                       <span class="text-slate-gray text-xs">({{ recipe.ratingCount }})</span>
                     </div>
-                    @if (recipe.mealTypeId) {
+                  </div>
+
+                  @if (recipe.mealTypeId) {
+                    <div class="mb-3">
                       <span class="bg-cambridge-blue text-white px-2 py-1 rounded-full text-xs font-medium">
                         {{ getMealTypeName(recipe.mealTypeId) }}
                       </span>
-                    }
-                  </div>
+                    </div>
+                  }
 
                   @if (recipe.allergens && recipe.allergens.length > 0) {
-                    <div class="mb-3 flex gap-1 flex-wrap">
-                      @for (allergen of recipe.allergens.slice(0, 2); track allergen.id) {
-                        <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded text-xs font-medium">
+                    <div class="flex gap-1 flex-wrap pt-3 border-t border-gray-100">
+                      @for (allergen of recipe.allergens.slice(0, 3); track allergen.id) {
+                        <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded-full text-xs font-medium">
                           <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
                           {{ allergen.name }}
                         </span>
                       }
-                      @if (recipe.allergens.length > 2) {
+                      @if (recipe.allergens.length > 3) {
                         <span class="text-slate-gray text-xs px-2 py-1">
-                          +{{ recipe.allergens.length - 2 }} más
+                          +{{ recipe.allergens.length - 3 }} más
                         </span>
                       }
                     </div>
                   }
-
-                  <div class="flex gap-2 pt-3 border-t border-gray-100">
-                    <a 
-                      [routerLink]="['/recipes', recipe.id]" 
-                      class="flex-1 btn-primary text-center text-sm"
-                    >
-                      Ver Receta
-                    </a>
-                    <button 
-                      (click)="addToPlanner(recipe)"
-                      class="btn-secondary px-3 inline-flex items-center justify-center"
-                      title="Añadir al planner"
-                    >
-                      <lucide-icon [img]="CalendarIcon" class="w-4 h-4"></lucide-icon>
-                    </button>
-                  </div>
                 </div>
-              </div>
+              </a>
             }
           </div>
         }
@@ -485,6 +489,12 @@ export class SavedRecipesComponent implements OnInit {
       4: 'Aperitivo'
     };
     return types[id] || 'Otro';
+  }
+
+  getAuthorName(authorId: number): string {
+    // Esta función necesitarías implementarla según tu lógica de usuarios
+    // Por ahora devolvemos un texto genérico
+    return `Usuario ${authorId}`;
   }
 
   addToPlanner(recipe: Recipe): void {

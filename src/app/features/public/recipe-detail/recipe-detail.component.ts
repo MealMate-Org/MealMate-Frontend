@@ -139,13 +139,7 @@ import {
                       <lucide-icon [img]="HeartIcon" [class.fill-current]="isFavorite" class="w-4 h-4"></lucide-icon>
                       {{ isFavorite ? 'Guardada' : 'Guardar' }}
                     </button>
-                    <button 
-                      (click)="addToPlanner()"
-                      class="btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm"
-                    >
-                      <lucide-icon [img]="CalendarIcon" class="w-4 h-4"></lucide-icon>
-                      Añadir al planner
-                    </button>
+
                   }
                 </div>
               </div>
@@ -480,10 +474,7 @@ loadUserRating(recipeId: number): void {
     });
   }
 
-  addToPlanner(): void {
-    // TODO: Implementar añadir al planner
-    alert('Función de añadir al planner en desarrollo');
-  }
+
 
   deleteRecipe(): void {
     this.showDeleteModal = true;

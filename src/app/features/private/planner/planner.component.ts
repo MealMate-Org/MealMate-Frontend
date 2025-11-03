@@ -31,6 +31,7 @@ import {
   ShoppingCart,
   Info,
   Loader2,
+  ChefHat
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
 
@@ -62,62 +63,64 @@ interface MacroTotals {
   imports: [CommonModule, FormsModule, RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
-    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="min-h-screen bg-gradient-to-b from-background to-celadon py-6 sm:py-8">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6">
         <!-- Header -->
-        <div class="mb-8">
+        <div class="mb-6 sm:mb-8">
           <div
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4"
           >
             <div>
-              <h1 class="text-4xl font-bold text-dark-purple mb-2">Planificador Semanal</h1>
-              <p class="text-slate-gray text-lg">Organiza tu menú y controla tus macros</p>
+              <h1 class="text-3xl sm:text-4xl font-bold text-dark-purple mb-2">Planificador Semanal</h1>
+              <p class="text-slate-gray text-base sm:text-lg">Organiza tu menú y controla tus macros</p>
             </div>
             <button
               (click)="generateShoppingList()"
-              class="btn-primary inline-flex items-center gap-2"
+              class="btn-primary inline-flex items-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-6 sm:py-3"
               [disabled]="!hasAnyMeals() || isGeneratingShoppingList"
             >
               @if (isGeneratingShoppingList) {
-              <lucide-icon [img]="Loader2Icon" class="w-5 h-5 animate-spin"></lucide-icon>
+              <lucide-icon [img]="Loader2Icon" class="w-4 h-4 sm:w-5 sm:h-5 animate-spin"></lucide-icon>
               Generando... } @else {
-              <lucide-icon [img]="ShoppingCartIcon" class="w-5 h-5"></lucide-icon>
-              Generar Lista de Compra }
+              <lucide-icon [img]="ShoppingCartIcon" class="w-4 h-4 sm:w-5 sm:h-5"></lucide-icon>
+              <span class="hidden sm:inline">Generar Lista de Compra</span>
+              <span class="sm:hidden">Lista Compra</span>
+              }
             </button>
           </div>
 
           <!-- Selector de semana -->
-          <div class="bg-white rounded-2xl shadow-lg p-6">
-            <div class="flex items-center justify-between gap-4">
+          <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+            <div class="flex items-center justify-between gap-2 sm:gap-4">
               <button
                 (click)="previousWeek()"
-                class="btn-secondary px-4 py-2 inline-flex items-center gap-2"
+                class="btn-secondary px-3 py-2 sm:px-4 sm:py-2 inline-flex items-center gap-1 sm:gap-2 text-sm"
                 [disabled]="isLoading"
               >
-                <lucide-icon [img]="ChevronLeftIcon" class="w-5 h-5"></lucide-icon>
-                Anterior
+                <lucide-icon [img]="ChevronLeftIcon" class="w-4 h-4 sm:w-5 sm:h-5"></lucide-icon>
+                <span class="hidden xs:inline">Anterior</span>
               </button>
 
-              <div class="text-center flex-1">
-                <div class="flex items-center justify-center gap-3 mb-2">
+              <div class="text-center flex-1 min-w-0">
+                <div class="flex items-center justify-center gap-2 sm:gap-3 mb-2">
                   <lucide-icon
                     [img]="CalendarIcon"
-                    class="w-6 h-6 text-cambridge-blue"
+                    class="w-5 h-5 sm:w-6 sm:h-6 text-cambridge-blue"
                   ></lucide-icon>
-                  <h3 class="text-xl font-bold text-dark-purple">
+                  <h3 class="text-lg sm:text-xl font-bold text-dark-purple truncate">
                     {{ getWeekRange() }}
                   </h3>
                 </div>
                 @if (isCurrentWeek()) {
                 <span
-                  class="inline-block bg-cambridge-blue text-white px-3 py-1 rounded-full text-sm font-medium"
+                  class="inline-block bg-cambridge-blue text-white px-2 py-1 rounded-full text-xs font-medium"
                 >
                   Semana actual
                 </span>
                 } @else {
                 <button
                   (click)="goToCurrentWeek()"
-                  class="text-cambridge-blue hover:text-zomp font-medium text-sm transition-colors"
+                  class="text-cambridge-blue hover:text-zomp font-medium text-xs sm:text-sm transition-colors"
                 >
                   Ir a semana actual
                 </button>
@@ -126,11 +129,11 @@ interface MacroTotals {
 
               <button
                 (click)="nextWeek()"
-                class="btn-secondary px-4 py-2 inline-flex items-center gap-2"
+                class="btn-secondary px-3 py-2 sm:px-4 sm:py-2 inline-flex items-center gap-1 sm:gap-2 text-sm"
                 [disabled]="isLoading"
               >
-                Siguiente
-                <lucide-icon [img]="ChevronRightIcon" class="w-5 h-5"></lucide-icon>
+                <span class="hidden xs:inline">Siguiente</span>
+                <lucide-icon [img]="ChevronRightIcon" class="w-4 h-4 sm:w-5 sm:h-5"></lucide-icon>
               </button>
             </div>
           </div>
@@ -145,16 +148,16 @@ interface MacroTotals {
         </div>
         } @if (!isLoading) {
         <!-- Grid de días -->
-        <div class="grid grid-cols-1 lg:grid-cols-7 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4 mb-6 sm:mb-8">
           @for (day of weekPlan; track day.date.toISOString()) {
           <div
-            class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition-all duration-200"
+            class="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 transition-all duration-200"
             [class.border-cambridge-blue]="isToday(day.date)"
             [class.border-gray-100]="!isToday(day.date)"
           >
             <!-- Header del día -->
             <div
-              class="p-4 text-center"
+              class="p-3 sm:p-4 text-center"
               [class.bg-cambridge-blue]="isToday(day.date)"
               [class.bg-gradient-to-r]="isToday(day.date)"
               [class.from-cambridge-blue]="isToday(day.date)"
@@ -162,14 +165,14 @@ interface MacroTotals {
               [class.bg-celadon]="!isToday(day.date)"
             >
               <h4
-                class="font-bold mb-1"
+                class="font-bold mb-1 text-sm sm:text-base"
                 [class.text-white]="isToday(day.date)"
                 [class.text-dark-purple]="!isToday(day.date)"
               >
                 {{ day.dayName }}
               </h4>
               <p
-                class="text-sm"
+                class="text-xs sm:text-sm"
                 [class.text-white]="isToday(day.date)"
                 [class.opacity-90]="isToday(day.date)"
                 [class.text-slate-gray]="!isToday(day.date)"
@@ -178,7 +181,7 @@ interface MacroTotals {
               </p>
               @if (isToday(day.date)) {
               <span
-                class="inline-block mt-2 bg-white text-cambridge-blue px-2 py-0.5 rounded-full text-xs font-bold"
+                class="inline-block mt-1 sm:mt-2 bg-white text-cambridge-blue px-1.5 py-0.5 rounded-full text-xs font-bold"
               >
                 HOY
               </span>
@@ -186,17 +189,20 @@ interface MacroTotals {
             </div>
 
             <!-- Comidas -->
-            <div class="p-3 space-y-3">
+            <div class="p-2 sm:p-3 space-y-2 sm:space-y-3">
               <!-- Desayuno -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-semibold text-slate-gray">🌅 Desayuno</span>
+                <div class="flex items-center justify-between mb-1 sm:mb-2">
+                  <span class="text-xs font-semibold text-slate-gray">
+                    <span class="hidden sm:inline">🌅 Desayuno</span>
+                    <span class="sm:hidden">🌅 D</span>
+                  </span>
                   @if (!day.breakfast) {
                   <button
                     (click)="openRecipeSelector(day.date, 'breakfast')"
                     class="text-cambridge-blue hover:text-zomp transition-colors"
                   >
-                    <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
+                    <lucide-icon [img]="PlusIcon" class="w-3 h-3 sm:w-4 sm:h-4"></lucide-icon>
                   </button>
                   }
                 </div>
@@ -220,7 +226,7 @@ interface MacroTotals {
                 </div>
                 } @else {
                 <div
-                  class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-2 sm:p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
                   (click)="openRecipeSelector(day.date, 'breakfast')"
                 >
                   Añadir receta
@@ -230,14 +236,17 @@ interface MacroTotals {
 
               <!-- Comida -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-semibold text-slate-gray">☀️ Comida</span>
+                <div class="flex items-center justify-between mb-1 sm:mb-2">
+                  <span class="text-xs font-semibold text-slate-gray">
+                    <span class="hidden sm:inline">☀️ Comida</span>
+                    <span class="sm:hidden">☀️ C</span>
+                  </span>
                   @if (!day.lunch) {
                   <button
                     (click)="openRecipeSelector(day.date, 'lunch')"
                     class="text-cambridge-blue hover:text-zomp transition-colors"
                   >
-                    <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
+                    <lucide-icon [img]="PlusIcon" class="w-3 h-3 sm:w-4 sm:h-4"></lucide-icon>
                   </button>
                   }
                 </div>
@@ -261,7 +270,7 @@ interface MacroTotals {
                 </div>
                 } @else {
                 <div
-                  class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-2 sm:p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
                   (click)="openRecipeSelector(day.date, 'lunch')"
                 >
                   Añadir receta
@@ -271,14 +280,17 @@ interface MacroTotals {
 
               <!-- Cena -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-semibold text-slate-gray">🌙 Cena</span>
+                <div class="flex items-center justify-between mb-1 sm:mb-2">
+                  <span class="text-xs font-semibold text-slate-gray">
+                    <span class="hidden sm:inline">🌙 Cena</span>
+                    <span class="sm:hidden">🌙 C</span>
+                  </span>
                   @if (!day.dinner) {
                   <button
                     (click)="openRecipeSelector(day.date, 'dinner')"
                     class="text-cambridge-blue hover:text-zomp transition-colors"
                   >
-                    <lucide-icon [img]="PlusIcon" class="w-4 h-4"></lucide-icon>
+                    <lucide-icon [img]="PlusIcon" class="w-3 h-3 sm:w-4 sm:h-4"></lucide-icon>
                   </button>
                   }
                 </div>
@@ -302,7 +314,7 @@ interface MacroTotals {
                 </div>
                 } @else {
                 <div
-                  class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-2 sm:p-3 text-center text-xs text-slate-gray cursor-pointer hover:border-cambridge-blue hover:bg-celadon transition-all"
                   (click)="openRecipeSelector(day.date, 'dinner')"
                 >
                   Añadir receta
@@ -311,7 +323,7 @@ interface MacroTotals {
               </div>
 
               <!-- Totales del día -->
-              <div class="pt-3 border-t border-gray-200">
+              <div class="pt-2 sm:pt-3 border-t border-gray-200">
                 <div class="text-xs space-y-1">
                   <div class="flex justify-between">
                     <span class="text-slate-gray">Total:</span>
@@ -331,7 +343,7 @@ interface MacroTotals {
                       [style.width.%]="Math.min(getDayProgress(day), 100)"
                     ></div>
                   </div>
-                  <p class="text-slate-gray text-center">
+                  <p class="text-slate-gray text-center text-xs">
                     {{ getDayProgress(day).toFixed(0) }}% del objetivo
                   </p>
                   }
@@ -343,64 +355,64 @@ interface MacroTotals {
         </div>
 
         <!-- Resumen semanal -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
-          <div class="flex items-center gap-3 mb-6">
-            <lucide-icon [img]="TrendingUpIcon" class="w-8 h-8 text-cambridge-blue"></lucide-icon>
-            <h3 class="text-2xl font-bold text-dark-purple">Resumen Nutricional de la Semana</h3>
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6">
+          <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <lucide-icon [img]="TrendingUpIcon" class="w-6 h-6 sm:w-8 sm:h-8 text-cambridge-blue"></lucide-icon>
+            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-dark-purple">Resumen Nutricional de la Semana</h3>
           </div>
 
-          <div class="grid md:grid-cols-4 gap-6 mb-6">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6">
             <div
-              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+              class="text-center p-3 sm:p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-xl sm:rounded-2xl"
             >
-              <div class="text-3xl font-bold text-dark-purple mb-1">
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-dark-purple mb-1">
                 {{ weeklyTotals.calories }}
               </div>
-              <div class="text-sm text-slate-gray">Calorías totales</div>
+              <div class="text-xs sm:text-sm text-slate-gray">Calorías totales</div>
               @if (userPreferences) {
-              <div class="text-xs text-dark-purple mt-2 font-medium">
+              <div class="text-xs text-dark-purple mt-1 sm:mt-2 font-medium">
                 / {{ (getTargetCalories() * 7).toFixed(0) }} objetivo
               </div>
               }
             </div>
 
             <div
-              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+              class="text-center p-3 sm:p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-xl sm:rounded-2xl"
             >
-              <div class="text-3xl font-bold text-dark-purple mb-1">
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-dark-purple mb-1">
                 {{ weeklyTotals.protein.toFixed(1) }}g
               </div>
-              <div class="text-sm text-slate-gray">Proteína total</div>
+              <div class="text-xs sm:text-sm text-slate-gray">Proteína total</div>
               @if (userPreferences) {
-              <div class="text-xs text-dark-purple mt-2 font-medium">
+              <div class="text-xs text-dark-purple mt-1 sm:mt-2 font-medium">
                 / {{ (getTargetProtein() * 7).toFixed(0) }}g objetivo
               </div>
               }
             </div>
 
             <div
-              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+              class="text-center p-3 sm:p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-xl sm:rounded-2xl"
             >
-              <div class="text-3xl font-bold text-dark-purple mb-1">
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-dark-purple mb-1">
                 {{ weeklyTotals.carbs.toFixed(1) }}g
               </div>
-              <div class="text-sm text-slate-gray">Carbohidratos</div>
+              <div class="text-xs sm:text-sm text-slate-gray">Carbohidratos</div>
               @if (userPreferences) {
-              <div class="text-xs text-dark-purple mt-2 font-medium">
+              <div class="text-xs text-dark-purple mt-1 sm:mt-2 font-medium">
                 / {{ (getTargetCarbs() * 7).toFixed(0) }}g objetivo
               </div>
               }
             </div>
 
             <div
-              class="text-center p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-2xl"
+              class="text-center p-3 sm:p-4 bg-gradient-to-br from-celadon to-cambridge-blue bg-opacity-10 rounded-xl sm:rounded-2xl"
             >
-              <div class="text-3xl font-bold text-dark-purple mb-1">
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-dark-purple mb-1">
                 {{ weeklyTotals.fat.toFixed(1) }}g
               </div>
-              <div class="text-sm text-slate-gray">Grasas</div>
+              <div class="text-xs sm:text-sm text-slate-gray">Grasas</div>
               @if (userPreferences) {
-              <div class="text-xs text-dark-purple mt-2 font-medium">
+              <div class="text-xs text-dark-purple mt-1 sm:mt-2 font-medium">
                 / {{ (getTargetFat() * 7).toFixed(0) }}g objetivo
               </div>
               }
@@ -408,20 +420,20 @@ interface MacroTotals {
           </div>
 
           @if (!userPreferences) {
-          <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-            <div class="flex items-start gap-3">
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4">
+            <div class="flex items-start gap-2 sm:gap-3">
               <lucide-icon
                 [img]="InfoIcon"
-                class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0 mt-0.5"
               ></lucide-icon>
               <div>
-                <p class="text-sm text-blue-800 mb-2">
+                <p class="text-xs sm:text-sm text-blue-800 mb-2">
                   <strong>¿Quieres ver tu progreso?</strong> Configura tus objetivos nutricionales
                   en tu perfil.
                 </p>
                 <a
                   routerLink="/profile"
-                  class="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                  class="text-blue-600 hover:text-blue-800 font-medium text-xs sm:text-sm underline"
                 >
                   Ir a Perfil →
                 </a>
@@ -433,113 +445,111 @@ interface MacroTotals {
         }
       </div>
     </div>
-        <app-footer />
+    <app-footer />
 
 
-    <!-- Modal de selección de recetas -->
-    @if (showRecipeSelector) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div class="sticky top-0 bg-white border-b border-gray-200 p-6 z-10">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-2xl font-bold text-dark-purple">Seleccionar Receta</h3>
-            <button
-              (click)="closeRecipeSelector()"
-              class="text-slate-gray hover:text-error transition-colors"
-            >
-              <lucide-icon [img]="XIcon" class="w-6 h-6"></lucide-icon>
-            </button>
-          </div>
+<!-- Modal de selección de recetas -->
+@if (showRecipeSelector) {
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+  <div class="bg-white rounded-xl sm:rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div class="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 z-10">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl sm:text-2xl font-bold text-dark-purple">Seleccionar Receta</h3>
+        <button
+          (click)="closeRecipeSelector()"
+          class="text-slate-gray hover:text-error transition-colors"
+        >
+          <lucide-icon [img]="XIcon" class="w-5 h-5 sm:w-6 sm:h-6"></lucide-icon>
+        </button>
+      </div>
 
-          <!-- Filtros -->
-          <div class="flex gap-2">
-            <button
-              (click)="recipesFilter = 'my'"
-              [class]="
-                recipesFilter === 'my'
-                  ? 'bg-cambridge-blue text-white'
-                  : 'bg-gray-100 text-slate-gray'
-              "
-              class="px-4 py-2 rounded-lg font-medium transition-all text-sm"
-            >
-              Mis Recetas ({{ myRecipes.length }})
-            </button>
-            <button
-              (click)="recipesFilter = 'saved'"
-              [class]="
-                recipesFilter === 'saved'
-                  ? 'bg-cambridge-blue text-white'
-                  : 'bg-gray-100 text-slate-gray'
-              "
-              class="px-4 py-2 rounded-lg font-medium transition-all text-sm"
-            >
-              Guardadas ({{ savedRecipes.length }})
-            </button>
-          </div>
-        </div>
-
-        <div class="p-6">
-          @if (getFilteredRecipes().length > 0) {
-          <div class="grid md:grid-cols-2 gap-4">
-            @for (recipe of getFilteredRecipes(); track recipe.id) {
-            <div
-              (click)="selectRecipe(recipe)"
-              class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-cambridge-blue hover:shadow-lg transition-all"
-            >
-              <div class="flex gap-3">
-                @if (recipe.imagePath) {
-                <img
-                  [src]="recipe.imagePath"
-                  [alt]="recipe.title"
-                  class="w-20 h-20 rounded-lg object-cover"
-                />
-                } @else {
-                <div
-                  class="w-20 h-20 rounded-lg bg-celadon flex items-center justify-center text-2xl"
-                >
-                  🍽️
-                </div>
-                }
-
-                <div class="flex-1">
-                  <h4 class="font-bold text-dark-purple mb-1">{{ recipe.title }}</h4>
-                  <p class="text-sm text-slate-gray line-clamp-2 mb-2">
-                    {{ recipe.description || 'Sin descripción' }}
-                  </p>
-                  <div class="flex items-center gap-3 text-xs text-slate-gray">
-                    @if (getRecipeNutrition(recipe.id)) {
-                    <span>{{ getRecipeNutrition(recipe.id)?.calories }} kcal</span>
-                    }
-                    <span class="flex items-center gap-1">
-                      ⭐ {{ recipe.avgRating.toFixed(1) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            }
-          </div>
-          } @else {
-          <div class="text-center py-12">
-            <p class="text-slate-gray text-lg mb-4">
-              @if (recipesFilter === 'my') { No tienes recetas creadas todavía } @else { No tienes
-              recetas guardadas todavía }
-            </p>
-            <a
-              [routerLink]="recipesFilter === 'my' ? '/recipes/new' : '/recipes'"
-              class="btn-primary inline-flex items-center gap-2"
-              (click)="closeRecipeSelector()"
-            >
-              @if (recipesFilter === 'my') {
-              <lucide-icon [img]="PlusIcon" class="w-5 h-5"></lucide-icon>
-              Crear Receta } @else { Explorar Recetas }
-            </a>
-          </div>
-          }
-        </div>
+      <!-- Filtros -->
+      <div class="flex gap-2">
+        <button
+          (click)="recipesFilter = 'my'"
+          [class]="
+            recipesFilter === 'my'
+              ? 'bg-cambridge-blue text-white'
+              : 'bg-gray-100 text-slate-gray'
+          "
+          class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm"
+        >
+          Mis Recetas ({{ myRecipes.length }})
+        </button>
+        <button
+          (click)="recipesFilter = 'saved'"
+          [class]="
+            recipesFilter === 'saved'
+              ? 'bg-cambridge-blue text-white'
+              : 'bg-gray-100 text-slate-gray'
+          "
+          class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm"
+        >
+          Guardadas ({{ savedRecipes.length }})
+        </button>
       </div>
     </div>
-    }
+
+    <div class="p-4 sm:p-6">
+      @if (getFilteredRecipes().length > 0) {
+      <div class="grid md:grid-cols-2 gap-3 sm:gap-4">
+        @for (recipe of getFilteredRecipes(); track recipe.id) {
+        <div
+          (click)="selectRecipe(recipe)"
+          class="border-2 border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer hover:border-cambridge-blue hover:shadow-lg transition-all"
+        >
+          <div class="flex gap-2 sm:gap-3">
+            @if (recipe.imagePath) {
+            <img
+              [src]="recipe.imagePath"
+              [alt]="recipe.title"
+              class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover"
+            />
+            } @else {
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+              <lucide-icon [img]="ChefHatIcon" class="w-8 h-8 sm:w-10 sm:h-10 text-white opacity-50"></lucide-icon>
+            </div>
+            }
+
+            <div class="flex-1">
+              <h4 class="font-bold text-dark-purple mb-1 text-sm sm:text-base">{{ recipe.title }}</h4>
+              <p class="text-xs sm:text-sm text-slate-gray line-clamp-2 mb-2">
+                {{ recipe.description || 'Sin descripción' }}
+              </p>
+              <div class="flex items-center gap-2 sm:gap-3 text-xs text-slate-gray">
+                @if (getRecipeNutrition(recipe.id)) {
+                <span>{{ getRecipeNutrition(recipe.id)?.calories }} kcal</span>
+                }
+                <span class="flex items-center gap-1">
+                  ⭐ {{ recipe.avgRating.toFixed(1) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="text-center py-8 sm:py-12">
+        <p class="text-slate-gray text-base sm:text-lg mb-4">
+          @if (recipesFilter === 'my') { No tienes recetas creadas todavía } @else { No tienes
+          recetas guardadas todavía }
+        </p>
+        <a
+          [routerLink]="recipesFilter === 'my' ? '/recipes/new' : '/recipes'"
+          class="btn-primary inline-flex items-center gap-2 text-sm sm:text-base"
+          (click)="closeRecipeSelector()"
+        >
+          @if (recipesFilter === 'my') {
+          <lucide-icon [img]="PlusIcon" class="w-4 h-4 sm:w-5 sm:h-5"></lucide-icon>
+          Crear Receta } @else { Explorar Recetas }
+        </a>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}
   `,
   styles: [
     `
@@ -548,6 +558,13 @@ interface MacroTotals {
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+      }
+      
+      /* Estilos para breakpoints personalizados */
+      @media (max-width: 475px) {
+        .xs\\:inline {
+          display: inline !important;
+        }
       }
     `,
   ],
@@ -587,6 +604,7 @@ export class PlannerComponent implements OnInit {
   readonly ShoppingCartIcon = ShoppingCart;
   readonly InfoIcon = Info;
   readonly Loader2Icon = Loader2;
+  readonly ChefHatIcon = ChefHat; // ← Agrega esto
 
   constructor(
     private plannerService: PlannerService,
@@ -606,6 +624,19 @@ export class PlannerComponent implements OnInit {
       this.loadRecipes();
       this.loadMealTypes();
     }
+  }
+
+  getShortDayName(fullDayName: string): string {
+    const dayMap: { [key: string]: string } = {
+      'Lunes': 'Lun',
+      'Martes': 'Mar', 
+      'Miércoles': 'Mié',
+      'Jueves': 'Jue',
+      'Viernes': 'Vie',
+      'Sábado': 'Sáb',
+      'Domingo': 'Dom'
+    };
+    return dayMap[fullDayName] || fullDayName;
   }
 
   loadMealTypes(): void {
@@ -1327,13 +1358,14 @@ export class PlannerComponent implements OnInit {
       },
     });
   }
-private capitalizeFirstLetter(string: string): string {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
+  
+  private capitalizeFirstLetter(string: string): string {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
-private getWeekNumber(date: Date): number {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
+  private getWeekNumber(date: Date): number {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  }
 }

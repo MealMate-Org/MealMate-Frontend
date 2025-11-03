@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
-
+import { AuthService } from '../../../core/services/auth.service';
 import { 
   LucideAngularModule,
   CalendarDays,
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, NavbarComponent,FooterComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, NavbarComponent, FooterComponent, LucideAngularModule],
   template: `
     <app-navbar />
     
@@ -37,19 +38,40 @@ import {
           Organiza tu menú semanal, gestiona tu lista de compra y comparte recetas con tu familia de forma inteligente
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-3">
+          <!-- Botón "Comenzar Gratis" - Solo visible si NO está logueado -->
           <a 
+            *ngIf="!isLoggedIn"
             routerLink="/register" 
             class="inline-flex items-center justify-center space-x-2 bg-cambridge-blue hover:bg-zomp text-white px-8 py-3 text-base font-semibold rounded-xl transition-all shadow-xl hover:shadow-cambridge-blue/50 hover:scale-105"
           >
             <span>Comenzar Gratis</span>
             <lucide-icon [img]="ArrowRightIcon" class="w-4 h-4"></lucide-icon>
           </a>
+          
+          <!-- Botón "Ir al Dashboard" - Solo visible si ESTÁ logueado -->
+          <a 
+            *ngIf="isLoggedIn"
+            routerLink="/planner" 
+            class="inline-flex items-center justify-center space-x-2 bg-cambridge-blue hover:bg-zomp text-white px-8 py-3 text-base font-semibold rounded-xl transition-all shadow-xl hover:shadow-cambridge-blue/50 hover:scale-105"
+          >
+            <span>Ir al Dashboard</span>
+            <lucide-icon [img]="ArrowRightIcon" class="w-4 h-4"></lucide-icon>
+          </a>
+          
           <a 
             routerLink="/recipes" 
             class="inline-flex items-center justify-center space-x-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white border-2 border-white border-opacity-30 px-8 py-3 text-base font-semibold rounded-xl transition-all backdrop-blur-sm"
           >
             <span>Explorar Recetas</span>
           </a>
+        </div>
+        
+        <!-- Mensaje de bienvenida para usuarios logueados -->
+        <div *ngIf="isLoggedIn && currentUser" class="mt-6">
+          <p class="text-celadon text-lg">
+            ¡Hola de nuevo, <span class="font-semibold">{{ currentUser.username }}</span>! 
+            ¿Listo para planificar tu semana?
+          </p>
         </div>
       </div>
     </section>
@@ -149,7 +171,10 @@ import {
   `,
   styles: []
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit {
+  isLoggedIn = false;
+  currentUser: any = null;
+
   // Iconos de Lucide
   readonly CalendarIcon = CalendarDays;
   readonly ShoppingCartIcon = ShoppingCart;
@@ -158,4 +183,22 @@ export class LandingComponent {
   readonly AlertIcon = AlertTriangle;
   readonly StarIcon = Star;
   readonly ArrowRightIcon = ArrowRight;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    // Verificar el estado de autenticación al inicializar el componente
+    this.checkAuthStatus();
+    
+    // Suscribirse a cambios en el estado de autenticación
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.isLoggedIn = !!user;
+    });
+  }
+
+  checkAuthStatus(): void {
+    this.isLoggedIn = this.authService.isAuthenticated();
+    this.currentUser = this.authService.getCurrentUser();
+  }
 }

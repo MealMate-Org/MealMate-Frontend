@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -11,7 +11,6 @@ import {
   LucideAngularModule,
   Plus,
   Search,
-  Eye,
   Edit,
   Trash2,
   Star,
@@ -191,76 +190,102 @@ import {
         
         <div class="grid md:grid-cols-3 gap-6">
           @for (recipe of filteredRecipes; track recipe.id) {
-          <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-            <div class="relative h-48 overflow-hidden bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
-              <img 
-                [src]="recipe.imagePath || '/MMLogo.png'" 
-                [alt]="recipe.title"
-                [class]="recipe.imagePath ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'"
-              />
+          <!-- Card como enlace completo para ver detalle -->
+          <div class="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group border border-gray-100 relative">
+            
+            <!-- Enlace que cubre toda la card excepto los botones -->
+            <a
+              [routerLink]="['/recipes', recipe.id]"
+              class="absolute inset-0 z-10"
+            ></a>
+            
+            <!-- Imagen -->
+            <div class="relative overflow-hidden h-48">
+              @if (recipe.imagePath) {
+                <img
+                  [src]="recipe.imagePath"
+                  [alt]="recipe.title"
+                  class="w-full h-full object-cover"
+                />
+              } @else {
+                <div class="w-full h-full bg-gradient-to-br from-celadon to-cambridge-blue flex items-center justify-center">
+                  <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-white opacity-50"></lucide-icon>
+                </div>
+              }
+              <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+              
+              <!-- Badge de visibilidad -->
+              <div class="absolute top-3 left-3 z-20">
+                <span 
+                  [class]="recipe.isPublic ? 'bg-cambridge-blue text-white' : 'bg-slate-gray text-white'"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                >
+                  <lucide-icon [img]="recipe.isPublic ? GlobeIcon : LockIcon" class="w-3 h-3"></lucide-icon>
+                  {{ recipe.isPublic ? 'Pública' : 'Privada' }}
+                </span>
+              </div>
+
+              <!-- Botones de acción en la imagen -->
+              <div class="absolute top-3 right-3 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button
+                  (click)="editRecipe(recipe.id); $event.stopPropagation()"
+                  class="bg-white/90 hover:bg-white text-dark-purple p-2 rounded-lg shadow-lg transition-all duration-200 hover:scale-105"
+                  title="Editar receta"
+                >
+                  <lucide-icon [img]="EditIcon" class="w-4 h-4"></lucide-icon>
+                </button>
+                <button
+                  (click)="deleteRecipe(recipe); $event.stopPropagation()"
+                  class="bg-red-500/90 hover:bg-red-500 text-white p-2 rounded-lg shadow-lg transition-all duration-200 hover:scale-105"
+                  title="Eliminar receta"
+                >
+                  <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
             </div>
 
-            <div class="p-5">
+            <div class="p-5 relative z-0">
+              <!-- Título y rating -->
               <div class="flex justify-between items-start mb-2">
-                <h3 class="flex-1 text-lg">{{ recipe.title }}</h3>
-                <div class="flex items-center gap-1 text-xs">
+                <h3 class="text-lg group-hover:text-cambridge-blue transition-colors flex-1">
+                  {{ recipe.title }}
+                </h3>
+                <div class="flex items-center gap-1">
                   <lucide-icon [img]="StarIcon" class="w-4 h-4 text-yellow-500 fill-current"></lucide-icon>
-                  <span class="font-semibold">{{ recipe.avgRating.toFixed(1) }}</span>
+                  <span class="font-semibold text-base">{{ recipe.avgRating.toFixed(1) }}</span>
+                  <span class="text-slate-gray text-xs">({{ recipe.ratingCount }})</span>
                 </div>
               </div>
 
               <p class="text-slate-gray mb-3 line-clamp-2 text-sm">
-                {{ recipe.description || 'Sin descripción' }}
+                {{ recipe.description || 'Sin descripción disponible' }}
               </p>
 
-              <div class="flex justify-between items-center mb-3">
-                <span [class]="recipe.isPublic ? 'inline-flex items-center gap-1 bg-cambridge-blue text-white px-2 py-1 rounded-full text-xs font-medium' : 'inline-flex items-center gap-1 bg-slate-gray text-white px-2 py-1 rounded-full text-xs font-medium'">
-                  <lucide-icon [img]="recipe.isPublic ? GlobeIcon : LockIcon" class="w-3 h-3"></lucide-icon>
-                  {{ recipe.isPublic ? 'Pública' : 'Privada' }}
-                </span>
-                @if (recipe.mealTypeId) {
-                <span class="text-slate-gray text-xs">
-                  {{ getMealTypeName(recipe.mealTypeId) }}
-                </span>
-                }
-              </div>
-
-              @if (recipe.allergens && recipe.allergens.length > 0) {
-              <div class="mb-3 flex gap-1 flex-wrap">
-                @for (allergen of recipe.allergens.slice(0, 2); track allergen.id) {
-                <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded text-xs font-medium">
-                  <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
-                  {{ allergen.name }}
-                </span>
-                }
-                @if (recipe.allergens.length > 2) {
-                <span class="text-xs text-slate-gray">+{{ recipe.allergens.length - 2 }}</span>
-                }
-              </div>
+              <!-- Tipo de comida -->
+              @if (recipe.mealTypeId) {
+                <div class="mb-3">
+                  <span class="bg-cambridge-blue text-white px-2 py-1 rounded-full text-xs font-medium">
+                    {{ getMealTypeName(recipe.mealTypeId) }}
+                  </span>
+                </div>
               }
 
-              <div class="flex gap-2 pt-3 border-t border-gray-100">
-                <a
-                  [routerLink]="['/recipes', recipe.id]"
-                  class="flex-1 bg-cambridge-blue text-white text-center py-2 px-3 rounded-lg hover:bg-zomp transition-colors text-xs font-medium inline-flex items-center justify-center gap-1"
-                >
-                  <lucide-icon [img]="EyeIcon" class="w-3 h-3"></lucide-icon>
-                  Ver
-                </a>
-                <a
-                  [routerLink]="['/recipes/edit', recipe.id]"
-                  class="flex-1 bg-celadon text-dark-purple border border-dark-purple text-center py-2 px-3 rounded-lg hover:bg-cambridge-blue hover:bg-opacity-50 transition-colors text-xs font-medium inline-flex items-center justify-center gap-1"
-                >
-                  <lucide-icon [img]="EditIcon" class="w-3 h-3"></lucide-icon>
-                  Editar
-                </a>
-                <button 
-                  (click)="deleteRecipe(recipe)" 
-                  class="bg-white text-error border border-error hover:bg-error hover:text-white transition-colors py-2 px-3 rounded-lg text-xs font-medium inline-flex items-center gap-1"
-                >
-                  <lucide-icon [img]="TrashIcon" class="w-3 h-3"></lucide-icon>
-                </button>
-              </div>
+              <!-- Alérgenos -->
+              @if (recipe.allergens && recipe.allergens.length > 0) {
+                <div class="flex gap-1 flex-wrap pt-3 border-t border-gray-100">
+                  @for (allergen of recipe.allergens.slice(0, 3); track allergen.id) {
+                    <span class="inline-flex items-center gap-1 bg-red-50 text-error px-2 py-1 rounded-full text-xs font-medium">
+                      <lucide-icon [img]="AlertIcon" class="w-3 h-3"></lucide-icon>
+                      {{ allergen.name }}
+                    </span>
+                  }
+                  @if (recipe.allergens.length > 3) {
+                    <span class="text-slate-gray text-xs px-2 py-1">
+                      +{{ recipe.allergens.length - 3 }} más
+                    </span>
+                  }
+                </div>
+              }
             </div>
           </div>
           }
@@ -332,7 +357,6 @@ export class MyRecipesComponent implements OnInit {
 
   readonly PlusIcon = Plus;
   readonly SearchIcon = Search;
-  readonly EyeIcon = Eye;
   readonly EditIcon = Edit;
   readonly TrashIcon = Trash2;
   readonly StarIcon = Star;
@@ -344,7 +368,8 @@ export class MyRecipesComponent implements OnInit {
 
   constructor(
     private recipeService: RecipeService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -471,6 +496,10 @@ export class MyRecipesComponent implements OnInit {
       4: 'Aperitivo'
     };
     return types[id] || 'Otro';
+  }
+
+  editRecipe(recipeId: number): void {
+    this.router.navigate(['/recipes/edit', recipeId]);
   }
 
   deleteRecipe(recipe: Recipe): void {

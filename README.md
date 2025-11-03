@@ -32,7 +32,6 @@
 - [Variables de Entorno](#-variables-de-entorno)
 - [Scripts Disponibles](#-scripts-disponibles)
 - [API Backend](#-api-backend)
-- [Contribución](#-contribución)
 - [Licencia](#-licencia)
 
 ---
@@ -720,61 +719,6 @@ npx kill-port 4200
 ### Error: CORS al conectar con el backend
 
 Configura CORS en tu backend para permitir `http://localhost:4200`
-
----
-
-## 🤝 Contribución
-
-¡Las contribuciones son bienvenidas! Sigue estos pasos:
-
-### 1. Fork del Proyecto
-
-Haz clic en el botón "Fork" en la parte superior derecha del repositorio.
-
-### 2. Clonar tu Fork
-
-```bash
-git clone https://github.com/tu-usuario/mealmate-frontend.git
-cd mealmate-frontend
-```
-
-### 3. Crear una Rama
-
-```bash
-git checkout -b feature/nueva-funcionalidad
-```
-
-### 4. Hacer Cambios
-
-- Escribe código limpio y bien documentado
-- Sigue las convenciones de Angular
-- Añade tests si es posible
-
-### 5. Commit
-
-```bash
-git add .
-git commit -m "feat: añadir nueva funcionalidad"
-```
-
-Usa [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat:` Nueva funcionalidad
-- `fix:` Corrección de bugs
-- `docs:` Documentación
-- `style:` Formateo
-- `refactor:` Refactorización
-- `test:` Tests
-- `chore:` Mantenimiento
-
-### 6. Push
-
-```bash
-git push origin feature/nueva-funcionalidad
-```
-
-### 7. Pull Request
-
-Abre un Pull Request en GitHub con una descripción detallada de los cambios.
 
 ---
 

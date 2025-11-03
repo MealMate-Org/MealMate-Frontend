@@ -2,23 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos base personalizados */
 @layer base {
   body {
-    @apply font-sans bg-background;
+    @apply font-sans bg-background antialiased;
   }
   
   h1 {
-    @apply font-sans text-h1;
+    @apply font-sans text-h1 font-bold text-dark-purple;
   }
   h2 {
-    @apply font-sans text-h2;
+    @apply font-sans text-h2 font-bold text-dark-purple;
   }
   h3 {
-    @apply font-sans text-h3;
+    @apply font-sans text-h3 font-semibold text-dark-purple;
   }
   h4 {
-    @apply font-sans text-h4;
+    @apply font-sans text-h4 font-semibold text-dark-purple;
   }
   p {
     @apply font-sans text-body;
@@ -28,60 +27,135 @@
   }
 }
 
-/* Componentes personalizados */
 @layer components {
-  /* Botones */
   .btn-primary {
-    @apply bg-cambridge-blue text-white border-none hover:bg-dark-purple hover:bg-opacity-80 
-           transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
+    @apply bg-cambridge-blue text-white border-none hover:bg-zomp hover:shadow-lg
+           transition-all duration-200 text-base font-semibold rounded-lg px-6 py-3 cursor-pointer
+           inline-flex items-center justify-center;
   }
   
   .btn-secondary {
-    @apply bg-celadon text-dark-purple border border-dark-purple hover:bg-cambridge-blue hover:bg-opacity-50 
-           transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
+    @apply bg-celadon text-dark-purple border-2 border-dark-purple hover:bg-cambridge-blue hover:text-white hover:border-cambridge-blue
+           transition-all duration-200 text-base font-semibold rounded-lg px-6 py-3 cursor-pointer
+           inline-flex items-center justify-center;
   }
   
   .btn-accent {
-    @apply bg-zomp text-white border-none hover:bg-dark-purple hover:bg-opacity-80 
-           transition duration-200 text-body font-medium rounded px-6 py-2.5 cursor-pointer;
+    @apply bg-zomp text-white border-none hover:bg-cambridge-blue hover:shadow-lg
+           transition-all duration-200 text-base font-semibold rounded-lg px-6 py-3 cursor-pointer
+           inline-flex items-center justify-center;
   }
   
   .btn-disabled {
     @apply bg-slate-gray text-white border-none cursor-not-allowed 
-           text-body font-medium rounded px-6 py-2.5 opacity-60;
+           text-base font-semibold rounded-lg px-6 py-3 opacity-50
+           inline-flex items-center justify-center;
   }
   
-  /* Cards */
   .card {
-    @apply bg-white shadow-card rounded-card p-card-internal border border-celadon;
+    @apply bg-white shadow-lg rounded-2xl p-6 border border-gray-100
+           transition-shadow duration-200 hover:shadow-xl;
   }
   
-  /* Inputs */
   .input {
-    @apply border border-slate-gray rounded-input px-3 py-2 
-           focus:border-cambridge-blue focus:ring-1 focus:ring-cambridge-blue 
-           font-sans text-body outline-none transition duration-200;
+    @apply border-2 border-gray-300 rounded-lg px-4 py-3
+           focus:border-cambridge-blue focus:ring-2 focus:ring-cambridge-blue focus:ring-opacity-20
+           font-sans text-base outline-none transition-all duration-200
+           placeholder:text-gray-400;
   }
   
-  /* Alertas/Badges */
+  .input:hover {
+    @apply border-gray-400;
+  }
+  
   .badge {
-    @apply bg-zomp text-white rounded-badge px-2 py-1 text-small inline-block;
+    @apply bg-zomp text-white rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center;
   }
   
   .badge-success {
-    @apply bg-success text-white rounded-badge px-2 py-1 text-small inline-block;
+    @apply bg-success text-white rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center;
   }
   
   .badge-error {
-    @apply bg-error text-white rounded-badge px-2 py-1 text-small inline-block;
+    @apply bg-error text-white rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center;
   }
   
-  /* Iconos */
   .icon {
     @apply text-slate-gray w-5 h-5;
   }
   
   .icon-hover {
-    @apply hover:text-cambridge-blue transition duration-200 cursor-pointer;
+    @apply hover:text-cambridge-blue transition-colors duration-200 cursor-pointer;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4ECDC4;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #44A08D;
+}
+
+:focus-visible {
+  outline: 2px solid #4ECDC4;
+  outline-offset: 2px;
+}
+
+* {
+  @apply transition-colors duration-150;
+}
+
+button, a, input, textarea, select {
+  @apply transition-all duration-200;
+}
+@layer utilities {
+  @media (max-width: 475px) {
+    .xs\:inline {
+      display: inline !important;
+    }
   }
 }

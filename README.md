@@ -930,14 +930,12 @@ SOFTWARE.
 
 ## 👥 Autores
 
-- **Miguel Ballesteros** - *Desarrollo inicial* - [@miguelbac](https://github.com/miguelbac)
+- **Miguel Ballesteros** - [@miguelbac](https://github.com/miguelbac)
 
 ---
 
 <div align="center">
 
 **⭐ Si te gusta este proyecto, dale una estrella en GitHub ⭐**
-
-[⬆ Volver arriba](#-mealmate---tu-compañero-inteligente-de-planificación-de-comidas)
 
 </div>

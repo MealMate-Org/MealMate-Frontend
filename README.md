@@ -11,8 +11,6 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?style=for-the-badge&logo=reactivex&logoColor=white)](https://rxjs.dev/)
 
-[Demo](#) • [Documentación](#características-principales) • [Instalación](#-instalación-y-configuración) • [Contribuir](#-contribución)
-
 </div>
 
 ---

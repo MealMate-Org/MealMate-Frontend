@@ -1,0 +1,67 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
+  <div class="max-w-6xl mx-auto px-6 sm:px-8">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <h1 class="mb-2 text-4xl">Explora Recetas</h1>
+      <p class="text-slate-gray text-lg">
+        Descubre deliciosas recetas compartidas por la comunidad
+      </p>
+    </div>
+
+    <!-- Búsqueda y filtros -->
+    <app-recipe-filters
+      [allergens]="allergens"
+      [showVisibilityFilter]="false"
+      [searchPlaceholder]="'Buscar recetas por nombre o ingredientes...'"
+      (filtersChange)="onFiltersChange($event)"
+    />
+
+    <!-- Resultados -->
+    @if (isLoading) {
+      <div class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-3"></div>
+        <p class="text-slate-gray text-base">Cargando recetas...</p>
+      </div>
+    } 
+    
+    @if (!isLoading && filteredRecipes.length > 0) {
+      <div class="mb-5 text-slate-gray text-base">
+        Mostrando {{ filteredRecipes.length }} de {{ recipes.length }} recetas
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        @for (recipe of filteredRecipes; track recipe.id) {
+          <app-recipe-card
+            [recipe]="recipe"
+            [showAuthor]="true"
+            [authorName]="getAuthorName(recipe.authorId)"
+          />
+        }
+      </div>
+    } 
+    
+    @if (!isLoading && filteredRecipes.length === 0 && recipes.length === 0) {
+      <div class="text-center py-16 bg-white rounded-2xl shadow-lg">
+        <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+        <h3 class="text-xl font-bold mb-2">No hay recetas disponibles</h3>
+        <p class="text-slate-gray text-base mb-6">
+          Aún no hay recetas públicas compartidas por la comunidad
+        </p>
+      </div>
+    } 
+    
+    @if (!isLoading && filteredRecipes.length === 0 && recipes.length > 0) {
+      <div class="text-center py-16 bg-white rounded-2xl shadow-lg">
+        <lucide-icon [img]="SearchIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+        <h3 class="text-xl font-bold mb-2">No se encontraron recetas</h3>
+        <p class="text-slate-gray text-base mb-6">
+          Intenta con otros términos de búsqueda o filtros
+        </p>
+      </div>
+    }
+  </div>
+</div>
+
+<app-footer />

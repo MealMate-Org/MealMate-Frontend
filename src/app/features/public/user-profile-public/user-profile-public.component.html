@@ -1,0 +1,110 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
+  <div class="max-w-6xl mx-auto px-6 sm:px-8">
+    @if (isLoading) {
+      <div class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-3"></div>
+        <p class="text-slate-gray text-base">Cargando perfil...</p>
+      </div>
+    }
+
+    @if (!isLoading && user) {
+      <!-- Header del perfil -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <!-- Avatar -->
+          <div class="flex-shrink-0">
+            <img 
+              [src]="user.avatar || '' + user.username[0].toUpperCase()" 
+              [alt]="user.username"
+              class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-cambridge-blue"
+            >
+          </div>
+          
+          <!-- Información del usuario -->
+          <div class="flex-1 w-full text-center sm:text-left">
+            <div class="flex flex-col sm:flex-row justify-between items-center sm:items-start gap-4 mb-4">
+              <div class="flex-1">
+                <h1 class="mb-2 text-3xl">{{ user.username }}</h1>
+                <p class="text-slate-gray text-lg">{{ user.email }}</p>
+              </div>
+              
+              @if (isOwnProfile) {
+                <a routerLink="/profile" class="btn-primary px-6 py-3 whitespace-nowrap">
+                  Editar Perfil
+                </a>
+              }
+            </div>
+            
+            <!-- Bio -->
+            @if (user.bio) {
+              <p class="text-body mt-4 text-base">{{ user.bio }}</p>
+            }
+            
+            <!-- Estadísticas -->
+            <div class="flex flex-wrap justify-center sm:justify-start gap-6 mt-4 text-sm">
+              <div class="text-center sm:text-left">
+                <span class="font-bold text-dark-purple block text-lg">{{ userRecipes.length }}</span>
+                <span class="text-slate-gray">recetas</span>
+              </div>
+              <div class="text-center sm:text-left">
+                <span class="font-bold text-dark-purple block text-lg">{{ totalRatings }}</span>
+                <span class="text-slate-gray">valoraciones</span>
+              </div>
+              <div class="text-center sm:text-left">
+                <span class="font-bold text-dark-purple block text-lg">{{ avgRating.toFixed(1) }}</span>
+                <span class="text-slate-gray">⭐ promedio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recetas del usuario -->
+      <div class="mb-6">
+        <h2 class="mb-4 text-2xl">Recetas de {{ user.username }}</h2>
+        
+        @if (userRecipes.length > 0) {
+          <div class="grid md:grid-cols-3 gap-6">
+            @for (recipe of userRecipes; track recipe.id) {
+              <app-recipe-card
+                [recipe]="recipe"
+                [showVisibilityBadge]="isOwnProfile"
+              />
+            }
+          </div>
+        } @else {
+          <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+            <lucide-icon [img]="ChefHatIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+            <h3 class="mb-3 text-xl">
+              {{ isOwnProfile ? 'Aún no has creado recetas' : user.username + ' no ha publicado recetas' }}
+            </h3>
+            <p class="text-slate-gray mb-6 text-base">
+              {{ isOwnProfile ? 'Comienza compartiendo tus creaciones culinarias con la comunidad' : 'Este usuario aún no ha compartido recetas' }}
+            </p>
+            @if (isOwnProfile) {
+              <a routerLink="/recipes/new" class="btn-primary inline-flex items-center gap-2 text-sm">
+                Crear Mi Primera Receta
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (!isLoading && !user) {
+      <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+        <lucide-icon [img]="AlertIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+        <h2 class="mb-3 text-xl">Usuario no encontrado</h2>
+        <p class="text-slate-gray mb-6 text-base">
+          No pudimos encontrar este usuario.
+        </p>
+        <a routerLink="/" class="btn-primary text-base">
+          Volver al inicio
+        </a>
+      </div>
+    }
+  </div>
+</div>
+<app-footer />

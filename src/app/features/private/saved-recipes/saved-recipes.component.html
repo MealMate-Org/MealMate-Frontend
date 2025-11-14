@@ -1,0 +1,94 @@
+<app-navbar />
+<div class="min-h-screen bg-gradient-to-b from-background to-celadon py-8">
+  <div class="max-w-6xl mx-auto px-6 sm:px-8">
+    <div class="mb-8 text-center">
+      <h1 class="mb-2 text-4xl">Recetas Guardadas</h1>
+      <p class="text-slate-gray text-lg">Tus recetas favoritas en un solo lugar</p>
+    </div>
+
+    <!-- Filtros -->
+    <app-recipe-filters
+      [allergens]="allergens"
+      [showVisibilityFilter]="false"
+      [searchPlaceholder]="'Buscar en recetas guardadas...'"
+      (filtersChange)="onFiltersChange($event)"
+    />
+
+    @if (isLoading) {
+      <div class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-cambridge-blue mb-3"></div>
+        <p class="text-slate-gray text-base">Cargando recetas guardadas...</p>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="bg-red-50 border-2 border-error rounded-2xl p-4 mb-6">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="AlertIcon" class="w-5 h-5 text-error"></lucide-icon>
+          <p class="text-error font-semibold text-sm">{{ errorMessage }}</p>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading && filteredRecipes.length > 0) {
+      <div class="mb-5 text-slate-gray text-base">
+        Mostrando {{ filteredRecipes.length }} de {{ savedRecipes.length }} recetas guardadas
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        @for (recipe of filteredRecipes; track recipe.id) {
+          <app-recipe-card
+            [recipe]="recipe"
+            [showActionButtons]="true"
+            [showFavorite]="true"
+            [showAuthor]="true"
+            [authorName]="getAuthorName(recipe.authorId)"
+            (onRemoveFavorite)="removeFromFavorites($event)"
+          />
+        }
+      </div>
+    }
+
+    @if (!isLoading && savedRecipes.length === 0 && !errorMessage) {
+      <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+        <lucide-icon [img]="HeartIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+        <h3 class="mb-3 text-xl">Aún no tienes recetas guardadas</h3>
+        <p class="text-slate-gray mb-6 text-base">
+          Explora recetas y guarda tus favoritas haciendo clic en el corazón
+        </p>
+        <a routerLink="/recipes" class="btn-primary inline-flex items-center gap-2 text-sm">
+          <lucide-icon [img]="SearchIcon" class="w-4 h-4"></lucide-icon>
+          Explorar Recetas
+        </a>
+      </div>
+    }
+
+    @if (!isLoading && filteredRecipes.length === 0 && savedRecipes.length > 0) {
+      <div class="bg-white rounded-2xl shadow-lg text-center py-16 px-6">
+        <lucide-icon [img]="SearchIcon" class="w-20 h-20 text-slate-gray mx-auto mb-4 opacity-30"></lucide-icon>
+        <h3 class="mb-3 text-xl">No se encontraron recetas</h3>
+        <p class="text-slate-gray mb-6 text-base">Intenta con otros filtros o términos de búsqueda</p>
+      </div>
+    }
+  </div>
+</div>
+<app-footer />
+
+@if (recipeToRemove) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+      <h3 class="mb-3 text-xl">¿Quitar de favoritos?</h3>
+      <p class="text-slate-gray mb-6 text-base">
+        ¿Estás seguro de que quieres quitar "<strong>{{ recipeToRemove.title }}</strong>" de tus recetas guardadas?
+      </p>
+      <div class="flex gap-3">
+        <button (click)="recipeToRemove = null" class="flex-1 btn-secondary text-sm">
+          Cancelar
+        </button>
+        <button (click)="confirmRemove()" class="flex-1 bg-error hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm">
+          Quitar
+        </button>
+      </div>
+    </div>
+  </div>
+}

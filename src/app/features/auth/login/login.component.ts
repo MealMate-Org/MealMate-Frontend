@@ -23,15 +23,17 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
             </div>
           }
           
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" method="post" action="javascript:void(0)">
             <div class="mb-6">
               <label for="email" class="block text-sm font-semibold text-dark-purple mb-2">
                 Email
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 formControlName="email"
+                autocomplete="email"
                 class="input w-full"
                 placeholder="tu@email.com"
               >
@@ -53,8 +55,10 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 formControlName="password"
+                autocomplete="current-password"
                 class="input w-full"
                 placeholder="••••••••"
               >

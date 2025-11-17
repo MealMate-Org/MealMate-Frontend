@@ -38,6 +38,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 id="username"
                 type="text"
                 formControlName="username"
+                autocomplete="username"
                 class="input w-full"
                 placeholder="tu_usuario"
               >
@@ -54,6 +55,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 id="email"
                 type="email"
                 formControlName="email"
+                autocomplete="email"
                 class="input w-full"
                 placeholder="tu@email.com"
               >
@@ -77,6 +79,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 id="password"
                 type="password"
                 formControlName="password"
+                autocomplete="new-password"
                 class="input w-full"
                 placeholder="••••••••"
               >
@@ -100,6 +103,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
                 id="confirmPassword"
                 type="password"
                 formControlName="confirmPassword"
+                autocomplete="new-password"
                 class="input w-full"
                 placeholder="••••••••"
               >

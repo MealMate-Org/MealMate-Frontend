@@ -206,33 +206,43 @@
             </div>
           }
 
-          <!-- Valorar receta -->
-          @if (currentUser && !isOwner) {
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-              <h3 class="text-lg font-bold mb-4 text-dark-purple">Valorar receta</h3>
-              <div class="flex gap-2 justify-center mb-4">
-                @for (star of [1, 2, 3, 4, 5]; track star) {
-                  <button 
-                    (click)="rateRecipe(star)"
-                    class="transition-all hover:scale-110"
-                  >
-                    <lucide-icon 
-                      [img]="StarIcon" 
-                      [class.fill-current]="star <= (userRating || 0)"
-                      [class.text-yellow-500]="star <= (userRating || 0)"
-                      [class.text-gray-300]="star > (userRating || 0)"
-                      class="w-8 h-8"
-                    ></lucide-icon>
-                  </button>
-                }
-              </div>
-              @if (userRating) {
-                <p class="text-center text-sm text-slate-gray">
-                  Tu valoración: {{ userRating }} estrellas
-                </p>
-              }
-            </div>
-          }
+<!-- ⭐ ACTUALIZADO: Valorar receta con botón de eliminar -->
+@if (currentUser && !isOwner) {
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h3 class="text-lg font-bold mb-4 text-dark-purple">Valorar receta</h3>
+    <div class="flex gap-2 justify-center mb-4">
+      @for (star of [1, 2, 3, 4, 5]; track star) {
+        <button 
+          (click)="rateRecipe(star)"
+          class="transition-all hover:scale-110"
+          [title]="star === userRating ? 'Eliminar valoración' : 'Valorar con ' + star + ' estrellas'"
+        >
+          <lucide-icon 
+            [img]="StarIcon" 
+            [class.fill-current]="star <= (userRating || 0)"
+            [class.text-yellow-500]="star <= (userRating || 0)"
+            [class.text-gray-300]="star > (userRating || 0)"
+            class="w-8 h-8"
+          ></lucide-icon>
+        </button>
+      }
+    </div>
+    @if (userRating) {
+      <div class="space-y-2">
+        <p class="text-center text-sm text-slate-gray">
+          Tu valoración: {{ userRating }} estrellas
+        </p>
+        <button 
+          (click)="removeRating()"
+          class="w-full bg-slate-100 hover:bg-slate-200 text-slate-gray px-3 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center justify-center gap-2"
+        >
+          <lucide-icon [img]="XIcon" class="w-4 h-4"></lucide-icon>
+          Eliminar valoración
+        </button>
+      </div>
+    }
+  </div>
+}
         </div>
       </div>
     }

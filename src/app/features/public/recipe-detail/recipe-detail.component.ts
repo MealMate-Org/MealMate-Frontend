@@ -21,7 +21,8 @@ import {
   Calendar,
   ArrowLeft,
   Edit,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-angular';
 
 @Component({
@@ -58,6 +59,7 @@ export class RecipeDetailComponent implements OnInit {
   readonly ArrowLeftIcon = ArrowLeft;
   readonly EditIcon = Edit;
   readonly TrashIcon = Trash2;
+  readonly XIcon = X;
 
   constructor(
     private route: ActivatedRoute,
@@ -186,24 +188,59 @@ export class RecipeDetailComponent implements OnInit {
     }
   }
 
-  rateRecipe(score: number): void {
-    if (!this.currentUser || !this.recipe) return;
+// ⭐ ACTUALIZAR: Detecta cuando se clickea la misma estrella
+rateRecipe(score: number): void {
+  if (!this.currentUser || !this.recipe) return;
 
-    const rating = {
-      recipeId: this.recipe.id,
-      userId: this.currentUser.id,
-      score: score
-    };
-
-    this.ratingService.rateRecipe(rating).subscribe({
-      next: () => {
-        this.userRating = score;
-        // Recargar receta para actualizar el promedio
-        this.loadRecipe(this.recipe!.id);
-      },
-      error: (error) => console.error('Error valorando receta:', error)
-    });
+  // Si el usuario clickea la misma estrella, eliminar rating
+  if (this.userRating === score) {
+    this.removeRating();
+    return;
   }
+
+  const rating = {
+    recipeId: this.recipe.id,
+    userId: this.currentUser.id,
+    score: score
+  };
+
+  this.ratingService.rateRecipe(rating).subscribe({
+    next: () => {
+      this.userRating = score;
+      // Solo actualizar números, sin scroll
+      this.updateRecipeRatings();
+    },
+    error: (error) => console.error('Error valorando receta:', error)
+  });
+}
+
+// ⭐ NUEVO: Eliminar valoración
+removeRating(): void {
+  if (!this.currentUser || !this.recipe) return;
+
+  this.ratingService.deleteRating(this.recipe.id, this.currentUser.id).subscribe({
+    next: () => {
+      this.userRating = null;
+      this.updateRecipeRatings();
+    },
+    error: (error) => console.error('Error eliminando valoración:', error)
+  });
+}
+
+// ⭐ NUEVO: Actualizar solo ratings sin scroll
+updateRecipeRatings(): void {
+  if (!this.recipe) return;
+
+  this.recipeService.getRecipeById(this.recipe.id).subscribe({
+    next: (recipe) => {
+      if (this.recipe) {
+        this.recipe.avgRating = recipe.avgRating;
+        this.recipe.ratingCount = recipe.ratingCount;
+      }
+    },
+    error: (error) => console.error('Error actualizando ratings:', error)
+  });
+}
 
   deleteRecipe(): void {
     this.showDeleteModal = true;

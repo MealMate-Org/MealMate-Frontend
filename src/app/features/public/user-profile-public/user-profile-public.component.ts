@@ -61,7 +61,8 @@ export class UserProfilePublicComponent implements OnInit {
         
         if (this.user) {
           const currentUser = this.authService.getCurrentUser();
-          this.isOwnProfile = currentUser?.id === this.user.id;
+          // Determinar si es el perfil propio solo si hay usuario logueado
+          this.isOwnProfile = currentUser ? currentUser.id === this.user.id : false;
           
           this.loadUserRecipes(this.user.id);
         } else {
